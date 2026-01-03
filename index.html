@@ -3,523 +3,370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH ULTIMATE</title>
+    <title>SENA PHOTOBOOTH: PAPER EDITION</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@300;500;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
     <style>
-        /* Import Font: Montserrat (หรูหรา) & Prompt (ไทยทันสมัย) */
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&family=Prompt:wght@300;400;600&display=swap');
-
         :root {
-            --bg: #FDFCF8;
-            --primary: #8FB8ED; /* ปรับสีฟ้าให้ดูพรีเมียมขึ้น */
-            --secondary: #FFD1DC;
-            --dark: #2D3748;
-            --glass: rgba(255, 255, 255, 0.9);
-            --shadow-soft: 0 20px 50px rgba(0,0,0,0.08);
-            --shadow-bold: 0 15px 35px rgba(143, 184, 237, 0.4);
+            /* ดึงสีมาจากตู้จริงในรูป */
+            --paper: #F3E9D2;      /* สีครีมกระดาษลัง */
+            --ink: #2C3E50;        /* สีหมึกปากกา */
+            --accent: #2980B9;     /* สีน้ำเงินตรงหัวตู้ */
+            --highlight: #E74C3C;  /* สีแดงนิดๆ */
+            --radius: 20px;
         }
 
-        /* --- GLOBAL SETUP --- */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
         body, html {
-            margin: 0; padding: 0; width: 100vw; height: 100vh;
-            background-color: var(--bg); color: var(--dark);
-            font-family: 'Prompt', sans-serif; overflow: hidden;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--paper);
+            color: var(--ink);
+            font-family: 'Mali', cursive; /* ฟอนต์ลายมือ */
+            overflow: hidden;
+            background-image: radial-gradient(#dcd0b8 2px, transparent 2px);
+            background-size: 30px 30px; /* ลายจุดจางๆ เหมือนสมุด */
         }
 
-        /* --- BACKGROUND EFFECTS --- */
-        .blobs { position: fixed; inset: 0; z-index: -1; filter: blur(90px); opacity: 0.6; }
-        .blob { position: absolute; border-radius: 50%; animation: float 15s infinite alternate ease-in-out; }
-        .b1 { width: 500px; height: 500px; background: var(--primary); top: -150px; left: -150px; }
-        .b2 { width: 450px; height: 450px; background: var(--secondary); bottom: -150px; right: -150px; }
-        @keyframes float { from { transform: translate(0,0); } to { transform: translate(80px, 80px); } }
-
-        /* --- SCREEN MANAGER --- */
+        /* --- UI COMPONENTS --- */
         .screen {
-            position: fixed; inset: 0; display: none;
-            flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; transition: opacity 0.4s ease;
-            backdrop-filter: blur(5px);
+            position: fixed; inset: 0; 
+            display: none; flex-direction: column; 
+            align-items: center; justify-content: center;
+            transition: opacity 0.4s;
         }
         .screen.active { display: flex; z-index: 10; }
 
-        /* --- 1. INTRO SCREEN --- */
-        #screen-intro { background: rgba(255,255,255,0.8); }
-        .brand-logo { font-family: 'Montserrat'; font-weight: 700; font-size: 72px; letter-spacing: 15px; color: var(--dark); margin-bottom: 5px; }
-        .brand-sub { font-size: 20px; letter-spacing: 8px; opacity: 0.6; margin-bottom: 60px; font-weight: 300; }
-        
-        .start-btn {
-            width: 240px; height: 240px; border-radius: 50%;
-            background: white; border: 2px solid #f0f0f0;
-            box-shadow: var(--shadow-soft);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; overflow: hidden;
+        .btn {
+            background: var(--ink); color: white;
+            border: 3px solid var(--ink);
+            padding: 15px 40px;
+            font-family: 'Mali', cursive; font-size: 20px; font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer; box-shadow: 5px 5px 0px rgba(0,0,0,0.1);
+            transition: transform 0.1s, box-shadow 0.1s;
         }
-        .start-btn::before {
-            content: ''; position: absolute; inset: 0; 
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            opacity: 0; transition: 0.4s; z-index: 0;
-        }
-        .start-btn:hover { transform: scale(1.05); box-shadow: var(--shadow-bold); border-color: transparent; }
-        .start-btn:hover::before { opacity: 0.1; }
-        .start-btn span { font-size: 28px; font-weight: 700; color: var(--primary); letter-spacing: 2px; z-index: 1; }
-        .start-btn small { font-size: 12px; opacity: 0.5; margin-top: 5px; letter-spacing: 2px; z-index: 1; }
+        .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
+        .btn-outline { background: transparent; color: var(--ink); }
 
-        /* --- 2. CAMERA SCREEN --- */
-        .camera-container {
-            display: flex; gap: 30px; align-items: center; justify-content: center;
-            width: 100%; max-width: 1200px;
+        /* --- 1. INTRO --- */
+        .doodle-box {
+            border: 4px solid var(--ink);
+            padding: 40px; border-radius: var(--radius);
+            background: white;
+            box-shadow: 10px 10px 0px var(--accent);
+            text-align: center; max-width: 90%;
+            transform: rotate(-2deg); /* เอียงนิดๆ ให้ดูขี้เล่น */
         }
+        h1 { font-size: 60px; margin: 0; color: var(--accent); text-transform: uppercase; letter-spacing: 5px; }
+        p { font-size: 24px; margin-top: 10px; opacity: 0.7; }
 
-        /* Sidebar Preview */
-        .preview-rail {
-            width: 110px; display: flex; flex-direction: column; gap: 15px;
-        }
-        .preview-slot {
-            width: 100px; height: 100px; background: rgba(255,255,255,0.5);
-            border: 3px solid white; border-radius: 18px; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transform: translateX(-20px); opacity: 0; transition: 0.5s;
-        }
-        .preview-slot.filled { transform: translateX(0); opacity: 1; }
-        .preview-slot img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Main Viewport */
-        .viewport {
-            position: relative; width: 640px; height: 853px; /* 3:4 Aspect Ratio */
-            background: #000; border-radius: 35px; border: 12px solid white;
-            box-shadow: var(--shadow-bold); overflow: hidden;
-        }
-        #video-feed { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        
-        #countdown-overlay {
-            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            font-size: 250px; font-weight: 700; color: white;
-            text-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            pointer-events: none; opacity: 0; transition: 0.2s; z-index: 50;
-            font-family: 'Montserrat';
-        }
-
-        /* Controls */
-        .controls-area {
-            width: 200px; display: flex; flex-direction: column; align-items: center; gap: 25px;
-        }
-        .filter-wrapper { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-        .filter-btn {
-            padding: 12px; background: white; border: 1px solid #eee; border-radius: 15px;
-            font-family: 'Montserrat'; font-weight: 600; font-size: 13px; letter-spacing: 1px;
-            cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-            color: #888;
-        }
-        .filter-btn.active { 
-            background: var(--primary); color: white; border-color: var(--primary);
-            transform: scale(1.05); box-shadow: 0 8px 20px rgba(163, 201, 255, 0.4);
-        }
-
-        .shoot-btn {
-            width: 100px; height: 100px; border-radius: 50%; border: none;
-            background: var(--dark); color: white; margin-top: 20px;
-            font-family: 'Montserrat'; font-weight: 700; font-size: 16px;
-            box-shadow: 0 10px 30px rgba(45, 55, 72, 0.3);
-            cursor: pointer; transition: 0.2s;
-        }
-        .shoot-btn:active { transform: scale(0.95); }
-
-        /* --- 3. FRAME SCREEN --- */
-        .frame-selector { display: flex; gap: 25px; margin-top: 40px; }
-        .frame-item {
-            width: 100px; height: 140px; border-radius: 12px; border: 4px solid white;
-            box-shadow: var(--shadow-soft); cursor: pointer; transition: 0.3s;
+        /* --- 2. CAMERA --- */
+        .cam-wrapper {
             position: relative;
+            width: 100%; max-width: 600px;
+            padding: 20px;
         }
-        .frame-item:hover { transform: translateY(-5px); }
-        .frame-item.selected { border-color: var(--primary); transform: scale(1.1); box-shadow: var(--shadow-bold); }
+        .viewfinder {
+            width: 100%; aspect-ratio: 3/4;
+            background: #000;
+            border: 8px solid white;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden; position: relative;
+        }
+        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+
+        .controls {
+            margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 15px;
+        }
+        .filters {
+            display: flex; gap: 10px; overflow-x: auto; padding: 10px; width: 100%; justify-content: center;
+        }
+        .f-dot {
+            width: 50px; height: 50px; border-radius: 50%; border: 3px solid var(--paper);
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; background: white;
+        }
+        .f-dot.active { transform: scale(1.2); border-color: var(--ink); }
+
+        #countdown {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 150px; color: white; font-weight: bold; 
+            text-shadow: 4px 4px 0 var(--ink); display: none;
+        }
+
+        /* --- 3. FRAME SELECT --- */
+        .frame-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+            margin: 30px 0;
+        }
+        .frame-opt {
+            width: 120px; height: 160px; background: white;
+            border: 4px solid #ddd; border-radius: 10px; cursor: pointer;
+            position: relative; transition: 0.2s;
+        }
+        .frame-opt.selected { border-color: var(--accent); transform: translateY(-10px); box-shadow: 0 10px 20px rgba(41, 128, 185, 0.2); }
+        .frame-opt::after { content:''; position: absolute; inset: 15px; background: #eee; }
+
+        /* --- 4. RESULT --- */
+        .result-card {
+            background: white; padding: 20px; border-radius: var(--radius);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 350px; width: 100%;
+        }
+        #final-preview { width: 100%; border-radius: 5px; border: 2px solid #eee; margin-bottom: 20px; }
         
-        /* --- 4. FINAL SCREEN --- */
-        .final-wrapper { display: flex; gap: 60px; align-items: center; justify-content: center; height: 100%; }
-        
-        /* The Strip Preview */
-        .strip-preview {
-            width: 300px; background: white; 
-            padding: 15px 15px 80px 15px; /* Bottom padding for text */
-            box-shadow: 0 30px 70px rgba(0,0,0,0.15);
-            display: flex; flex-direction: column; gap: 10px;
-            position: relative;
-            transform-origin: center; animation: popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        #qr-area {
+            min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #f9f9f9; border-radius: 10px; padding: 15px; margin-bottom: 15px;
         }
-        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .status-text { font-size: 14px; margin-top: 10px; color: #888; }
 
-        .strip-photo { width: 100%; aspect-ratio: 3/2; object-fit: cover; background: #eee; }
-        
-        .strip-brand {
-            position: absolute; bottom: 25px; left: 0; width: 100%;
-            text-align: center; font-family: 'Montserrat'; font-weight: 700;
-            font-size: 22px; letter-spacing: 6px; color: var(--dark);
-            text-transform: uppercase;
-        }
-
-        /* Download/QR Panel */
-        .action-panel {
-            background: white; padding: 40px; border-radius: 40px;
-            box-shadow: var(--shadow-soft); display: flex; flex-direction: column; align-items: center; gap: 20px;
-            max-width: 350px; text-align: center;
-        }
-        #qr-code {
-            width: 200px; height: 200px; display: flex; align-items: center; justify-content: center;
-            background: #f8f9fa; border-radius: 20px; border: 2px dashed #ddd;
-        }
-        .save-btn {
-            background: var(--dark); color: white; border: none;
-            padding: 18px 40px; border-radius: 15px; font-size: 18px; font-weight: 600;
-            cursor: pointer; display: flex; gap: 10px; align-items: center;
-            transition: 0.2s; box-shadow: 0 10px 20px rgba(45, 55, 72, 0.2);
-        }
-        .save-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(45, 55, 72, 0.3); }
-
-        /* Utility */
-        #flash { position: fixed; inset: 0; background: white; z-index: 999; opacity: 0; pointer-events: none; }
-        .loader { width: 40px; height: 40px; border: 4px solid #eee; border-top-color: var(--dark); border-radius: 50%; animation: spin 1s infinite linear; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
+        /* Animation Utils */
+        .flash { position: fixed; inset: 0; background: white; z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
     </style>
 </head>
 <body>
 
-    <audio id="sfx-beep" src="https://www.soundjay.com/buttons/beep-07.mp3"></audio>
-    <audio id="sfx-shutter" src="https://www.soundjay.com/communication/shutter-click-06.mp3"></audio>
-
-    <div class="blobs"><div class="blob b1"></div><div class="blob b2"></div></div>
-    <div id="flash"></div>
+    <div class="flash" id="flash-effect"></div>
 
     <div id="screen-intro" class="screen active">
-        <div class="brand-logo animate__animated animate__fadeInDown">SENA</div>
-        <div class="brand-sub animate__animated animate__fadeInUp">PHOTO STUDIO</div>
-        <div class="start-btn" onclick="app.start()">
-            <span>START</span>
-            <small>TOUCH HERE</small>
+        <div class="doodle-box animate__animated animate__bounceIn">
+            <h1>SENA</h1>
+            <div style="font-size:30px; letter-spacing:2px; font-weight:700;">PHOTOBOOTH</div>
+            <div style="margin:20px 0; font-size:40px;">📸 ✨ 🖼️</div>
+            <p>แตะเพื่อเริ่มถ่ายรูป</p>
+            <button class="btn" onclick="app.start()">START</button>
         </div>
+        <div style="position:absolute; bottom:20px; font-size:12px; opacity:0.5;">@SAPHASENA68</div>
     </div>
 
     <div id="screen-camera" class="screen">
-        <div class="camera-container">
-            <div class="preview-rail">
-                <div class="preview-slot" id="p-0"></div>
-                <div class="preview-slot" id="p-1"></div>
-                <div class="preview-slot" id="p-2"></div>
-                <div class="preview-slot" id="p-3"></div>
+        <div class="cam-wrapper">
+            <div class="viewfinder">
+                <video id="video" autoplay playsinline muted></video>
+                <div id="countdown">3</div>
             </div>
-
-            <div class="viewport">
-                <video id="video-feed" autoplay playsinline muted></video>
-                <div id="countdown-overlay">3</div>
-            </div>
-
-            <div class="controls-area">
-                <div class="filter-wrapper">
-                    <button class="filter-btn active" onclick="app.setFilter('none', this)">ORIGINAL</button>
-                    <button class="filter-btn" onclick="app.setFilter('grayscale(100%) contrast(110%)', this)">K-BW</button>
-                    <button class="filter-btn" onclick="app.setFilter('sepia(40%) contrast(95%) brightness(110%)', this)">VINTAGE</button>
-                    <button class="filter-btn" onclick="app.setFilter('brightness(115%) saturate(110%) contrast(95%)', this)">BRIGHT</button>
-                    <button class="filter-btn" onclick="app.setFilter('contrast(120%) saturate(130%)', this)">VIVID</button>
+            
+            <div class="controls">
+                <div style="font-weight:bold;">เลือกโทนสี (Filter)</div>
+                <div class="filters">
+                    <div class="f-dot active" onclick="app.setFilter('none', this)" style="background:#ddd;">Normal</div>
+                    <div class="f-dot" onclick="app.setFilter('grayscale(100%) contrast(1.2)', this)" style="background:#555; color:white;">B&W</div>
+                    <div class="f-dot" onclick="app.setFilter('sepia(0.5) contrast(1.1) brightness(1.1)', this)" style="background:#d4b08c;">Warm</div>
+                    <div class="f-dot" onclick="app.setFilter('brightness(1.1) saturate(1.2) contrast(1.1)', this)" style="background:#ffb7b2;">Pop</div>
                 </div>
-                <button class="shoot-btn" onclick="app.sequence()">SHOOT</button>
+                <button class="btn" style="width:80px; height:80px; border-radius:50%; margin-top:10px; font-size:30px;" onclick="app.snap()">📷</button>
             </div>
         </div>
     </div>
 
     <div id="screen-frame" class="screen">
-        <h2 style="font-family:'Montserrat'; font-weight:700; font-size:36px;">SELECT FRAME</h2>
-        <div class="frame-selector">
-            <div class="frame-item selected" style="background:#FFFFFF" onclick="app.setFrame('#FFFFFF', this)"></div>
-            <div class="frame-item" style="background:#1a1a1a" onclick="app.setFrame('#1a1a1a', this)"></div>
-            <div class="frame-item" style="background:#FFD1DC" onclick="app.setFrame('#FFD1DC', this)"></div>
-            <div class="frame-item" style="background:#A3C9FF" onclick="app.setFrame('#A3C9FF', this)"></div>
-            <div class="frame-item" style="background:linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%)" onclick="app.setFrame('gradient', this)"></div>
+        <h2>เลือกสีกรอบรูป</h2>
+        <div class="frame-grid">
+            <div class="frame-opt selected" onclick="app.setFrame('#ffffff', this)" style="background:#ffffff;"></div>
+            <div class="frame-opt" onclick="app.setFrame('#2980B9', this)" style="background:#2980B9;"></div> <div class="frame-opt" onclick="app.setFrame('#F3E9D2', this)" style="background:#F3E9D2;"></div> <div class="frame-opt" onclick="app.setFrame('#2C3E50', this)" style="background:#2C3E50;"></div>
         </div>
-        <button class="save-btn" style="margin-top:50px; width:200px; justify-content:center;" onclick="app.finish()">NEXT</button>
+        <button class="btn" onclick="app.process()">พิมพ์รูปภาพ</button>
     </div>
 
-    <div id="screen-final" class="screen">
-        <div class="final-wrapper">
-            <div class="strip-preview" id="preview-strip-dom">
-                <div id="preview-imgs" style="display:flex; flex-direction:column; gap:10px;"></div>
-                <div class="strip-brand" id="preview-brand">SENA PHOTO</div>
+    <div id="screen-result" class="screen">
+        <div class="result-card animate__animated animate__fadeInUp">
+            <img id="final-preview" src="">
+            
+            <div id="qr-area">
+                <div id="qr-code"></div>
+                <div id="qr-status" class="status-text">กำลังอัปโหลด...</div>
             </div>
 
-            <div class="action-panel">
-                <div id="qr-code"><div class="loader"></div></div>
-                <div style="line-height:1.5;">
-                    <strong style="font-size:18px;">SCAN ME</strong><br>
-                    <span style="font-size:14px; opacity:0.6;">To Save Photo</span>
-                </div>
-                <button class="save-btn" onclick="app.download()">
-                    <span>💾 SAVE IMAGE</span>
-                </button>
-                <div onclick="location.reload()" style="margin-top:10px; cursor:pointer; text-decoration:underline; opacity:0.5; font-size:14px;">START NEW SESSION</div>
-            </div>
+            <button id="dl-btn" class="btn" style="display:none; width:100%; background:#27ae60; border-color:#27ae60;" onclick="app.download()">
+                บันทึกรูปภาพ
+            </button>
+            
+            <div style="margin-top:15px; cursor:pointer; text-decoration:underline;" onclick="location.reload()">ถ่ายใหม่</div>
         </div>
     </div>
+
+    <audio id="snd-click" src="https://www.soundjay.com/communication/shutter-click-06.mp3"></audio>
 
     <script>
-        // --- THE APP BRAIN (No cutting corners) ---
         const app = {
-            state: {
-                filter: 'none',
-                frameColor: '#FFFFFF',
-                photos: [],
-                isShooting: false
-            },
-            els: {
-                video: document.getElementById('video-feed'),
-                flash: document.getElementById('flash'),
-                count: document.getElementById('countdown-overlay'),
-                sfxBeep: document.getElementById('sfx-beep'),
-                sfxClick: document.getElementById('sfx-shutter')
-            },
-
-            // 1. Initialize
+            photos: [],
+            filter: 'none',
+            frameColor: '#ffffff',
+            isShooting: false,
+            
             start: async function() {
-                this.nav('camera');
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" }
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { width: 1280, height: 720, facingMode: "user" } 
                     });
-                    this.els.video.srcObject = stream;
-                } catch (e) {
-                    alert("Camera access denied or error: " + e.message);
-                }
+                    document.getElementById('video').srcObject = stream;
+                    this.nav('camera');
+                } catch(e) { alert("เปิดกล้องไม่ได้จ้า: " + e); }
             },
 
-            nav: function(id) {
+            nav: (id) => {
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 document.getElementById('screen-' + id).classList.add('active');
             },
 
-            setFilter: function(val, btn) {
-                this.state.filter = val;
-                this.els.video.style.filter = val;
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                if(btn) btn.classList.add('active');
+            setFilter: function(val, el) {
+                this.filter = val;
+                document.getElementById('video').style.filter = val;
+                document.querySelectorAll('.f-dot').forEach(d => d.classList.remove('active'));
+                el.classList.add('active');
             },
 
-            // 2. Shooting Logic
-            sequence: async function() {
-                if(this.state.isShooting) return;
-                this.state.isShooting = true;
-                this.state.photos = [];
-                
-                // Clear slots
-                document.querySelectorAll('.preview-slot').forEach(s => {
-                    s.innerHTML = ''; s.classList.remove('filled');
-                });
+            setFrame: function(color, el) {
+                this.frameColor = color;
+                document.querySelectorAll('.frame-opt').forEach(d => d.classList.remove('selected'));
+                el.classList.add('selected');
+            },
 
-                for(let i=0; i<4; i++) {
+            snap: async function() {
+                if(this.isShooting) return;
+                this.isShooting = true;
+                this.photos = [];
+
+                for(let i=1; i<=3; i++) { // ถ่าย 3 ช็อต
                     await this.countdown(3);
-                    this.capture(i);
-                    await new Promise(r => setTimeout(r, 1000)); // Rest between shots
+                    this.capture();
+                    await new Promise(r => setTimeout(r, 1000));
                 }
-
-                this.state.isShooting = false;
-                setTimeout(() => this.nav('frame'), 500);
+                this.isShooting = false;
+                this.nav('frame');
             },
 
             countdown: function(sec) {
                 return new Promise(resolve => {
+                    const el = document.getElementById('countdown');
+                    el.style.display = 'block';
+                    el.innerText = sec;
                     let c = sec;
-                    this.els.count.style.opacity = '1';
-                    this.els.count.innerText = c;
-                    
                     const t = setInterval(() => {
-                        this.els.sfxBeep.currentTime = 0;
-                        this.els.sfxBeep.play();
                         c--;
-                        if(c > 0) {
-                            this.els.count.innerText = c;
-                        } else {
+                        if(c > 0) el.innerText = c;
+                        else {
                             clearInterval(t);
-                            this.els.count.style.opacity = '0';
+                            el.style.display = 'none';
                             resolve();
                         }
                     }, 1000);
                 });
             },
 
-            capture: function(idx) {
+            capture: function() {
+                const vid = document.getElementById('video');
+                const cvs = document.createElement('canvas');
+                cvs.width = vid.videoWidth; cvs.height = vid.videoHeight;
+                const ctx = cvs.getContext('2d');
+                
                 // Flash Effect
-                this.els.sfxClick.play();
-                this.els.flash.style.opacity = 1;
-                setTimeout(() => this.els.flash.style.opacity = 0, 100);
+                const flash = document.getElementById('flash-effect');
+                flash.style.opacity = 1;
+                document.getElementById('snd-click').play();
+                setTimeout(() => flash.style.opacity = 0, 150);
 
-                // Create Canvas for Capture
+                // Flip & Draw
+                ctx.translate(cvs.width, 0); ctx.scale(-1, 1);
+                
+                // --- จุดสำคัญ: ฝังฟิลเตอร์ลงไปในรูปเลย ---
+                if(this.filter !== 'none') ctx.filter = this.filter;
+                ctx.drawImage(vid, 0, 0);
+                
+                this.photos.push(cvs.toDataURL('image/jpeg', 0.9));
+            },
+
+            process: async function() {
                 const cvs = document.createElement('canvas');
-                cvs.width = this.els.video.videoWidth;
-                cvs.height = this.els.video.videoHeight;
+                cvs.width = 600; cvs.height = 1800; // Strip ยาว
                 const ctx = cvs.getContext('2d');
 
-                // Mirror & Draw
-                ctx.translate(cvs.width, 0);
-                ctx.scale(-1, 1);
-                
-                // --- CRITICAL: BAKE FILTER INTO PIXELS ---
-                if(this.state.filter !== 'none') {
-                    ctx.filter = this.state.filter;
-                }
-                ctx.drawImage(this.els.video, 0, 0);
-                
-                // Reset filter just in case context is reused (though it's new here)
-                ctx.filter = 'none';
-
-                const dataUrl = cvs.toDataURL('image/jpeg', 0.95);
-                this.state.photos.push(dataUrl);
-
-                // Update Side Rail
-                const slot = document.getElementById('p-' + idx);
-                slot.innerHTML = `<img src="${dataUrl}">`;
-                slot.classList.add('filled');
-            },
-
-            // 3. Frame & Finish
-            setFrame: function(color, btn) {
-                this.state.frameColor = color;
-                document.querySelectorAll('.frame-item').forEach(b => b.classList.remove('selected'));
-                if(btn) btn.classList.add('selected');
-            },
-
-            finish: async function() {
-                this.nav('final');
-                
-                // Update CSS Preview
-                const strip = document.getElementById('preview-strip-dom');
-                const brand = document.getElementById('preview-brand');
-                
-                if(this.state.frameColor === 'gradient') {
-                    strip.style.background = 'linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%)';
-                    brand.style.color = '#fff';
-                } else {
-                    strip.style.background = this.state.frameColor;
-                    brand.style.color = (this.state.frameColor === '#1a1a1a') ? 'white' : '#2D3748';
-                }
-
-                // Inject Images to Preview
-                const container = document.getElementById('preview-imgs');
-                container.innerHTML = '';
-                this.state.photos.forEach(src => {
-                    const img = document.createElement('img');
-                    img.src = src;
-                    img.className = 'strip-photo';
-                    container.appendChild(img);
-                });
-
-                // Generate High-Res for Upload
-                const blob = await this.renderHighRes();
-                this.upload(blob);
-            },
-
-            // 4. Rendering the Masterpiece
-            renderHighRes: async function() {
-                const cvs = document.createElement('canvas');
-                // Standard Photobooth Strip Ratio: 2x6 inches approx
-                // We use 1200px width for high quality
-                cvs.width = 1200; 
-                cvs.height = 3600; // Taller to accommodate 4 photos + spacing + Large Text
-                const ctx = cvs.getContext('2d');
-
-                // 4.1 Background
-                if(this.state.frameColor === 'gradient') {
-                    const grad = ctx.createLinearGradient(0,0,1200,3600);
-                    grad.addColorStop(0, '#ff9a9e');
-                    grad.addColorStop(1, '#fad0c4');
-                    ctx.fillStyle = grad;
-                } else {
-                    ctx.fillStyle = this.state.frameColor;
-                }
+                // 1. เทสีพื้นหลัง (Frame Color)
+                ctx.fillStyle = this.frameColor;
                 ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-                // 4.2 Draw Photos
-                const photoW = 1000; // 100px padding each side
-                const photoH = 666;  // 3:2 Aspect ratio
-                const startY = 150;
-                const gap = 80;
+                // 2. วางรูป
+                const padding = 40;
+                const imgW = 600 - (padding*2);
+                const imgH = imgW * 0.75; // 4:3 ratio
+                let y = padding + 50; // เว้นหัวบนนิดหน่อย
 
-                for(let i=0; i<this.state.photos.length; i++) {
-                    const img = await this.loadImage(this.state.photos[i]);
-                    // Calculate Y position
-                    const y = startY + (i * (photoH + gap));
+                for(let src of this.photos) {
+                    const img = await new Promise(r => { const i=new Image(); i.onload=()=>r(i); i.src=src; });
                     
-                    // Draw White Border around photo slightly? No, clean look.
-                    ctx.drawImage(img, 100, y, photoW, photoH);
+                    // สร้างกรอบขาวรอบรูปนิดนึงให้เหมือน Polaroid
+                    ctx.fillStyle = "white";
+                    ctx.fillRect(padding - 10, y - 10, imgW + 20, imgH + 20);
+                    
+                    ctx.drawImage(img, padding, y, imgW, imgH);
+                    y += imgH + 60;
                 }
 
-                // 4.3 Draw Text SENA PHOTO
-                ctx.fillStyle = (this.state.frameColor === '#1a1a1a') ? '#FFFFFF' : '#2D3748';
-                ctx.font = "bold 90px Montserrat"; // Larger font
+                // 3. ใส่โลโก้ด้านล่าง
+                ctx.fillStyle = (this.frameColor === '#2C3E50' || this.frameColor === '#2980B9') ? 'white' : '#2C3E50';
+                ctx.font = "bold 50px 'Courier New'";
                 ctx.textAlign = "center";
-                ctx.letterSpacing = "20px";
+                ctx.fillText("SENA PHOTO", 300, 1720);
                 
-                // Position at the bottom area
-                const textY = 3600 - 150; 
-                ctx.fillText("SENA PHOTO", 600, textY);
-
-                return new Promise(resolve => cvs.toBlob(resolve, 'image/jpeg', 0.95));
+                // Final Blob
+                const finalData = cvs.toDataURL('image/jpeg', 0.95);
+                document.getElementById('final-preview').src = finalData;
+                
+                this.nav('result');
+                this.upload(finalData);
             },
 
-            loadImage: function(src) {
-                return new Promise(r => {
-                    const i = new Image();
-                    i.onload = () => r(i);
-                    i.src = src;
-                });
-            },
-
-            // 5. Upload & QR
-            upload: async function(blob) {
-                const formData = new FormData();
-                formData.append('image', blob);
+            upload: async function(base64) {
+                const status = document.getElementById('qr-status');
+                const dlBtn = document.getElementById('dl-btn');
+                const qrBox = document.getElementById('qr-code');
                 
-                // ImgBB API Key (Stable)
-                const KEY = '676d911b6678b8723c3b0f55e3780a47';
+                qrBox.innerHTML = '';
+                status.innerText = "กำลังสร้าง QR Code...";
+                dlBtn.style.display = 'none';
 
                 try {
-                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${KEY}`, {
-                        method: 'POST',
-                        body: formData
-                    });
+                    // ใช้ Free Key ของ ImgBB (ถ้าคีย์นี้เต็ม ให้สมัครใหม่ที่ api.imgbb.com แล้วเอามาเปลี่ยนตรง key=...)
+                    const apiKey = '676d911b6678b8723c3b0f55e3780a47'; 
+                    const formData = new FormData();
+                    formData.append('image', base64.split(',')[1]);
+
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, { method:'POST', body:formData });
                     const data = await res.json();
-                    
+
                     if(data.success) {
-                        this.genQR(data.data.url);
+                        new QRCode(qrBox, {
+                            text: data.data.url,
+                            width: 150, height: 150,
+                            colorDark: "#2C3E50",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.L
+                        });
+                        status.innerText = "สแกนเพื่อรับรูปจ้า";
                     } else {
-                        throw new Error('Upload API Error');
+                        throw new Error('Upload Failed');
                     }
-                } catch (e) {
-                    document.getElementById('qr-code').innerHTML = '<span style="color:red">Error</span>';
+                } catch(e) {
+                    // Fallback เมื่อ QR พัง
+                    console.error(e);
+                    qrBox.innerHTML = '<span style="font-size:30px;">⚠️</span>';
+                    status.innerHTML = "เน็ตมีปัญหา หรือเซิฟเวอร์เต็ม<br>กดปุ่มด้านล่างเพื่อเซฟรูปแทนนะ";
+                    dlBtn.style.display = 'block'; // โชว์ปุ่มดาวน์โหลดแทน
                 }
             },
 
-            genQR: function(url) {
-                const div = document.getElementById('qr-code');
-                div.innerHTML = '';
-                new QRCode(div, {
-                    text: url,
-                    width: 180,
-                    height: 180,
-                    colorDark : "#2D3748",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-            },
-
-            download: async function() {
-                const blob = await this.renderHighRes();
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'SENA_PHOTO_MOMENT.jpg';
-                a.click();
+            download: function() {
+                const link = document.createElement('a');
+                link.download = 'sena-photo.jpg';
+                link.href = document.getElementById('final-preview').src;
+                link.click();
             }
         };
     </script>
