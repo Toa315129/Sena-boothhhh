@@ -2,452 +2,415 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✦ SENA PRESTIGE: THE ULTIMATE BOOTH 2026 ✦</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SENAPHOTOBOOTH | The Ultimate Experience</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Montserrat:wght@100;400;900&family=Prompt:wght@200;600;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,900;1,900&family=Caveat:wght@700&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ============================================================
-           [ PHASE 1: HYPER-STYLIZED DESIGN SYSTEM ]
-           ============================================================
-        */
+        /* --- THEME ENGINE --- */
         :root {
-            --neon-pink: #FF007A;
-            --neon-blue: #00F0FF;
-            --neon-yellow: #F0FF00;
-            --neon-green: #00FF41;
-            --y2k-purple: #7000FF;
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --stroke-bold: 4px solid #000;
-            --shadow-brutal: 10px 10px 0px #000;
+            --bg-sky: #7dd3fc;
+            --sd-body: #1c1c1e;
+            --sd-pin: linear-gradient(180deg, #fbbf24 0%, #b45309 100%);
+            --accent: #6366f1;
+            --ipad-width: 2360px; /* Reference iPad Gen 11 */
+            --ipad-height: 1640px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
-            background-color: #f7f7f7;
-            background-image: 
-                linear-gradient(var(--neon-blue) 1px, transparent 1px),
-                linear-gradient(90deg, var(--neon-blue) 1px, transparent 1px);
-            background-size: 40px 40px;
-            background-position: center center;
-            font-family: 'Prompt', sans-serif;
+            background: #000;
+            font-family: 'Space Grotesk', sans-serif;
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
+            color: white;
+        }
+
+        /* --- BACKGROUND LAYER --- */
+        .world-container {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-sky);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(199,89%,48%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(180,100%,80%,1) 0, transparent 50%);
+            z-index: 1;
+        }
+
+        /* --- SD CARD UI SCULPTING --- */
+        .booth-interface {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: env(safe-area-inset-top) 40px env(safe-area-inset-bottom);
+        }
+
+        .sd-card-outer {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            aspect-ratio: 4/3;
+            background: var(--sd-body);
+            border-radius: 50px;
+            box-shadow: 
+                0 0 0 10px rgba(0,0,0,0.1),
+                0 40px 100px -20px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ขา Pin สีทองตามแบบ */
+        .sd-pins-header {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+
+        .pin {
+            width: 35px;
+            height: 70px;
+            background: var(--sd-pin);
+            border-radius: 0 0 8px 8px;
+            box-shadow: inset 0 -4px 10px rgba(0,0,0,0.4);
+        }
+
+        /* --- DISPLAY ENGINE --- */
+        .viewport-container {
+            flex: 1;
+            background: #080808;
+            border-radius: 35px;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid #2c2c2e;
+        }
+
+        #camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror for user-facing camera */
+        }
+
+        /* Grain Overlay */
+        .noise-overlay {
+            position: absolute;
+            inset: 0;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .brand-logo {
+            position: absolute;
+            top: -80px;
+            left: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 42px;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -3px;
             color: #000;
         }
 
-        /* ============================================================
-           [ PHASE 2: MAXIMALIST DECORATIONS ]
-           ============================================================
-        */
-        .deco-sticker {
-            position: absolute; z-index: 1; pointer-events: none;
-            font-family: 'Shrikhand', cursive; filter: drop-shadow(4px 4px 0px #000);
-            text-transform: uppercase;
+        .handwriting-effect {
+            font-family: 'Caveat', cursive;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 80px;
+            line-height: 1;
+            color: white;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            opacity: 0;
+            z-index: 20;
         }
 
-        .star-sparkle {
-            position: absolute; width: 40px; height: 40px;
-            background: var(--neon-yellow);
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            animation: pulse 2s infinite;
+        /* --- CONTROL SYSTEMS --- */
+        .controls-layer {
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            gap: 50px;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(180deg); }
-            100% { transform: scale(1) rotate(360deg); }
+        .shutter-trigger {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            padding: 10px;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* ============================================================
-           [ PHASE 3: STUDIO VIEWPORT (THE BRAIN) ]
-           ============================================================
-        */
-        #main-stage {
-            position: relative; z-index: 10; width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        .shutter-inner {
+            width: 100%;
+            height: 100%;
+            background: #ff3b30;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
         }
 
-        .studio-frame {
-            position: relative; width: 75vh; aspect-ratio: 4/5;
-            background: #fff; border: 6px solid #000;
-            box-shadow: 20px 20px 0px var(--neon-pink);
-            border-radius: 40px; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
+        .action-button {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
         }
 
-        #camera-live {
-            width: 100%; height: 100%; object-fit: cover;
-            transform: scaleX(-1);
+        .action-button:active { transform: scale(0.9); }
+
+        /* --- ANIMATION STATES --- */
+        .flash-active {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0;
         }
 
-        /* ============================================================
-           [ PHASE 4: LIVE MASK ENGINE ]
-           ============================================================
-        */
-        .mask-overlay-layer {
-            position: absolute; inset: 0; pointer-events: none;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 50;
+        #countdown-ui {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 300px;
+            font-weight: 900;
+            color: white;
+            z-index: 30;
+            pointer-events: none;
+            -webkit-text-stroke: 4px black;
         }
-
-        /* รูปทรงหัวใจตามภาพ Pixydery */
-        .mask-shape {
-            width: 85%; height: 85%;
-            background: var(--neon-pink);
-            mask-size: contain; mask-repeat: no-repeat; mask-position: center;
-            -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
-            opacity: 0; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: scale(0.5);
-        }
-
-        .mask-shape.active { opacity: 0.7; transform: scale(1); }
-
-        .shape-heart { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/></svg>'); }
-        .shape-star { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>'); }
-        .shape-cat { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M290.59 192c-20.18 0-106.82 0-127 0-10.19 0-19.59 4.49-25.77 12.03-9.32 11.32-9.38 26.66-2.12 38.73L192 320c5.33 9.14 15.06 14.72 25.59 14.72h188.82c10.53 0 20.27-5.58 25.59-14.72l56.3-97.24c7.26-12.07 7.2-27.41-2.12-38.73-6.18-7.54-15.58-12.03-25.77-12.03-20.18 0-106.82 0-127 0z"/></svg>'); }
-
-        /* ============================================================
-           [ PHASE 5: BRUTALIST UI CONTROLS ]
-           ============================================================
-        */
-        .ui-hub {
-            margin-top: 40px; display: flex; gap: 25px; align-items: center;
-        }
-
-        .control-btn {
-            padding: 20px 40px; font-family: 'Shrikhand'; font-size: 1.5rem;
-            border: 5px solid #000; cursor: pointer; position: relative;
-            box-shadow: 8px 8px 0px #000; transition: 0.1s;
-            text-transform: uppercase; letter-spacing: 2px;
-        }
-
-        .btn-capture { background: var(--neon-yellow); color: #000; }
-        .btn-capture:hover { transform: translate(-4px, -4px); box-shadow: 12px 12px 0px #000; }
-        .btn-capture:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0px #000; }
-
-        .shape-selector {
-            display: flex; gap: 15px; background: #000; padding: 10px; border-radius: 50px;
-        }
-
-        .shape-opt {
-            width: 60px; height: 60px; border-radius: 50%; border: 2px solid #fff;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; transition: 0.3s; color: #fff;
-        }
-
-        .shape-opt.active { background: var(--neon-blue); color: #000; transform: scale(1.1); }
-
-        /* ============================================================
-           [ PHASE 6: FINAL RESULT SCREEN (PHOTO STRIP) ]
-           ============================================================
-        */
-        #result-stage {
-            position: fixed; inset: 0; background: var(--y2k-purple);
-            z-index: 1000; display: none; flex-direction: row;
-            padding: 50px; gap: 50px; align-items: center; justify-content: center;
-        }
-
-        .strip-preview {
-            height: 90vh; background: #fff; padding: 15px;
-            border: 6px solid #000; box-shadow: 20px 20px 0px #000;
-            display: flex; flex-direction: column; gap: 15px;
-        }
-
-        .final-actions {
-            display: flex; flex-direction: column; gap: 30px; width: 400px;
-        }
-
-        #qr-container {
-            background: #fff; padding: 20px; border: 5px solid #000;
-            box-shadow: 10px 10px 0px var(--neon-blue); text-align: center;
-        }
-
-        /* ============================================================
-           [ PHASE 7: STICKER REPOSITORY (REAL 3000+ LINE FEEL) ]
-           ============================================================
-        */
-        .sticker-1 { top: 5%; left: 5%; color: var(--neon-pink); font-size: 80px; transform: rotate(-10deg); }
-        .sticker-2 { bottom: 5%; right: 5%; color: var(--neon-blue); font-size: 60px; transform: rotate(15deg); }
-        .sticker-3 { top: 40%; right: 2%; color: var(--neon-green); font-size: 40px; writing-mode: vertical-rl; }
-        .sticker-4 { bottom: 40%; left: 2%; color: var(--neon-yellow); font-size: 40px; }
-
     </style>
 </head>
 <body>
 
-    <div class="deco-sticker sticker-1 animate__animated animate__pulse animate__infinite">SENA</div>
-    <div class="deco-sticker sticker-2">STAY COOL</div>
-    <div class="deco-sticker sticker-3">✦ 2026 ✦</div>
-    <div class="deco-sticker sticker-4">PRESTIGE</div>
-    <div class="star-sparkle" style="top: 20%; right: 15%;"></div>
-    <div class="star-sparkle" style="bottom: 25%; left: 10%;"></div>
+    <div class="world-container"></div>
+    <div class="flash-active" id="flash"></div>
 
-    <div id="main-stage">
+    <div class="booth-interface">
         
-        <header style="margin-bottom: 30px; text-align: center;">
-            <h1 style="font-family: 'Shrikhand'; font-size: 5rem; line-height: 1; filter: drop-shadow(6px 6px 0 var(--neon-blue));">PHOTO STUDIO</h1>
-            <p style="letter-spacing: 10px; font-weight: 900; color: #555;">✦ HIGH DEFINITION Y2K EXPERIENCE ✦</p>
-        </header>
-
-        <div class="studio-frame" id="capture-zone">
-            <video id="camera-live" autoplay playsinline></video>
+        <div class="sd-card-outer">
+            <div class="brand-logo">SENA<span style="color:white; -webkit-text-stroke: 1.5px black;">PHOTOBOOTH</span></div>
             
-            <div class="mask-overlay-layer">
-                <div id="active-mask" class="mask-shape shape-heart"></div>
+            <div class="sd-pins-header">
+                <div class="pin"></div><div class="pin"></div><div class="pin"></div>
+                <div class="pin"></div><div class="pin"></div><div class="pin"></div>
+                <div class="pin"></div><div class="pin"></div>
             </div>
 
-            <div id="flash-overlay" style="position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 100;"></div>
-            <div id="countdown-num" style="position: absolute; font-size: 250px; font-weight: 900; color: #fff; text-shadow: 15px 15px 0 #000; z-index: 110; display: none;">3</div>
+            <div class="viewport-container">
+                <div class="noise-overlay"></div>
+                <video id="camera-feed" autoplay playsinline></video>
+                <canvas id="capture-buffer" style="display:none;"></canvas>
+                
+                <div id="countdown-ui"></div>
+                
+                <div class="handwriting-effect" id="result-text">
+                    Taking a picture of <br> all the people <br> close to us
+                </div>
+                
+                <div id="capture-preview" class="absolute inset-0 z-10 hidden">
+                    <img id="final-img" class="w-full h-full object-cover">
+                </div>
+
+                <div class="absolute bottom-4 right-6 text-white/30 text-[10px] tracking-widest uppercase font-bold">
+                    Memory Format 1.0 // SENA-PB
+                </div>
+            </div>
         </div>
 
-        <div class="ui-hub">
-            <div class="shape-selector">
-                <div class="shape-opt active" onclick="BoothEngine.setShape('heart', this)">❤</div>
-                <div class="shape-opt" onclick="BoothEngine.setShape('star', this)">★</div>
-                <div class="shape-opt" onclick="BoothEngine.setShape('cat', this)">🐱</div>
-                <div class="shape-opt" onclick="BoothEngine.setShape('none', this)">∅</div>
+        <div class="controls-layer">
+            <button class="action-button" id="btn-reset" style="opacity:0;">
+                <i data-lucide="refresh-ccw" color="white"></i>
+            </button>
+
+            <div class="shutter-trigger" id="shutter">
+                <div class="shutter-inner">
+                    <i data-lucide="camera" color="white" size="32"></i>
+                </div>
             </div>
 
-            <button class="control-btn btn-capture" onclick="BoothEngine.startSession()">Take 4 Shots</button>
+            <button class="action-button" id="btn-save" style="opacity:0;">
+                <i data-lucide="download" color="white"></i>
+            </button>
         </div>
-
     </div>
-
-    <section id="result-stage">
-        <div id="final-strip-render" class="strip-preview">
-            </div>
-
-        <div class="final-actions">
-            <h2 style="font-family: 'Shrikhand'; font-size: 3rem; color: #fff; text-shadow: 4px 4px 0 #000;">YAY! BEAUTIFUL</h2>
-            <div id="qr-container">
-                <div id="qrcode"></div>
-                <p style="margin-top: 15px; font-weight: 900; letter-spacing: 2px;">SCAN TO DOWNLOAD</p>
-            </div>
-            <button class="control-btn" style="background: var(--neon-green);" onclick="location.reload()">NEXT SESSION ✦</button>
-        </div>
-    </section>
-
-    <audio id="snd-shutter" src="https://assets.mixkit.co/active_storage/sfx/2857/2857-preview.mp3"></audio>
 
     <script>
         /**
-         * ============================================================
-         * [ CORE ENGINE: THE BEST BOOTH LOGIC IN THE WORLD ]
-         * ============================================================
+         * SENAPHOTOBOOTH CORE ENGINE
+         * Version: 2.0.0
+         * Designed for High-Performance iPad Booths
          */
 
-        const BoothEngine = {
-            config: {
-                totalShots: 4,
-                countdown: 3,
-                resW: 1080,
-                resH: 1350, // 4:5 Aspect Ratio
-                frameColor: '#FF007A'
-            },
-
-            state: {
-                photos: [],
-                currentShape: 'heart',
-                isBusy: false
-            },
-
-            init: async function() {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        video: { width: 1920, height: 1080, facingMode: 'user' }
-                    });
-                    document.getElementById('camera-live').srcObject = stream;
-                    this.setShape('heart', document.querySelector('.shape-opt.active'));
-                } catch (e) {
-                    alert("Camera Error: Please check permissions!");
-                }
-            },
-
-            setShape: function(shape, el) {
-                const mask = document.getElementById('active-mask');
-                this.state.currentShape = shape;
-                
-                document.querySelectorAll('.shape-opt').forEach(opt => opt.classList.remove('active'));
-                el.classList.add('active');
-
-                if(shape === 'none') {
-                    mask.classList.remove('active');
-                } else {
-                    mask.className = `mask-shape shape-${shape} active`;
-                }
-            },
-
-            startSession: async function() {
-                if(this.state.isBusy) return;
-                this.state.isBusy = true;
-                this.state.photos = [];
-
-                const countdownEl = document.getElementById('countdown-num');
-                const flashEl = document.getElementById('flash-overlay');
-
-                for(let i=0; i < this.config.totalShots; i++) {
-                    // 1. Countdown
-                    countdownEl.style.display = 'block';
-                    for(let c = this.config.countdown; c > 0; c--) {
-                        countdownEl.innerText = c;
-                        gsap.fromTo(countdownEl, {scale: 1.5, opacity: 0}, {scale: 1, opacity: 1, duration: 0.5});
-                        await new Promise(r => setTimeout(r, 800));
-                    }
-                    countdownEl.style.display = 'none';
-
-                    // 2. Flash & Sound
-                    document.getElementById('snd-shutter').play();
-                    gsap.fromTo(flashEl, {opacity: 1}, {opacity: 0, duration: 0.5});
-
-                    // 3. Capture & Shape Processing
-                    const photo = this.captureWithProcessing();
-                    this.state.photos.push(photo);
-
-                    await new Promise(r => setTimeout(r, 1000));
-                }
-
-                this.renderFinalStrip();
-            },
-
-            captureWithProcessing: function() {
-                const video = document.getElementById('camera-live');
-                const canvas = document.createElement('canvas');
-                canvas.width = this.config.resW;
-                canvas.height = this.config.resH;
-                const ctx = canvas.getContext('2d');
-
-                // Mirroring
-                ctx.translate(canvas.width, 0);
-                ctx.scale(-1, 1);
-
-                // Draw Base Image (Smart Crop to 4:5)
-                const vW = video.videoWidth;
-                const vH = video.videoHeight;
-                const aspect = canvas.width / canvas.height;
-                let sW, sH, sx, sy;
-
-                if (vW / vH > aspect) {
-                    sH = vH; sW = vH * aspect; sx = (vW - sW) / 2; sy = 0;
-                } else {
-                    sW = vW; sH = vW / aspect; sx = 0; sy = (vH - sH) / 2;
-                }
-                ctx.drawImage(video, sx, sy, sW, sH, 0, 0, canvas.width, canvas.height);
-
-                // --- APPLY SHAPE MASK (แบบ Pixydery) ---
-                if(this.state.currentShape !== 'none') {
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = canvas.width; tempCanvas.height = canvas.height;
-                    const tCtx = tempCanvas.getContext('2d');
-
-                    // สร้างรูปทรง Mask
-                    tCtx.fillStyle = '#000';
-                    const shapePath = this.getShapePath(this.state.currentShape);
-                    tCtx.fill(new Path2D(shapePath));
-
-                    // ผสมภาพ (Global Composite Operation)
-                    ctx.globalCompositeOperation = 'destination-in';
-                    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset scale for masking
-                    
-                    // วาด Mask ตรงกลาง
-                    const maskSize = 0.9;
-                    ctx.drawImage(tempCanvas, 
-                        canvas.width*(1-maskSize)/2, canvas.height*(1-maskSize)/2, 
-                        canvas.width*maskSize, canvas.height*maskSize);
-                }
-
-                return canvas.toDataURL('image/jpeg', 0.95);
-            },
-
-            getShapePath: function(shape) {
-                const paths = {
-                    heart: "M512 115.6c-54.8-46.7-136.3-38.3-186.6 13.6L305.9 149.5l-19.7-20.3c-50.2-51.9-131.8-60.3-186.6-13.6-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z",
-                    star: "M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z",
-                    cat: "M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0z" // Simplified
-                };
-                return paths[shape] || paths.heart;
-            },
-
-            renderFinalStrip: async function() {
-                const canvas = document.createElement('canvas');
-                canvas.width = 1000;
-                canvas.height = 3500;
-                const ctx = canvas.getContext('2d');
-
-                // 1. Background Pattern (Y2K Style)
-                ctx.fillStyle = this.config.frameColor;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Add Checkered Pattern
-                ctx.fillStyle = 'rgba(255,255,255,0.1)';
-                for(let x=0; x<canvas.width; x+=50) {
-                    for(let y=0; y<canvas.height; y+=50) {
-                        if((x+y)%100 === 0) ctx.fillRect(x,y,50,50);
-                    }
-                }
-
-                // 2. Draw Photos with "Pixydery" aesthetic
-                let yPos = 80;
-                for(let data of this.state.photos) {
-                    const img = await this.loadImg(data);
-                    
-                    // White Photo Frame
-                    ctx.fillStyle = '#fff';
-                    ctx.save();
-                    ctx.translate(canvas.width/2, yPos + 375);
-                    ctx.rotate((Math.random() - 0.5) * 0.05); // Subtle Tilt
-                    ctx.fillRect(-420, -395, 840, 790); // Frame
-                    ctx.drawImage(img, -400, -375, 800, 750); // Image
-                    ctx.restore();
-
-                    yPos += 820;
-                }
-
-                // 3. Brutalist Branding
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 80px Shrikhand';
-                ctx.textAlign = 'center';
-                ctx.fillText("SENA PRESTIGE", 500, 3350);
-                
-                ctx.font = '900 30px Prompt';
-                ctx.fillText("✦ HIGH-DEF MOMENT STUDIO ✦", 500, 3420);
-
-                // Show Result
-                const previewArea = document.getElementById('final-strip-render');
-                previewArea.innerHTML = '';
-                const finalImg = new Image();
-                finalImg.src = canvas.toDataURL('image/jpeg');
-                finalImg.style.height = '100%';
-                previewArea.appendChild(finalImg);
-
-                document.getElementById('result-stage').style.display = 'flex';
-                confetti({ particleCount: 200, spread: 100, origin: { y: 0.7 } });
-                
-                this.generateQR("https://sena-booth.com/gallery/" + Date.now());
-            },
-
-            loadImg: (src) => new Promise(res => {
-                const i = new Image(); i.onload = () => res(i); i.src = src;
-            }),
-
-            generateQR: function(url) {
-                const container = document.getElementById('qrcode');
-                container.innerHTML = '';
-                new QRCode(container, {
-                    text: url, width: 200, height: 200,
-                    colorDark : "#000000", colorLight : "#ffffff"
-                });
+        const config = {
+            countdown: 3,
+            filter: {
+                brightness: 1.1,
+                contrast: 1.2,
+                saturate: 1.1
             }
         };
 
-        // LAUNCH
-        window.onload = () => BoothEngine.init();
+        const state = {
+            isProcessing: false,
+            stream: null
+        };
+
+        const elements = {
+            video: document.getElementById('camera-feed'),
+            shutter: document.getElementById('shutter'),
+            countdown: document.getElementById('countdown-ui'),
+            flash: document.getElementById('flash'),
+            buffer: document.getElementById('capture-buffer'),
+            preview: document.getElementById('capture-preview'),
+            finalImg: document.getElementById('final-img'),
+            resultText: document.getElementById('result-text'),
+            btnReset: document.getElementById('btn-reset'),
+            btnSave: document.getElementById('btn-save')
+        };
+
+        // Initialize Icons
+        lucide.createIcons();
+
+        // 1. Camera System
+        async function startCamera() {
+            try {
+                state.stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1440 }
+                    }
+                });
+                elements.video.srcObject = state.stream;
+            } catch (err) {
+                console.error("Camera System Error:", err);
+                alert("ระบบกล้องขัดข้อง: กรุณาให้สิทธิ์การเข้าถึงกล้อง");
+            }
+        }
+
+        // 2. The Capture Logic
+        function takePhoto() {
+            if (state.isProcessing) return;
+            state.isProcessing = true;
+
+            let timer = config.countdown;
+            gsap.to(elements.shutter, { scale: 0.8, opacity: 0.5 });
+
+            const interval = setInterval(() => {
+                elements.countdown.innerText = timer;
+                gsap.fromTo(elements.countdown, { scale: 1.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4 });
+                
+                timer--;
+                if (timer < 0) {
+                    clearInterval(interval);
+                    elements.countdown.innerText = "";
+                    executeCapture();
+                }
+            }, 1000);
+        }
+
+        function executeCapture() {
+            // Flash Effect Animation
+            gsap.to(elements.flash, { 
+                opacity: 1, 
+                duration: 0.05, 
+                onComplete: () => {
+                    renderImage();
+                    gsap.to(elements.flash, { opacity: 0, duration: 0.5 });
+                }
+            });
+        }
+
+        // 3. Image Processing Engine
+        function renderImage() {
+            const ctx = elements.buffer.getContext('2d');
+            elements.buffer.width = elements.video.videoWidth;
+            elements.buffer.height = elements.video.videoHeight;
+
+            // Apply Vintage Digital Filter
+            ctx.filter = `brightness(${config.filter.brightness}) contrast(${config.filter.contrast}) saturate(${config.filter.saturate})`;
+            
+            // Draw Mirror Image
+            ctx.translate(elements.buffer.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(elements.video, 0, 0);
+
+            const imageData = elements.buffer.toDataURL('image/jpeg', 0.95);
+            elements.finalImg.src = imageData;
+            
+            // Transition to Preview
+            elements.preview.classList.remove('hidden');
+            gsap.fromTo(elements.preview, { opacity: 0 }, { opacity: 1, duration: 0.8 });
+            
+            // Show Handwriting Text
+            gsap.fromTo(elements.resultText, 
+                { opacity: 0, y: 30 }, 
+                { opacity: 1, y: 0, duration: 1.5, delay: 0.5, ease: "power2.out" }
+            );
+
+            // Show UI Controls
+            gsap.to([elements.btnReset, elements.btnSave], { opacity: 1, y: -10, stagger: 0.1 });
+            gsap.to(elements.shutter, { display: 'none' });
+        }
+
+        // 4. UI Actions
+        elements.shutter.addEventListener('click', takePhoto);
+
+        elements.btnReset.addEventListener('click', () => {
+            state.isProcessing = false;
+            elements.preview.classList.add('hidden');
+            elements.resultText.style.opacity = 0;
+            gsap.to(elements.shutter, { display: 'block', scale: 1, opacity: 1 });
+            gsap.to([elements.btnReset, elements.btnSave], { opacity: 0, y: 10 });
+        });
+
+        elements.btnSave.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `SENAPB_${Date.now()}.jpg`;
+            link.href = elements.finalImg.src;
+            link.click();
+        });
+
+        // Start Application
+        window.addEventListener('load', startCamera);
+
     </script>
 </body>
 </html>
