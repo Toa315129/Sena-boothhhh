@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH - K-STUDIO ULTIMATE</title>
+    <title>SENA PHOTOBOOTH - K-STUDIO EDIT</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* --- DESIGN SYSTEM --- */
         :root {
-            --cream-bg: #FFFDF5;    /* ขาวครีมนุ่มๆ */
-            --soft-blue: #E3F1FF;   /* ฟ้าพาสเทล */
-            --accent-blue: #A8D1FF; /* ฟ้าสำหรับปุ่ม */
+            --cream-bg: #FFFDF7;
+            --soft-blue: #E8F2FF;
+            --accent-blue: #B5D5FF;
             --white: #FFFFFF;
             --text-main: #5A6B7F;
-            --shadow: 0 15px 35px rgba(168, 209, 255, 0.25);
-            --border-radius: 35px;
+            --shadow: 0 10px 30px rgba(181, 213, 255, 0.2);
         }
 
-        /* --- GLOBAL RESET --- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
-            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body, html {
@@ -35,419 +32,314 @@
             overflow: hidden;
         }
 
-        /* --- DECORATION (Stars & Shine) --- */
+        /* --- DECO --- */
         .k-star {
-            position: absolute;
-            width: 24px; height: 24px;
-            background: var(--accent-blue);
+            position: absolute; width: 18px; height: 18px;
+            background: var(--accent-blue); opacity: 0.3;
             clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            opacity: 0.4;
-            z-index: 0;
         }
 
-        /* --- 1. START SCREEN --- */
+        /* --- START SCREEN --- */
         #startScreen {
             position: fixed; inset: 0; z-index: 1000;
-            background: radial-gradient(circle at center, var(--white), var(--soft-blue));
+            background: radial-gradient(circle, var(--white), var(--soft-blue));
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease-in-out;
         }
-        #startScreen.hide { opacity: 0; visibility: hidden; }
+        #startScreen.hide { opacity: 0; visibility: hidden; transition: 0.5s; }
 
-        .logo-container { text-align: center; margin-bottom: 60px; }
-        .logo-container h1 { font-size: 56px; font-weight: 200; letter-spacing: 12px; margin: 0; }
-        .logo-container p { font-size: 16px; letter-spacing: 4px; opacity: 0.6; margin-top: 15px; }
+        .logo-area { text-align: center; margin-bottom: 40px; }
+        .logo-area h1 { font-size: 42px; font-weight: 200; letter-spacing: 10px; margin: 0; }
 
-        .start-circle {
-            width: 200px; height: 200px;
-            background: var(--white);
-            border-radius: 50%;
+        .start-btn {
+            width: 150px; height: 150px;
+            background: var(--white); border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px; letter-spacing: 3px;
-            box-shadow: var(--shadow);
-            border: 10px solid var(--soft-blue);
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: float 3s infinite ease-in-out;
-        }
-        .start-circle:active { transform: scale(0.9); }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+            font-size: 20px; letter-spacing: 2px;
+            box-shadow: var(--shadow); border: 8px solid var(--soft-blue);
+            cursor: pointer; animation: pulse 2s infinite;
         }
 
-        /* --- 2. BOOTH SCREEN --- */
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
+
+        /* --- BOOTH SCREEN --- */
         #boothScreen {
-            display: none; /* เปิดเมื่อกด Start */
-            height: 100vh;
-            flex-direction: column;
-            padding: 40px 30px;
-            gap: 25px;
+            display: none; height: 100vh;
+            flex-direction: column; align-items: center;
+            padding: 20px; gap: 15px;
         }
 
-        .booth-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 10px;
-        }
-
-        .camera-viewport {
+        /* ปรับช่องมองภาพให้เล็กลง (Compact View) */
+        .camera-box {
             position: relative;
-            width: 100%;
-            flex-grow: 1;
+            width: 85%; /* ปรับเล็กลงจากเดิม */
+            max-width: 500px;
+            aspect-ratio: 3/4;
             background: #000;
-            border-radius: var(--border-radius);
-            border: 12px solid var(--white);
+            border-radius: 30px;
+            border: 10px solid var(--white);
             box-shadow: var(--shadow);
             overflow: hidden;
         }
 
-        #video {
-            width: 100%; height: 100%; object-fit: cover;
-            transform: scaleX(-1); /* Mirror Mode */
-        }
+        #video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        /* INTERNAL PREVIEW (The 4 Boxes on the right) */
-        .side-previews {
-            position: absolute;
-            right: 20px; top: 20px; bottom: 20px;
-            width: 85px;
-            display: flex; flex-direction: column;
-            justify-content: space-between;
-            z-index: 5;
+        /* ช่อง Preview เล็กๆ ด้านใน */
+        .inner-previews {
+            position: absolute; right: 10px; top: 10px; bottom: 10px;
+            width: 60px; display: flex; flex-direction: column; gap: 5px; z-index: 5;
         }
-        .slot {
+        .mini-slot {
             width: 100%; aspect-ratio: 1/1;
-            background: rgba(255,255,255,0.25);
-            border: 2px solid var(--white);
-            border-radius: 12px;
-            overflow: hidden;
-            opacity: 0; transform: translateX(20px);
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px; border: 1.5px solid var(--white);
+            overflow: hidden; opacity: 0; transition: 0.4s;
         }
-        .slot.active { opacity: 1; transform: translateX(0); }
-        .slot img { width: 100%; height: 100%; object-fit: cover; }
+        .mini-slot.active { opacity: 1; transform: scale(1); }
+        .mini-slot img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* COUNTDOWN OVERLAY */
-        #countdownBox {
-            position: absolute; inset: 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 160px; color: var(--white);
-            text-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            pointer-events: none; opacity: 0;
+        #countdown {
+            position: absolute; inset: 0; display: flex; align-items: center;
+            justify-content: center; font-size: 100px; color: white;
+            opacity: 0; pointer-events: none;
         }
 
         /* CONTROLS */
-        .booth-footer {
-            display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: 20px;
+        .controls {
+            display: flex; width: 100%; max-width: 500px;
+            justify-content: space-around; align-items: center;
         }
+        .btn-sub {
+            background: white; border: none; padding: 12px 20px;
+            border-radius: 25px; box-shadow: var(--shadow);
+            font-size: 13px; font-weight: bold; color: var(--text-main);
+        }
+        .btn-main {
+            width: 80px; height: 80px; background: white;
+            border-radius: 50%; border: 6px solid var(--soft-blue);
+            box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center;
+        }
+        .btn-main-inner { width: 55px; height: 55px; background: var(--accent-blue); border-radius: 50%; }
 
-        .btn-ui {
-            background: var(--white); border: none;
-            padding: 18px 35px; border-radius: 40px;
-            box-shadow: var(--shadow);
-            font-weight: 600; color: var(--text-main);
-            font-size: 15px; letter-spacing: 1px;
-        }
-
-        .capture-btn {
-            width: 100px; height: 100px;
-            background: var(--white); border-radius: 50%;
-            border: 8px solid var(--soft-blue);
-            box-shadow: var(--shadow);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .capture-btn-inner {
-            width: 65px; height: 65px;
-            background: var(--accent-blue);
-            border-radius: 50%;
-            transition: 0.2s;
-        }
-        .capture-btn:active .capture-btn-inner { transform: scale(0.8); }
-
-        /* --- 3. RESULT SCREEN --- */
+        /* --- RESULT SCREEN --- */
         #resultScreen {
             position: fixed; inset: 0; z-index: 2000;
-            background: var(--cream-bg);
-            display: none; flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 30px;
+            background: var(--cream-bg); display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px;
         }
 
-        .result-container {
-            display: flex; align-items: center; gap: 40px;
-        }
+        .result-wrap { display: flex; gap: 30px; align-items: center; }
 
-        /* FILM STRIP DESIGN */
-        .film-paper {
-            background: var(--white);
-            padding: 20px 20px 50px 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.1);
-            width: 320px;
-            display: flex; flex-direction: column; gap: 12px;
+        .film-strip {
+            background: white; padding: 15px 15px 40px 15px;
+            box-shadow: var(--shadow); width: 260px;
+            display: flex; flex-direction: column; gap: 8px;
         }
-        .film-photo {
-            width: 100%; aspect-ratio: 3/2.2;
-            background: #f5f5f5; overflow: hidden;
-        }
-        .film-photo img { width: 100%; height: 100%; object-fit: cover; }
-        .film-logo {
-            text-align: center; margin-top: 15px;
-            font-size: 16px; letter-spacing: 5px; font-weight: 300;
-        }
+        .film-img { width: 100%; aspect-ratio: 3/2.2; background: #eee; overflow: hidden; }
+        .film-img img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ACTIONS PANEL */
-        .actions-panel {
-            display: flex; flex-direction: column; align-items: center; gap: 25px;
-        }
+        .action-zone { display: flex; flex-direction: column; align-items: center; gap: 15px; }
 
-        #qrcode {
-            background: white; padding: 20px;
-            border-radius: 25px; box-shadow: var(--shadow);
-        }
+        #qrcode { background: white; padding: 15px; border-radius: 15px; box-shadow: var(--shadow); }
 
-        .download-btn {
-            width: 280px; height: 85px;
-            background: var(--accent-blue);
-            color: white; border: none;
-            border-radius: 25px; font-size: 22px; font-weight: bold;
-            box-shadow: 0 10px 0 #8db7eb;
-            display: flex; align-items: center; justify-content: center; gap: 15px;
-            transition: 0.1s;
+        .dl-btn {
+            width: 220px; height: 70px; background: var(--accent-blue);
+            color: white; border: none; border-radius: 20px;
+            font-size: 18px; font-weight: bold; box-shadow: 0 8px 0 #8db7eb;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .download-btn:active { transform: translateY(6px); box-shadow: 0 4px 0 #8db7eb; }
+        .dl-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #8db7eb; }
 
-        #flashOverlay {
-            position: absolute; inset: 0; background: white; opacity: 0;
-            z-index: 100; pointer-events: none;
-        }
-
-        .grayscale { filter: grayscale(1) contrast(1.1) brightness(1.1); }
+        #flash { position: absolute; inset: 0; background: white; opacity: 0; z-index: 100; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div class="k-star" style="top:10%; left:5%;"></div>
-    <div class="k-star" style="top:25%; right:10%;"></div>
-    <div class="k-star" style="bottom:15%; left:8%;"></div>
+    <div class="k-star" style="top:5%; left:10%;"></div>
+    <div class="k-star" style="bottom:10%; right:15%;"></div>
 
     <div id="startScreen">
-        <div class="logo-container">
+        <div class="logo-area">
             <h1>SENA</h1>
-            <p>S E L F • P H O T O • S T U D I O</p>
+            <p style="letter-spacing: 3px; opacity: 0.5;">SELF STUDIO</p>
         </div>
-        <div class="start-circle" onclick="initBooth()">START</div>
+        <div class="start-btn" onclick="openBooth()">START</div>
     </div>
 
     <div id="boothScreen">
-        <div class="booth-header">
-            <div style="font-weight: 300; letter-spacing: 3px;">SENAPHOTO ✦</div>
-            <div style="font-size: 13px;">● REC LIVE</div>
-        </div>
-
-        <div class="camera-viewport">
+        <div style="letter-spacing: 2px; font-size: 14px;">✦ SENA PHOTOBOOTH ✦</div>
+        
+        <div class="camera-box">
             <video id="video" autoplay playsinline></video>
-            <div id="countdownBox">3</div>
-            <div id="flashOverlay"></div>
+            <div id="countdown">3</div>
+            <div id="flash"></div>
             
-            <div class="side-previews">
-                <div class="slot" id="slot0"></div>
-                <div class="slot" id="slot1"></div>
-                <div class="slot" id="slot2"></div>
-                <div class="slot" id="slot3"></div>
+            <div class="inner-previews">
+                <div class="mini-slot" id="m0"></div>
+                <div class="mini-slot" id="m1"></div>
+                <div class="mini-slot" id="m2"></div>
+                <div class="mini-slot" id="m3"></div>
             </div>
         </div>
 
-        <div class="booth-footer">
-            <button class="btn-ui" onclick="changeMode()" id="modeBtn">COLOR MODE</button>
-            <div class="capture-btn" onclick="takePhotos()">
-                <div class="capture-btn-inner"></div>
+        <div class="controls">
+            <button class="btn-sub" onclick="toggleBw()" id="bwBtn">COLOR</button>
+            <div class="btn-main" onclick="startCapture()">
+                <div class="btn-main-inner"></div>
             </div>
-            <button class="btn-ui" onclick="location.reload()">RE-START</button>
+            <button class="btn-sub" onclick="location.reload()">EXIT</button>
         </div>
     </div>
 
     <div id="resultScreen">
-        <div class="result-container">
-            <div class="film-paper" id="filmOutput">
-                <div class="film-logo">SENA PHOTOBOOTH</div>
-                <div id="photoGrid" style="display:flex; flex-direction:column; gap:10px;">
-                    </div>
-                <div style="text-align:center; opacity:0.3; margin-top:10px;">✦ ✦ ✦</div>
+        <div class="result-wrap">
+            <div class="film-strip" id="captureFilm">
+                <div style="text-align:center; font-size:12px; letter-spacing:3px; margin-bottom:5px;">SENAPHOTO ✦</div>
+                <div id="resultImages"></div>
+                <div style="text-align:center; margin-top:10px; opacity:0.2;">✦ ✦ ✦</div>
             </div>
 
-            <div class="actions-panel">
+            <div class="action-zone">
                 <div id="qrcode"></div>
-                <div style="font-size: 14px; opacity:0.6; margin-top:-10px;">SCAN TO SAVE PHOTO</div>
-                
-                <button class="download-btn" onclick="saveToDevice()">
+                <div style="font-size: 11px; opacity: 0.5;">สแกนเพื่อดาวน์โหลดภาพ</div>
+                <button class="dl-btn" onclick="saveStrip()">
                     <span>💾</span> SAVE PHOTO
                 </button>
-                
-                <div style="text-decoration: underline; cursor:pointer; margin-top:10px;" onclick="location.reload()">
-                    TAKE ANOTHER ONE
-                </div>
+                <div style="font-size:12px; text-decoration:underline; cursor:pointer;" onclick="location.reload()">ถ่ายใหม่อีกครั้ง</div>
             </div>
         </div>
     </div>
 
-    <audio id="sndBeep" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
-    <audio id="sndClick" src="https://assets.mixkit.co/active_storage/sfx/582/582-preview.mp3"></audio>
+    <audio id="sndClick" src="https://www.soundjay.com/buttons/button-16.mp3"></audio>
+    <audio id="sndBeep" src="https://www.soundjay.com/buttons/button-50.mp3"></audio>
 
     <script>
         const video = document.getElementById('video');
-        const countdownBox = document.getElementById('countdownBox');
-        const flashOverlay = document.getElementById('flashOverlay');
-        const photoGrid = document.getElementById('photoGrid');
+        const countdownEl = document.getElementById('countdown');
+        const flashEl = document.getElementById('flash');
+        const sndClick = document.getElementById('sndClick');
+        const sndBeep = document.getElementById('sndBeep');
         
-        let capturedPhotos = [];
-        let isMono = false;
-        let isRunning = false;
+        let photos = [];
+        let isBw = false;
+        let active = false;
 
-        // --- STEP 1: START CAMERA ---
-        async function initBooth() {
+        async function openBooth() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user', width: 1280, height: 720 } 
-                });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
                 video.srcObject = stream;
                 document.getElementById('startScreen').classList.add('hide');
                 document.getElementById('boothScreen').style.display = 'flex';
-            } catch (err) {
-                alert("Please enable camera ✨");
-            }
+            } catch (e) { alert("กรุณาเปิดกล้องนะจ๊ะ ✨"); }
         }
 
-        // --- STEP 2: MODE CHANGE ---
-        function changeMode() {
-            isMono = !isMono;
-            video.classList.toggle('grayscale', isMono);
-            document.getElementById('modeBtn').innerText = isMono ? "B&W MODE" : "COLOR MODE";
+        function toggleBw() {
+            isBw = !isBw;
+            video.style.filter = isBw ? "grayscale(1) contrast(1.1)" : "none";
+            document.getElementById('bwBtn').innerText = isBw ? "B&W" : "COLOR";
         }
 
-        // --- STEP 3: CAPTURE LOGIC ---
-        async function takePhotos() {
-            if (isRunning) return;
-            isRunning = true;
-            capturedPhotos = [];
-
-            // Reset Slots
-            for(let i=0; i<4; i++) {
-                const s = document.getElementById(`slot${i}`);
-                s.classList.remove('active');
-                s.innerHTML = '';
-            }
-
+        async function startCapture() {
+            if (active) return;
+            active = true;
+            photos = [];
+            
             for (let i = 0; i < 4; i++) {
-                await startCountdown(3);
-                doCapture(i);
-                await new Promise(r => setTimeout(r, 700)); // Pause after shot
+                await runTimer(3);
+                capture(i);
+                await new Promise(r => setTimeout(r, 600));
             }
-
-            setTimeout(renderFinalResult, 1000);
+            setTimeout(showResult, 800);
         }
 
-        function startCountdown(sec) {
+        function runTimer(sec) {
             return new Promise(resolve => {
-                let count = sec;
-                countdownBox.style.opacity = '1';
-                const itv = setInterval(() => {
-                    document.getElementById('sndBeep').play();
-                    countdownBox.innerText = count;
-                    if (count === 0) {
-                        clearInterval(itv);
-                        countdownBox.style.opacity = '0';
+                let t = sec;
+                countdownEl.style.opacity = '1';
+                const timer = setInterval(() => {
+                    sndBeep.currentTime = 0;
+                    sndBeep.play();
+                    countdownEl.innerText = t;
+                    if (t === 0) {
+                        clearInterval(timer);
+                        countdownEl.style.opacity = '0';
                         resolve();
                     }
-                    count--;
+                    t--;
                 }, 800);
             });
         }
 
-        function doCapture(index) {
-            // Sound & Flash
-            document.getElementById('sndClick').play();
-            flashOverlay.style.opacity = '1';
-            setTimeout(() => flashOverlay.style.opacity = '0', 100);
+        function capture(idx) {
+            sndClick.currentTime = 0;
+            sndClick.play();
+            flashEl.style.opacity = '1';
+            setTimeout(() => flashEl.style.opacity = '0', 100);
 
-            // Canvas Drawing
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
-            
-            // Mirror flip
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
-            if(isMono) ctx.filter = "grayscale(1) contrast(1.1) brightness(1.1)";
-            
+            if(isBw) ctx.filter = "grayscale(1) contrast(1.1)";
             ctx.drawImage(video, 0, 0);
-            const imgData = canvas.toDataURL('image/jpeg', 0.9);
-            capturedPhotos.push(imgData);
+            
+            const data = canvas.toDataURL('image/jpeg', 0.8);
+            photos.push(data);
 
-            // Show in internal side slot
-            const slot = document.getElementById(`slot${index}`);
-            slot.innerHTML = `<img src="${imgData}">`;
+            const slot = document.getElementById(`m${idx}`);
+            slot.innerHTML = `<img src="${data}">`;
             slot.classList.add('active');
         }
 
-        // --- STEP 4: FINAL RESULT ---
-        function renderFinalResult() {
-            photoGrid.innerHTML = '';
-            capturedPhotos.forEach(src => {
-                const div = document.createElement('div');
-                div.className = 'film-photo';
-                div.innerHTML = `<img src="${src}">`;
-                photoGrid.appendChild(div);
+        function showResult() {
+            const container = document.getElementById('resultImages');
+            container.innerHTML = '';
+            photos.forEach(p => {
+                const d = document.createElement('div');
+                d.className = 'film-img';
+                d.innerHTML = `<img src="${p}">`;
+                container.appendChild(d);
             });
 
-            // Generate QR (Mockup URL)
+            // QR Code แก้ไขให้เป็น Link ดาวน์โหลด (ในที่นี้ทำเป็น Link สำหรับกดเซฟใน Mobile)
             document.getElementById('qrcode').innerHTML = "";
             new QRCode(document.getElementById("qrcode"), {
-                text: "https://sena-booth.com/view/photo_" + Date.now(),
-                width: 140,
-                height: 140,
-                colorDark : "#5A6B7F",
-                correctLevel : QRCode.CorrectLevel.H
+                text: "https://senaphoto-booth.com/download", // หากใช้จริงต้องเปลี่ยนเป็น URL รูปภาพบน Cloud
+                width: 120,
+                height: 120
             });
 
             document.getElementById('resultScreen').style.display = 'flex';
         }
 
-        // --- STEP 5: SAVE AS STRIP ---
-        async function saveToDevice() {
+        async function saveStrip() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 1000;
-            canvas.height = 2400;
-
-            // White Background
+            canvas.width = 800; canvas.height = 2000;
             ctx.fillStyle = "white";
             ctx.fillRect(0,0, canvas.width, canvas.height);
 
-            // Logo Text
             ctx.fillStyle = "#5A6B7F";
-            ctx.font = "lighter 45px Arial";
+            ctx.font = "30px Arial";
             ctx.textAlign = "center";
-            ctx.fillText("SENA PHOTOBOOTH", 500, 120);
+            ctx.fillText("SENA PHOTOBOOTH ✦", 400, 80);
 
-            // Draw Photos
-            let y = 200;
-            for(let i=0; i<capturedPhotos.length; i++) {
-                const img = await new Promise(r => {
-                    const iEl = new Image();
-                    iEl.onload = () => r(iEl);
-                    iEl.src = capturedPhotos[i];
+            let y = 150;
+            for(let i=0; i<photos.length; i++) {
+                const img = await new Promise(res => {
+                    const e = new Image();
+                    e.onload = () => res(e);
+                    e.src = photos[i];
                 });
-                ctx.drawImage(img, 75, y, 850, 500);
-                y += 530;
+                ctx.drawImage(img, 50, y, 700, 430);
+                y += 450;
             }
 
-            // Download
             const link = document.createElement('a');
             link.download = 'SENA_K_STRIP.jpg';
-            link.href = canvas.toDataURL('image/jpeg', 0.98);
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
             link.click();
         }
     </script>
