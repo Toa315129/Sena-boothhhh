@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH PREMIUM V.4</title>
+    <title>SENA PHOTOBOOTH PREMIUM FULL SYSTEM</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -67,7 +67,6 @@
         }
         #video-feed { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        /* Sidebar Preview */
         .history-rail {
             width: 100px; display: flex; flex-direction: column; gap: 15px;
         }
@@ -80,14 +79,12 @@
         .rail-slot.captured { transform: translateX(0); opacity: 1; }
         .rail-slot img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Countdown */
         #count-num {
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
             font-size: 200px; color: white; font-weight: bold; text-shadow: 0 10px 30px rgba(0,0,0,0.2);
             opacity: 0; pointer-events: none; z-index: 50;
         }
 
-        /* Filter Selector */
         .filter-bar {
             display: flex; gap: 15px; margin-top: 30px;
         }
@@ -109,10 +106,9 @@
         /* --- 4. FINAL SCREEN --- */
         .final-container { display: flex; gap: 60px; align-items: center; }
         
-        /* แก้ไขโครงสร้างฟิล์ม: เพิ่ม Padding ล่างให้เยอะขึ้นเพื่อให้ตัวหนังสือไม่ทับรูป */
         .print-strip {
             background: white; width: 320px; 
-            padding: 15px 15px 85px 15px; /* เพิ่มพื้นที่ล่างเป็น 85px */
+            padding: 15px 15px 95px 15px; /* เพิ่มพื้นที่ล่าง 95px ให้ SENA PHOTO */
             display: flex; flex-direction: column; gap: 12px;
             box-shadow: 0 40px 80px rgba(0,0,0,0.15);
             transition: 0.5s;
@@ -121,18 +117,19 @@
         .photo-frame { width: 100%; aspect-ratio: 3/2.2; background: #f9f9f9; overflow: hidden; }
         .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* ขยายขนาดตัวอักษรและจัดวางใหม่ไม่ให้ลอยทับรูป */
+        /* ชื่อร้านตัวใหญ่ หนา ไม่ทับรูป */
         .strip-footer { 
             position: absolute;
-            bottom: 25px;
+            bottom: 30px;
             left: 0;
             width: 100%;
             text-align: center; 
             font-family: 'Montserrat'; 
             font-weight: 600;
-            font-size: 24px; /* ใหญ่กว่าเดิม */
-            letter-spacing: 8px; /* กว้างขึ้น */
-            opacity: 0.8; 
+            font-size: 26px; 
+            letter-spacing: 10px; 
+            opacity: 0.9; 
+            text-transform: uppercase;
         }
 
         .qr-panel {
@@ -301,6 +298,8 @@
             
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
+            
+            // --- FIXED: ฝังฟิลเตอร์ลงในรูปถ่ายทันที ---
             ctx.filter = currentFilter;
             ctx.drawImage(video, 0, 0);
 
@@ -308,7 +307,7 @@
             capturedImages.push(data);
 
             const slot = document.getElementById('slot-' + index);
-            slot.innerHTML = `<img src="${data}">`;
+            slot.innerHTML = `<img src="${data}" style="width:100%;height:100%;object-fit:cover;">`;
             slot.classList.add('captured');
         }
 
@@ -346,23 +345,24 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = 1200;
-            canvas.height = 3000; // เพิ่มความสูงรวมเป็น 3000px
+            canvas.height = 3000;
 
             ctx.fillStyle = (selectedFrameColor === 'pattern') ? '#FFFFFF' : selectedFrameColor;
             ctx.fillRect(0,0, canvas.width, canvas.height);
 
-            let y = 150; // เริ่มต้นที่ 150px
+            let y = 150;
             for(let src of capturedImages) {
                 const img = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; });
                 ctx.drawImage(img, 100, y, 1000, 600);
-                y += 630; // เว้นระยะรูป
+                y += 630;
             }
 
+            // ชื่อร้าน SENA PHOTO ตัวใหญ่สะใจ ไม่ทับรูป
             ctx.fillStyle = (selectedFrameColor === '#1A1A1A') ? 'white' : '#4A5568';
-            ctx.font = "600 70px Montserrat"; // ขยายตัวหนังสือใหญ่และหนาขึ้น
+            ctx.font = "bold 75px Montserrat"; 
             ctx.textAlign = "center";
-            ctx.letterSpacing = "15px"; // เว้นระยะตัวอักษรให้หรู
-            ctx.fillText("S E N A   P H O T O", 600, 2880); // วางไว้ที่ 2880px เพื่อให้มีที่ว่างรอบๆ
+            ctx.letterSpacing = "15px";
+            ctx.fillText("SENA PHOTO", 600, 2880);
 
             return canvas.toDataURL('image/jpeg', 0.9);
         }
