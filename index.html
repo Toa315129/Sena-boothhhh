@@ -2,17 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SENA PHOTOBOOTH | Pro Minimal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SENA PHOTOBOOTH | Final Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
         :root {
             --bg-color: #fafafa;
             --text-color: #1a1a1a;
-            --accent-color: #1a1a1a;
             --shadow-soft: 0 10px 40px rgba(0,0,0,0.08);
-            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -27,6 +26,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            user-select: none;
         }
 
         /* --- UI Layout --- */
@@ -51,26 +51,29 @@
             opacity: 0;
             pointer-events: none;
             padding: 20px;
+            z-index: 1;
         }
 
         .screen.active { opacity: 1; pointer-events: all; z-index: 10; }
 
         /* --- Screen 1: Home --- */
-        h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; margin-bottom: 40px; }
+        h1 { font-weight: 600; font-size: 1.6rem; letter-spacing: -0.5px; margin-bottom: 30px; }
         .section-label { font-size: 0.75rem; color: #888; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 
         .color-options { display: flex; gap: 15px; margin-bottom: 40px; }
         .color-dot {
             width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
             border: 2px solid transparent; transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .color-dot.selected { transform: scale(1.2); border-color: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .color-dot.selected { transform: scale(1.15); border-color: #000; box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
 
         .filter-toggle {
-            display: flex; background: #eee; border-radius: 30px; padding: 4px; margin-bottom: 60px; position: relative;
+            display: flex; background: #eee; border-radius: 30px; padding: 4px; margin-bottom: 50px; position: relative;
         }
         .filter-btn {
-            padding: 12px 30px; border: none; background: transparent; font-weight: 600; cursor: pointer; z-index: 2; width: 100px;
+            padding: 12px 30px; border: none; background: transparent; font-weight: 600; cursor: pointer; z-index: 2; width: 100px; font-size: 0.9rem;
+            transition: color 0.3s;
         }
         .filter-bg {
             position: absolute; top: 4px; left: 4px; width: 100px; height: calc(100% - 8px);
@@ -81,7 +84,8 @@
         .start-btn {
             background: #1a1a1a; color: white; border: none; padding: 18px 60px;
             border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
         }
         .start-btn:active { transform: scale(0.95); }
 
@@ -93,18 +97,29 @@
         }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        /* Preview Strip (NEW) */
+        /* Grid & Overlays */
+        .grid-lines {
+            position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; opacity: 0.5;
+        }
+        .grid-lines::before { content:''; position:absolute; left:33.33%; width:33.33%; height:100%; border-left:1px solid rgba(255,255,255,0.3); border-right:1px solid rgba(255,255,255,0.3); }
+        .grid-lines::after { content:''; position:absolute; top:33.33%; height:33.33%; width:100%; border-top:1px solid rgba(255,255,255,0.3); border-bottom:1px solid rgba(255,255,255,0.3); }
+
+        /* Preview Thumbnails (Fixed) */
         .preview-thumbnails {
-            display: flex; gap: 10px; height: 80px; width: 100%;
+            display: flex; gap: 12px; height: 90px; width: 100%;
             justify-content: center; margin-top: 10px;
         }
         .thumb {
-            width: 60px; height: 80px; background: #ddd; border-radius: 8px;
+            width: 67px; height: 90px; background: #f0f0f0; border-radius: 10px;
             overflow: hidden; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            opacity: 0; transform: translateY(10px); transition: all 0.3s ease;
+            opacity: 0; transform: translateY(20px); transition: all 0.4s ease;
+            position: relative;
         }
         .thumb.visible { opacity: 1; transform: translateY(0); }
-        .thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .thumb-number {
+            position: absolute; bottom: 2px; right: 5px; color: white; font-size: 10px; font-weight: bold; text-shadow: 0 1px 2px black;
+        }
 
         .counter-display {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -117,8 +132,9 @@
 
         /* --- Screen 3: Result --- */
         .photo-strip {
-            height: 65vh; width: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            height: 62vh; width: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
             transform: translateY(100px); opacity: 0; transition: var(--transition);
+            border-radius: 2px;
         }
         .photo-strip.printed { transform: translateY(0); opacity: 1; }
 
@@ -131,11 +147,11 @@
         .btn-primary {
             background: #1a1a1a; color: white; border: none; padding: 14px 40px;
             border-radius: 50px; font-weight: 600; cursor: pointer; font-size: 1rem;
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .btn-text {
             background: transparent; border: none; color: #666; font-weight: 500;
-            cursor: pointer; font-size: 0.9rem; text-decoration: underline;
+            cursor: pointer; font-size: 0.9rem; text-decoration: underline; margin-top: 5px;
         }
 
     </style>
@@ -156,27 +172,28 @@
                 <div class="color-dot" style="background: #74b9ff;" onclick="setFrameColor('#74b9ff', this)"></div>
             </div>
 
-            <div class="section-label">Filter</div>
+            <div class="section-label">Filter Mode</div>
             <div class="filter-toggle">
                 <div class="filter-bg" id="filterBg"></div>
                 <button class="filter-btn" onclick="setFilter('normal', 0)">Color</button>
                 <button class="filter-btn" onclick="setFilter('bw', 1)">B&W</button>
             </div>
 
-            <button class="start-btn" onclick="startSession()">START SESSION</button>
+            <button id="startBtn" class="start-btn" onclick="startSession()">START SESSION</button>
         </div>
 
         <div id="screen-capture" class="screen">
             <div class="viewfinder">
                 <video id="video" autoplay playsinline muted></video>
+                <div class="grid-lines"></div>
                 <div id="countdownDisplay" class="counter-display">3</div>
                 <div id="flash" class="flash-overlay"></div>
             </div>
             
             <div class="preview-thumbnails">
-                <div class="thumb" id="thumb1"></div>
-                <div class="thumb" id="thumb2"></div>
-                <div class="thumb" id="thumb3"></div>
+                <div class="thumb" id="thumb1"><span class="thumb-number">1</span></div>
+                <div class="thumb" id="thumb2"><span class="thumb-number">2</span></div>
+                <div class="thumb" id="thumb3"><span class="thumb-number">3</span></div>
             </div>
         </div>
 
@@ -225,7 +242,7 @@
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             
-            osc.frequency.value = 1000;
+            osc.frequency.value = 1200;
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
             
@@ -240,16 +257,15 @@
             osc.connect(gain);
             gain.connect(audioCtx.destination);
 
-            // Sweep frequency for a mechanical "Click" sound
-            osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+            // Shutter sound emulation
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.08);
             
-            // Louder Volume
-            gain.gain.setValueAtTime(0.8, audioCtx.currentTime); 
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
 
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.06);
+            osc.stop(audioCtx.currentTime + 0.1);
         }
 
         // --- Core Logic ---
@@ -263,21 +279,28 @@
         function setFilter(type, idx) {
             config.filter = type;
             document.getElementById('filterBg').style.transform = `translateX(${idx * 100}%)`;
-            // Preview Filter
-            video.style.filter = (type === 'bw') ? 'grayscale(100%) contrast(1.2)' : 'none';
+            
+            // Preview Filter (Live view)
+            if(type === 'bw') {
+                video.style.filter = 'grayscale(100%)';
+            } else {
+                video.style.filter = 'none';
+            }
         }
 
         async function startSession() {
             initAudio();
             capturedImages = [];
+            
             // Reset Thumbnails
             [1,2,3].forEach(i => {
                 const t = document.getElementById(`thumb${i}`);
-                t.innerHTML = '';
+                t.innerHTML = `<span class="thumb-number">${i}</span>`;
                 t.classList.remove('visible');
             });
 
             try {
+                // Request High Res Camera
                 stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { width: { ideal: 1920 }, height: { ideal: 1080 }, facingMode: "user" } 
                 });
@@ -286,6 +309,7 @@
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 document.getElementById('screen-capture').classList.add('active');
 
+                // Wait a bit before starting
                 setTimeout(runSequence, 1500);
             } catch (e) {
                 alert("Please allow camera access.");
@@ -330,9 +354,9 @@
                 // Flash Effect
                 const f = document.getElementById('flash');
                 f.style.opacity = 1;
-                setTimeout(() => f.style.opacity = 0, 100);
+                setTimeout(() => f.style.opacity = 0, 150);
 
-                // Capture to Canvas
+                // 1. Setup temporary canvas
                 const w = video.videoWidth;
                 const h = video.videoHeight;
                 const tc = document.createElement('canvas');
@@ -340,22 +364,27 @@
                 tc.height = h;
                 const tctx = tc.getContext('2d');
 
-                // Mirror & Draw
+                // 2. Mirror transformation
                 tctx.translate(w, 0);
                 tctx.scale(-1, 1);
                 
-                // FIX: Apply filter directly to the captured data
+                // 3. APPLY FILTER FORCEFULLY FOR CAPTURE
                 if(config.filter === 'bw') {
-                    tctx.filter = 'grayscale(100%) contrast(1.2)';
+                    tctx.filter = 'grayscale(100%)';
                 }
                 
                 tctx.drawImage(video, 0, 0, w, h);
                 capturedImages.push(tc);
 
-                // Show Thumbnail
-                const thumbData = tc.toDataURL();
+                // 4. Update Thumbnail (Also apply filter to thumb)
+                const thumbImg = document.createElement('img');
+                thumbImg.src = tc.toDataURL();
+                // Ensure CSS filter matches for visual consistency
+                if(config.filter === 'bw') thumbImg.style.filter = 'grayscale(100%)';
+                
                 const thumbEl = document.getElementById(`thumb${index}`);
-                thumbEl.innerHTML = `<img src="${thumbData}">`;
+                thumbEl.innerHTML = ''; 
+                thumbEl.appendChild(thumbImg);
                 thumbEl.classList.add('visible');
 
                 resolve();
@@ -369,6 +398,7 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-result').classList.add('active');
             
+            // Wait for render to finish then show animation
             setTimeout(() => {
                 document.getElementById('finalResult').classList.add('printed');
                 document.getElementById('actionButtons').classList.add('visible');
@@ -387,11 +417,11 @@
             canvas.width = stripW;
             canvas.height = totalH;
 
-            // Background
+            // 1. Draw Background
             ctx.fillStyle = config.frameColor;
             ctx.fillRect(0, 0, stripW, totalH);
 
-            // Header
+            // 2. Draw Header
             ctx.fillStyle = config.textColor;
             ctx.textAlign = 'center';
             ctx.font = '600 36px "Inter"';
@@ -399,8 +429,16 @@
             ctx.font = '400 16px "Inter"';
             ctx.fillText("@SAPHASENA", stripW/2, 110);
 
-            // Images
+            // 3. Draw Images Loop
             let y = topPad;
+            
+            // *** CRITICAL FIX: FORCE FILTER ON CONTEXT BEFORE DRAWING ***
+            if(config.filter === 'bw') {
+                ctx.filter = 'grayscale(100%)'; 
+            } else {
+                ctx.filter = 'none';
+            }
+
             capturedImages.forEach(img => {
                 // Crop Center Logic
                 const sRatio = img.width / img.height;
@@ -415,30 +453,24 @@
                     sx = 0; sy = (img.height - sh)/2;
                 }
 
-                // FIX: Double ensure filter is applied on assembly (just in case)
-                if(config.filter === 'bw') {
-                    ctx.filter = 'grayscale(100%) contrast(1.2)';
-                } else {
-                    ctx.filter = 'none';
-                }
-
                 ctx.drawImage(img, sx, sy, sw, sh, (stripW-photoW)/2, y, photoW, photoH);
                 y += photoH + gap;
             });
 
-            // Reset filter for text
+            // 4. Reset Filter for Footer Text (So text isn't processed)
             ctx.filter = 'none';
 
-            // Timestamp
+            // 5. Draw Footer (Date)
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
             const timeStr = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
             
-            ctx.font = '400 20px "Inter"';
+            ctx.font = '400 18px "Inter"';
             ctx.fillStyle = config.textColor;
             ctx.globalAlpha = 0.6;
             ctx.fillText(`${dateStr} • ${timeStr}`, stripW/2, totalH - 50);
 
+            // Export
             document.getElementById('finalResult').src = canvas.toDataURL('image/jpeg', 0.95);
         }
 
@@ -450,7 +482,6 @@
         }
 
         function resetApp() {
-            // UI Reset
             document.getElementById('finalResult').classList.remove('printed');
             document.getElementById('actionButtons').classList.remove('visible');
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
