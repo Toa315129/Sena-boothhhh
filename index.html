@@ -3,278 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH</title>
+    <title>SENA PHOTOBOOTH | ULTIMATE</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #f4f4f4;
-            --booth-bg: #ffffff;
+            --bg-color: #F0F0F0;
+            --booth-white: #FFFFFF;
             --ink: #111111;
-            --stroke-width: 3px;
+            --border-thick: 3px;
             --shadow-hard: 6px 6px 0px var(--ink);
-            --font-main: 'Patrick Hand', cursive;
+            --radius: 16px;
+            --anim-speed: 0.4s;
         }
 
-        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
         body {
             margin: 0;
             background-color: var(--bg-color);
-            background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
-            background-size: 20px 20px;
-            font-family: var(--font-main);
+            background-image: radial-gradient(#ccc 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            font-family: 'Patrick Hand', cursive;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             overflow: hidden;
             color: var(--ink);
         }
 
-        /* --- THE BOOTH CONTAINER (เครื่องตู้) --- */
-        .booth-container {
-            width: 100%;
-            max-width: 420px;
-            height: 90vh;
-            background: var(--booth-bg);
-            border: var(--stroke-width) solid var(--ink);
-            border-radius: 20px;
-            position: relative;
-            box-shadow: var(--shadow-hard);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+        /* --- THE KIOSK CHASSIS --- */
+        .app-shell {
+            width: 100%; max-width: 440px; height: 92vh;
+            background: var(--booth-white);
+            border: var(--border-thick) solid var(--ink);
+            border-radius: var(--radius);
+            position: relative; overflow: hidden;
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column;
         }
 
         /* --- HEADER --- */
-        .marquee {
-            border-bottom: var(--stroke-width) solid var(--ink);
-            padding: 15px;
-            text-align: center;
-            background: #fff;
-            z-index: 10;
+        header {
+            border-bottom: var(--border-thick) solid var(--ink);
+            padding: 20px 0; text-align: center;
+            background: #fff; z-index: 20;
+            position: relative;
         }
-        .brand-name {
-            font-size: 2.5rem;
-            margin: 0;
-            line-height: 1;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        h1 { font-size: 2.8rem; margin: 0; line-height: 0.8; letter-spacing: 2px; text-transform: uppercase; }
+        .tagline { font-size: 1.1rem; color: #666; margin-top: 5px; letter-spacing: 1px; }
 
         /* --- SCREENS --- */
-        .screen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: absolute;
-            top: 60px; /* Below header */
-            bottom: 0;
-            width: 100%;
-            background: #fff;
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Bouncy transition */
-            transform: translateX(100%);
-        }
-        .screen.active { transform: translateX(0); }
-        .screen.prev { transform: translateX(-100%); }
-
-        /* --- UI ELEMENTS --- */
-        h2 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; }
+        .screen-container { position: relative; flex: 1; width: 100%; overflow: hidden; }
         
-        .btn-action {
-            background: var(--ink);
-            color: #fff;
-            border: var(--stroke-width) solid var(--ink);
-            padding: 15px 40px;
-            font-family: var(--font-main);
-            font-size: 1.8rem;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
-            transition: all 0.1s;
-            margin-top: 20px;
-        }
-        .btn-action:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
-        }
-        .btn-action.secondary {
+        .screen {
+            position: absolute; inset: 0;
+            padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
             background: #fff;
-            color: var(--ink);
+            transition: transform var(--anim-speed) cubic-bezier(0.7, 0, 0.3, 1);
+            transform: translateY(100%); z-index: 1;
         }
+        .screen.active { transform: translateY(0); z-index: 10; }
+        .screen.prev { transform: translateY(-15%); opacity: 0.5; filter: blur(2px); z-index: 1; }
+
+        /* --- UI CONTROLS --- */
+        .label-text { font-size: 1.4rem; width: 100%; text-align: left; margin: 15px 0 8px 0; font-weight: bold; }
+        
+        /* Option Grid */
+        .option-grid { display: flex; gap: 10px; width: 100%; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .opt-btn {
+            flex: 1; min-width: 80px; padding: 12px 5px;
+            border: 2px solid #ddd; border-radius: 10px;
+            background: #fff; cursor: pointer;
+            font-family: inherit; font-size: 1.2rem; text-align: center;
+            transition: 0.2s; position: relative;
+        }
+        .opt-btn.active {
+            border: var(--border-thick) solid var(--ink);
+            background: var(--ink); color: #fff;
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+        .color-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); margin: 0 auto; }
+
+        /* BIG BUTTONS */
+        .btn-main {
+            width: 100%; padding: 18px; margin-top: auto;
+            background: var(--ink); color: #fff;
+            border: var(--border-thick) solid var(--ink);
+            border-radius: 12px;
+            font-family: inherit; font-size: 2rem;
+            cursor: pointer; text-transform: uppercase;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .btn-main:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0px rgba(0,0,0,0.2); }
+        .btn-secondary { background: #fff; color: var(--ink); margin-top: 10px; font-size: 1.2rem; padding: 12px; }
 
         /* --- CAMERA & COUNTDOWN --- */
-        .camera-frame {
-            width: 100%;
-            aspect-ratio: 3/4;
-            background: #000;
-            border: var(--stroke-width) solid var(--ink);
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 4px 4px 0 #eee;
+        .cam-wrapper {
+            width: 100%; aspect-ratio: 3/4;
+            background: #000; border-radius: 12px;
+            border: var(--border-thick) solid var(--ink);
+            position: relative; overflow: hidden;
+            box-shadow: var(--shadow-hard);
         }
-        video {
-            width: 100%; height: 100%; object-fit: cover;
-            transform: scaleX(-1); /* Mirror effect */
+        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        
+        .countdown-overlay {
+            position: absolute; inset: 0;
+            display: flex; justify-content: center; align-items: center;
+            pointer-events: none;
         }
-        .countdown {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 8rem; color: #fff;
-            text-shadow: 4px 4px 0 #000;
-            display: none;
-        }
-        .flash {
-            position: fixed; inset: 0; background: white;
-            z-index: 100; opacity: 0; pointer-events: none;
-        }
-        .flash.fire { animation: flashAnim 0.2s linear; }
-        @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
+        #count-num { font-size: 8rem; color: #fff; text-shadow: 4px 4px 0 #000; display: none; }
 
-        /* --- PRINTING ANIMATION (Highlight Feature) --- */
-        .print-slot {
-            width: 220px; height: 15px;
-            background: #333;
-            border-radius: 10px;
-            margin-bottom: 0;
-            position: relative;
-            z-index: 5;
+        .pose-status { margin-top: 20px; font-size: 1.5rem; text-align: center; }
+
+        /* --- THE PRINTER (Animation Magic) --- */
+        .printer-mouth {
+            width: 260px; height: 12px; background: #333;
+            border-radius: 6px; margin: 0 auto 0 auto;
+            position: relative; z-index: 20;
+            box-shadow: 0 4px 0 rgba(255,255,255,0.5); /* Highlight below slot */
         }
-        .photo-strip-container {
-            position: relative;
-            width: 200px;
-            height: 400px; /* Visible area */
-            overflow: hidden;
-            margin-top: -5px;
+        
+        .print-area {
+            position: relative; width: 100%; height: 100%;
+            display: flex; justify-content: center; perspective: 1000px;
         }
+
         .photo-strip {
-            width: 100%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transform: translateY(-110%); /* Start hidden */
+            width: 240px; height: auto;
             border: 2px solid var(--ink);
+            background: #fff;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            position: absolute; top: -600px; /* Start hidden above */
+            z-index: 5;
+            transform-origin: top center;
         }
-        .photo-strip.printing {
-            animation: printSlide 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
-        }
+        
+        /* Animation States */
+        .photo-strip.printing { animation: printSlide 3s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
+        .photo-strip.resting { top: 20px; transform: rotate(-2deg); transition: 0.5s; }
+
         @keyframes printSlide {
-            0% { transform: translateY(-110%); }
-            100% { transform: translateY(0); }
+            0% { top: -600px; }
+            100% { top: 20px; } /* Stops right below slot */
         }
 
-        /* --- DECORATIONS (Doodles) --- */
-        .doodle { position: absolute; pointer-events: none; opacity: 0.6; }
-        .d-star { top: 20px; right: 20px; font-size: 2rem; transform: rotate(15deg); }
-        .d-arrow { bottom: 100px; left: 20px; font-size: 2rem; transform: rotate(-15deg); }
+        .action-panel {
+            position: absolute; bottom: 30px; width: 85%;
+            opacity: 0; pointer-events: none; transition: 0.5s;
+        }
+        .action-panel.visible { opacity: 1; pointer-events: auto; }
+
+        /* --- FLASH EFFECT --- */
+        .flash { position: fixed; inset:0; background:#fff; z-index:99; opacity:0; pointer-events:none; }
+        .flash.fire { animation: flashAnim 0.15s ease-out; }
+        @keyframes flashAnim { 0% { opacity:1;} 100% { opacity:0; } }
 
     </style>
 </head>
 <body>
 
-    <div class="booth-container">
-        <div class="marquee">
-            <h1 class="brand-name">SENA PHOTOBOOTH</h1>
-        </div>
+    <div class="app-shell">
+        <header>
+            <h1>SENA BOOTH</h1>
+            <div class="tagline">The Official Photo Studio</div>
+        </header>
 
-        <div id="screen-start" class="screen active">
-            <div class="doodle d-star">✶</div>
-            <div style="text-align:center;">
-                <h2 style="font-size:3rem; line-height:0.9;">READY<br>TO<br>POSE?</h2>
-                <p style="font-size:1.2rem; color:#666;">Get 3 snaps in a row!</p>
-            </div>
-            <button class="btn-action" onclick="startCamera()">TAP TO START</button>
-            <div class="doodle d-arrow">✎</div>
-        </div>
+        <div class="screen-container">
+            
+            <div id="scr-home" class="screen active">
+                <div style="width:100%;">
+                    <div class="label-text">Select Style</div>
+                    <div class="option-grid">
+                        <button class="opt-btn active" onclick="setMode('color', this)">Color</button>
+                        <button class="opt-btn" onclick="setMode('bw', this)">B&W</button>
+                        <button class="opt-btn" onclick="setMode('sepia', this)">Vintage</button>
+                    </div>
 
-        <div id="screen-camera" class="screen">
-            <h2 id="status-text">POSE 1 / 3</h2>
-            <div class="camera-frame">
-                <video id="video" autoplay playsinline muted></video>
-                <div id="count" class="countdown">3</div>
-            </div>
-            <p style="margin-top:15px; color:#888;">Keep smiling!</p>
-        </div>
+                    <div class="label-text">Frame Color</div>
+                    <div class="option-grid">
+                        <button class="opt-btn active" onclick="setFrame('#FFFFFF', 'black', this)"><div class="color-dot" style="background:#fff"></div></button>
+                        <button class="opt-btn" onclick="setFrame('#111111', 'white', this)"><div class="color-dot" style="background:#000"></div></button>
+                        <button class="opt-btn" onclick="setFrame('#FFF8E1', 'black', this)"><div class="color-dot" style="background:#FFF8E1"></div></button>
+                        <button class="opt-btn" onclick="setFrame('#FFC0CB', 'black', this)"><div class="color-dot" style="background:#FFC0CB"></div></button>
+                    </div>
+                </div>
 
-        <div id="screen-print" class="screen" style="justify-content: flex-start; padding-top: 50px;">
-            <h2 style="margin-bottom:10px;">PRINTING...</h2>
-            <div class="print-slot"></div>
-            <div class="photo-strip-container">
-                <img id="final-strip" class="photo-strip" src="" alt="Photo Strip">
-            </div>
-            <div id="download-area" style="opacity:0; transition:opacity 0.5s; margin-top:20px; text-align:center;">
-                <button class="btn-action" onclick="downloadImage()">DOWNLOAD</button>
-                <br>
-                <button class="btn-action secondary" style="font-size:1rem; padding:10px 20px; margin-top:10px;" onclick="reset()">RESTART</button>
-            </div>
-        </div>
+                <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+                    <p style="font-size:1.4rem; text-align:center; color:#888;">
+                        Step inside.<br>Strike a pose.<br>Keep the memory.
+                    </p>
+                </div>
 
+                <button class="btn-main" onclick="startSession()">START CAMERA</button>
+            </div>
+
+            <div id="scr-cam" class="screen">
+                <div class="cam-wrapper">
+                    <video id="video" autoplay playsinline muted></video>
+                    <div class="countdown-overlay"><div id="count-num">3</div></div>
+                </div>
+                <div class="pose-status" id="pose-tracker">Ready?</div>
+            </div>
+
+            <div id="scr-print" class="screen" style="background:#f9f9f9; padding-top:0;">
+                <div style="width:100%; background:#fff; padding:15px 0; border-bottom:1px solid #eee; display:flex; justify-content:center; z-index:15;">
+                    <div class="printer-mouth"></div>
+                </div>
+
+                <div class="print-area">
+                    <img id="final-img" class="photo-strip" alt="Photo Strip">
+                </div>
+
+                <div class="action-panel" id="end-menu">
+                    <button class="btn-main" onclick="downloadStrip()">DOWNLOAD PHOTO</button>
+                    <button class="btn-main btn-secondary" onclick="resetApp()">NEW SESSION</button>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <div class="flash" id="flash-overlay"></div>
+    <div class="flash" id="flash"></div>
     <canvas id="canvas" style="display:none;"></canvas>
 
     <script>
+        // --- SYSTEM CORE ---
+        const config = { mode: 'color', bg: '#FFFFFF', ink: '#111111' };
+        let stream = null;
+        let shots = [];
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const screens = {
-            start: document.getElementById('screen-start'),
-            camera: document.getElementById('screen-camera'),
-            print: document.getElementById('screen-print')
+
+        // --- AUDIO ENGINE ---
+        const AudioEngine = {
+            ctx: null,
+            init: function() {
+                if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            play: function(type) {
+                if(!this.ctx) this.init();
+                if(this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination);
+
+                const now = this.ctx.currentTime;
+                if(type === 'beep') {
+                    osc.frequency.setValueAtTime(800, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    osc.start(now); osc.stop(now + 0.1);
+                } else if(type === 'shutter') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(150, now);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now); osc.stop(now + 0.15);
+                }
+            }
         };
-        
-        let photos = [];
-        let stream = null;
 
-        function showScreen(name) {
-            document.querySelectorAll('.screen').forEach(s => {
-                s.classList.remove('active', 'prev');
-            });
-            screens[name].classList.add('active');
+        // --- UX CONTROLS ---
+        function setMode(m, el) {
+            config.mode = m;
+            document.querySelectorAll('#scr-home .opt-btn:nth-child(-n+3)').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+        }
+        function setFrame(bg, ink, el) {
+            config.bg = bg; config.ink = ink;
+            document.querySelectorAll('#scr-home .opt-btn:nth-child(n+4)').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+        }
+        function navigate(toId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(toId).classList.add('active');
         }
 
-        async function startCamera() {
+        // --- CAMERA SEQUENCE ---
+        async function startSession() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, 
-                    audio: false 
-                });
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 1280, height: 720 } });
                 video.srcObject = stream;
-                showScreen('camera');
-                setTimeout(startSequence, 1000);
-            } catch (err) {
-                alert("Please allow camera access!");
-            }
+                
+                // CSS Filter for preview
+                video.style.filter = config.mode === 'bw' ? 'grayscale(100%)' : 
+                                     config.mode === 'sepia' ? 'sepia(40%) contrast(105%)' : 'none';
+                
+                navigate('scr-cam');
+                setTimeout(runBoothLogic, 1000);
+            } catch(e) { alert("Camera Permission Denied"); }
         }
 
-        async function startSequence() {
-            photos = [];
-            for (let i = 1; i <= 3; i++) {
-                document.getElementById('status-text').innerText = `POSE ${i} / 3`;
+        async function runBoothLogic() {
+            shots = [];
+            for(let i=1; i<=3; i++) {
+                document.getElementById('pose-tracker').innerText = `Pose ${i} of 3`;
                 await countdown(3);
-                await capture();
-                // Slight pause between shots
-                if(i < 3) await new Promise(r => setTimeout(r, 1000));
+                await snap();
             }
-            processPhotos();
+            document.getElementById('pose-tracker').innerText = "Processing...";
+            finishSession();
         }
 
-        function countdown(seconds) {
+        function countdown(n) {
             return new Promise(resolve => {
-                const el = document.getElementById('count');
-                el.style.display = 'block';
-                let c = seconds;
-                el.innerText = c;
+                let c = n;
+                const el = document.getElementById('count-num');
+                el.style.display = 'block'; el.innerText = c;
+                AudioEngine.play('beep');
                 
                 const timer = setInterval(() => {
                     c--;
-                    if (c > 0) {
+                    if(c > 0) {
                         el.innerText = c;
+                        AudioEngine.play('beep');
                     } else {
                         clearInterval(timer);
                         el.style.display = 'none';
@@ -284,120 +331,115 @@
             });
         }
 
-        function capture() {
+        function snap() {
             return new Promise(resolve => {
-                // Flash effect
-                const flash = document.getElementById('flash-overlay');
+                AudioEngine.play('shutter');
+                const flash = document.getElementById('flash');
                 flash.classList.add('fire');
-                setTimeout(() => flash.classList.remove('fire'), 500);
+                setTimeout(() => flash.classList.remove('fire'), 200);
 
-                // Capture Frame
-                const w = video.videoWidth;
-                const h = video.videoHeight;
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = w;
-                tempCanvas.height = h;
-                const tCtx = tempCanvas.getContext('2d');
+                const w = video.videoWidth; const h = video.videoHeight;
+                const tc = document.createElement('canvas');
+                tc.width = w; tc.height = h;
+                const tctx = tc.getContext('2d');
                 
-                // Mirror image
-                tCtx.translate(w, 0);
-                tCtx.scale(-1, 1);
-                tCtx.drawImage(video, 0, 0, w, h);
+                tctx.translate(w, 0); tctx.scale(-1, 1);
+                tctx.drawImage(video, 0, 0, w, h);
                 
-                photos.push(tempCanvas);
-                resolve();
-            });
-        }
-
-        function processPhotos() {
-            if (stream) stream.getTracks().forEach(track => track.stop());
-
-            const stripWidth = 400;
-            const photoHeight = 300; // 4:3 aspect ratio target
-            const padding = 20;
-            const headerHeight = 100;
-            const footerHeight = 60;
-            const totalHeight = headerHeight + (photoHeight * 3) + (padding * 4) + footerHeight;
-
-            canvas.width = stripWidth;
-            canvas.height = totalHeight;
-
-            // Background (Paper texture color)
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, stripWidth, totalHeight);
-
-            // Draw Logo
-            ctx.fillStyle = "#111";
-            ctx.font = "bold 40px 'Patrick Hand'";
-            ctx.textAlign = "center";
-            ctx.fillText("SENA PHOTOBOOTH", stripWidth / 2, 60);
-            
-            ctx.font = "20px 'Patrick Hand'";
-            ctx.fillText("The Best Memories", stripWidth / 2, 85);
-
-            // Draw Photos
-            let yPos = headerHeight + padding;
-            photos.forEach(photo => {
-                // Crop logic to fit 4:3
-                const sWidth = photo.width;
-                const sHeight = photo.height;
-                const sRatio = sWidth / sHeight;
-                const dRatio = 4 / 3;
-                
-                let sx, sy, sw, sh;
-                if (sRatio > dRatio) {
-                    sh = sHeight;
-                    sw = sh * dRatio;
-                    sx = (sWidth - sw) / 2;
-                    sy = 0;
-                } else {
-                    sw = sWidth;
-                    sh = sw / dRatio;
-                    sx = 0;
-                    sy = (sHeight - sh) / 2;
+                // Apply Filter to Canvas Data
+                if(config.mode === 'bw') {
+                    tctx.globalCompositeOperation = 'saturation';
+                    tctx.fillStyle = '#000';
+                    tctx.fillRect(0,0,w,h);
+                } else if(config.mode === 'sepia') {
+                    tctx.globalCompositeOperation = 'overlay';
+                    tctx.fillStyle = 'rgba(112, 66, 20, 0.3)';
+                    tctx.fillRect(0,0,w,h);
                 }
 
-                // Draw black border for photo
-                ctx.fillStyle = "#000";
-                ctx.fillRect(padding - 3, yPos - 3, (stripWidth - padding * 2) + 6, photoHeight + 6);
-
-                // Draw Image
-                ctx.drawImage(photo, sx, sy, sw, sh, padding, yPos, stripWidth - (padding * 2), photoHeight);
-                yPos += photoHeight + padding;
+                shots.push(tc);
+                setTimeout(resolve, 800); // Wait a bit between shots
             });
-
-            // Draw Date Footer
-            const date = new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
-            ctx.font = "18px 'Patrick Hand'";
-            ctx.fillStyle = "#666";
-            ctx.fillText(date + " • @SENA_OFFICIAL", stripWidth / 2, totalHeight - 25);
-
-            // Display
-            const finalImg = document.getElementById('final-strip');
-            finalImg.src = canvas.toDataURL('image/jpeg');
-            
-            showScreen('print');
-            
-            // Trigger Animation
-            finalImg.classList.remove('printing');
-            void finalImg.offsetWidth; // Trigger reflow
-            finalImg.classList.add('printing');
-
-            setTimeout(() => {
-                document.getElementById('download-area').style.opacity = 1;
-            }, 3000);
         }
 
-        function downloadImage() {
+        // --- RENDERING ENGINE ---
+        function finishSession() {
+            if(stream) stream.getTracks().forEach(t => t.stop());
+
+            const stripW = 600; 
+            const photoW = 520; const photoH = (photoW * 3) / 4;
+            const gap = 30; const topPad = 140; const botPad = 100;
+            const totalH = topPad + (photoH * 3) + (gap * 2) + botPad;
+
+            canvas.width = stripW; canvas.height = totalH;
+
+            // Draw Background
+            ctx.fillStyle = config.bg;
+            ctx.fillRect(0,0,stripW,totalH);
+
+            // Draw Border Frame
+            ctx.strokeStyle = config.ink; ctx.lineWidth = 4;
+            ctx.strokeRect(5,5,stripW-10,totalH-10);
+
+            // Draw Header
+            ctx.fillStyle = config.ink; ctx.textAlign = 'center';
+            ctx.font = 'bold 70px "Patrick Hand"';
+            ctx.fillText('SENA BOOTH', stripW/2, 90);
+
+            // Draw Photos
+            let y = topPad;
+            shots.forEach(shot => {
+                // Smart Crop
+                const sRatio = shot.width / shot.height;
+                const dRatio = 4/3;
+                let sx, sy, sw, sh;
+                
+                if (sRatio > dRatio) {
+                    sh = shot.height; sw = sh * dRatio;
+                    sx = (shot.width - sw) / 2; sy = 0;
+                } else {
+                    sw = shot.width; sh = sw / dRatio;
+                    sx = 0; sy = (shot.height - sh) / 2;
+                }
+
+                ctx.drawImage(shot, sx, sy, sw, sh, (stripW-photoW)/2, y, photoW, photoH);
+                ctx.strokeRect((stripW-photoW)/2, y, photoW, photoH); // Photo Border
+                y += photoH + gap;
+            });
+
+            // Draw Footer
+            ctx.font = '30px "Patrick Hand"';
+            ctx.fillText(new Date().toLocaleDateString('en-US').toUpperCase(), stripW/2, totalH - 40);
+
+            // Start Animation
+            const img = document.getElementById('final-img');
+            img.src = canvas.toDataURL('image/jpeg', 0.95);
+            
+            navigate('scr-print');
+            
+            // Trigger Animation Sequence
+            setTimeout(() => {
+                img.classList.add('printing'); // Slide Out
+                setTimeout(() => {
+                    img.classList.add('resting'); // Rotate slightly
+                    document.getElementById('end-menu').classList.add('visible');
+                }, 3000);
+            }, 500);
+        }
+
+        function downloadStrip() {
             const link = document.createElement('a');
-            link.download = 'SENA-PHOTOBOOTH.jpg';
-            link.href = canvas.toDataURL('image/jpeg');
+            link.download = 'SENA_STRIP.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 1.0);
             link.click();
         }
 
-        function reset() {
-            document.getElementById('download-area').style.opacity = 0;
-            showScreen('start');
+        function resetApp() {
+            const img = document.getElementById('final-img');
+            img.classList.remove('printing', 'resting');
+            img.src = "";
+            document.getElementById('end-menu').classList.remove('visible');
+            navigate('scr-home');
         }
     </script>
 </body>
