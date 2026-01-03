@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH - K-Studio Edition</title>
+    <title>SENA PHOTOBOOTH - K-STUDIO ULTIMATE</title>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
-        /* --- CSS VARIABLE SYSTEM --- */
+        /* --- DESIGN SYSTEM --- */
         :root {
-            --milk: #FCFBF7;
-            --muji-white: #FFFFFF;
-            --soft-pink: #FDE6EF;
-            --k-blue: #E9F3FF;
-            --accent-color: #D4B2A7;
-            --text-main: #4A4A4A;
-            --text-sub: #9B9B9B;
-            --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
-            --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --cream-bg: #FFFDF5;    /* ขาวครีมนุ่มๆ */
+            --soft-blue: #E3F1FF;   /* ฟ้าพาสเทล */
+            --accent-blue: #A8D1FF; /* ฟ้าสำหรับปุ่ม */
+            --white: #FFFFFF;
+            --text-main: #5A6B7F;
+            --shadow: 0 15px 35px rgba(168, 209, 255, 0.25);
+            --border-radius: 35px;
         }
 
         /* --- GLOBAL RESET --- */
@@ -24,486 +24,352 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            background-color: var(--milk);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            background-color: var(--cream-bg);
             color: var(--text-main);
+            overflow: hidden;
         }
 
-        /* --- DECORATION: KOREAN STAR ⭐ --- */
+        /* --- DECORATION (Stars & Shine) --- */
         .k-star {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: #fff;
+            width: 24px; height: 24px;
+            background: var(--accent-blue);
             clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            z-index: 1;
-            opacity: 0.6;
+            opacity: 0.4;
+            z-index: 0;
         }
 
-        /* --- START SCREEN --- */
+        /* --- 1. START SCREEN --- */
         #startScreen {
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            background: linear-gradient(135deg, var(--soft-pink), var(--k-blue));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition-smooth);
+            position: fixed; inset: 0; z-index: 1000;
+            background: radial-gradient(circle at center, var(--white), var(--soft-blue));
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease-in-out;
         }
+        #startScreen.hide { opacity: 0; visibility: hidden; }
 
-        #startScreen.hide {
-            opacity: 0;
-            visibility: hidden;
-        }
+        .logo-container { text-align: center; margin-bottom: 60px; }
+        .logo-container h1 { font-size: 56px; font-weight: 200; letter-spacing: 12px; margin: 0; }
+        .logo-container p { font-size: 16px; letter-spacing: 4px; opacity: 0.6; margin-top: 15px; }
 
-        .logo-area {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .logo-area h1 {
-            font-size: 42px;
-            font-weight: 200;
-            letter-spacing: 8px;
-            margin: 0;
-        }
-
-        .logo-area p {
-            font-size: 14px;
-            letter-spacing: 2px;
-            color: var(--text-sub);
-            margin-top: 10px;
-        }
-
-        .start-btn {
-            width: 180px;
-            height: 180px;
-            background: var(--muji-white);
+        .start-circle {
+            width: 200px; height: 200px;
+            background: var(--white);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            letter-spacing: 3px;
-            box-shadow: var(--shadow-soft);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; letter-spacing: 3px;
+            box-shadow: var(--shadow);
+            border: 10px solid var(--soft-blue);
             cursor: pointer;
-            position: relative;
-            animation: pulse 3s infinite;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: float 3s infinite ease-in-out;
+        }
+        .start-circle:active { transform: scale(0.9); }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(255,255,255,0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); }
-        }
-
-        /* --- BOOTH SCREEN --- */
+        /* --- 2. BOOTH SCREEN --- */
         #boothScreen {
-            display: grid;
-            grid-template-rows: auto 1fr auto;
+            display: none; /* เปิดเมื่อกด Start */
             height: 100vh;
+            flex-direction: column;
             padding: 40px 30px;
-            gap: 20px;
-            visibility: hidden;
+            gap: 25px;
         }
 
-        /* Header / Status Bar */
         .booth-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 10px;
         }
 
-        .camera-status {
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.8);
-            padding: 6px 15px;
-            border-radius: 20px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ccc;
-        }
-        .status-dot.active { background: #FF5F5F; box-shadow: 0 0 8px #FF5F5F; }
-
-        /* Camera Viewport */
-        .camera-container {
+        .camera-viewport {
             position: relative;
             width: 100%;
-            border-radius: 30px;
-            overflow: hidden;
+            flex-grow: 1;
             background: #000;
-            box-shadow: var(--shadow-soft);
-            border: 8px solid white;
+            border-radius: var(--border-radius);
+            border: 12px solid var(--white);
+            box-shadow: var(--shadow);
+            overflow: hidden;
         }
 
         #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1); /* Mirror view */
+            width: 100%; height: 100%; object-fit: cover;
+            transform: scaleX(-1); /* Mirror Mode */
         }
 
-        .camera-guide {
+        /* INTERNAL PREVIEW (The 4 Boxes on the right) */
+        .side-previews {
             position: absolute;
-            inset: 15%;
-            border: 1px dashed rgba(255,255,255,0.3);
-            border-radius: 20px;
-            pointer-events: none;
+            right: 20px; top: 20px; bottom: 20px;
+            width: 85px;
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+            z-index: 5;
         }
-
-        /* Countdown Overlay */
-        #countdownOverlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.1);
-            font-size: 150px;
-            color: white;
-            font-weight: 200;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-        }
-
-        /* Flash Effect */
-        #flashEffect {
-            position: absolute;
-            inset: 0;
-            background: white;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* Preview Strip (Right Side or Bottom) */
-        .preview-area {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            min-height: 120px;
-        }
-
-        .preview-thumb {
-            width: 80px;
-            height: 110px;
-            background: var(--muji-white);
-            border-radius: 10px;
+        .slot {
+            width: 100%; aspect-ratio: 1/1;
+            background: rgba(255,255,255,0.25);
+            border: 2px solid var(--white);
+            border-radius: 12px;
             overflow: hidden;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: var(--transition-smooth);
-            box-shadow: var(--shadow-soft);
-            border: 3px solid white;
+            opacity: 0; transform: translateX(20px);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .slot.active { opacity: 1; transform: translateX(0); }
+        .slot img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* COUNTDOWN OVERLAY */
+        #countdownBox {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 160px; color: var(--white);
+            text-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            pointer-events: none; opacity: 0;
         }
 
-        .preview-thumb.show { opacity: 1; transform: translateY(0); }
-        .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Controls Area */
-        .controls {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
+        /* CONTROLS */
+        .booth-footer {
+            display: flex; justify-content: space-around; align-items: center;
             padding-bottom: 20px;
         }
 
-        .btn-capsule {
-            background: var(--muji-white);
-            border: none;
-            padding: 15px 30px;
-            border-radius: 40px;
-            font-size: 14px;
-            letter-spacing: 1px;
-            box-shadow: var(--shadow-soft);
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .btn-ui {
+            background: var(--white); border: none;
+            padding: 18px 35px; border-radius: 40px;
+            box-shadow: var(--shadow);
+            font-weight: 600; color: var(--text-main);
+            font-size: 15px; letter-spacing: 1px;
         }
 
-        .btn-capsule:active { transform: scale(0.95); background: var(--soft-pink); }
-
-        .btn-capture {
-            width: 90px;
-            height: 90px;
-            background: white;
+        .capture-btn {
+            width: 100px; height: 100px;
+            background: var(--white); border-radius: 50%;
+            border: 8px solid var(--soft-blue);
+            box-shadow: var(--shadow);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .capture-btn-inner {
+            width: 65px; height: 65px;
+            background: var(--accent-blue);
             border-radius: 50%;
-            border: 6px solid var(--soft-pink);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-soft);
-            cursor: pointer;
+            transition: 0.2s;
         }
+        .capture-btn:active .capture-btn-inner { transform: scale(0.8); }
 
-        .btn-capture-inner {
-            width: 60px;
-            height: 60px;
-            background: var(--soft-pink);
-            border-radius: 50%;
-            transition: var(--transition-smooth);
-        }
-
-        .btn-capture:active .btn-capture-inner { transform: scale(0.8); }
-
-        /* --- RESULT SCREEN (FILM) --- */
+        /* --- 3. RESULT SCREEN --- */
         #resultScreen {
-            position: fixed;
-            inset: 0;
-            background: rgba(248, 245, 241, 0.98);
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            position: fixed; inset: 0; z-index: 2000;
+            background: var(--cream-bg);
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 30px;
         }
 
-        .film-container {
-            background: white;
-            padding: 40px 20px 60px 20px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .result-container {
+            display: flex; align-items: center; gap: 40px;
+        }
+
+        /* FILM STRIP DESIGN */
+        .film-paper {
+            background: var(--white);
+            padding: 20px 20px 50px 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.1);
             width: 320px;
-            position: relative;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .film-photo {
+            width: 100%; aspect-ratio: 3/2.2;
+            background: #f5f5f5; overflow: hidden;
+        }
+        .film-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .film-logo {
+            text-align: center; margin-top: 15px;
+            font-size: 16px; letter-spacing: 5px; font-weight: 300;
         }
 
-        .film-header {
-            text-align: center;
-            font-size: 14px;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-            font-weight: 300;
+        /* ACTIONS PANEL */
+        .actions-panel {
+            display: flex; flex-direction: column; align-items: center; gap: 25px;
         }
 
-        .film-img-slot {
-            width: 100%;
-            aspect-ratio: 3/2.2;
-            background: #f0f0f0;
-            overflow: hidden;
+        #qrcode {
+            background: white; padding: 20px;
+            border-radius: 25px; box-shadow: var(--shadow);
         }
 
-        .film-img-slot img { width: 100%; height: 100%; object-fit: cover; }
+        .download-btn {
+            width: 280px; height: 85px;
+            background: var(--accent-blue);
+            color: white; border: none;
+            border-radius: 25px; font-size: 22px; font-weight: bold;
+            box-shadow: 0 10px 0 #8db7eb;
+            display: flex; align-items: center; justify-content: center; gap: 15px;
+            transition: 0.1s;
+        }
+        .download-btn:active { transform: translateY(6px); box-shadow: 0 4px 0 #8db7eb; }
 
-        .film-footer-deco {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            gap: 15px;
+        #flashOverlay {
+            position: absolute; inset: 0; background: white; opacity: 0;
+            z-index: 100; pointer-events: none;
         }
 
-        .result-actions {
-            margin-top: 40px;
-            display: flex;
-            gap: 20px;
-        }
-
-        /* Utility for B&W */
-        .mono { filter: grayscale(1) contrast(1.1) brightness(1.1); }
-
+        .grayscale { filter: grayscale(1) contrast(1.1) brightness(1.1); }
     </style>
 </head>
 <body>
 
-    <div class="k-star" style="top: 5%; left: 10%;"></div>
-    <div class="k-star" style="top: 15%; right: 15%;"></div>
-    <div class="k-star" style="bottom: 10%; left: 20%;"></div>
+    <div class="k-star" style="top:10%; left:5%;"></div>
+    <div class="k-star" style="top:25%; right:10%;"></div>
+    <div class="k-star" style="bottom:15%; left:8%;"></div>
 
     <div id="startScreen">
-        <div class="logo-area">
+        <div class="logo-container">
             <h1>SENA</h1>
-            <p>KOREAN SELF PHOTO STUDIO</p>
+            <p>S E L F • P H O T O • S T U D I O</p>
         </div>
-        <div class="start-btn" onclick="initApp()">START</div>
+        <div class="start-circle" onclick="initBooth()">START</div>
     </div>
 
     <div id="boothScreen">
         <div class="booth-header">
-            <div style="letter-spacing: 2px; font-weight: 300;">PHOTO BOOTH</div>
-            <div class="camera-status">
-                <div id="statusDot" class="status-dot"></div>
-                <span id="statusText">● OFF</span>
-            </div>
+            <div style="font-weight: 300; letter-spacing: 3px;">SENAPHOTO ✦</div>
+            <div style="font-size: 13px;">● REC LIVE</div>
         </div>
 
-        <div class="camera-container">
+        <div class="camera-viewport">
             <video id="video" autoplay playsinline></video>
-            <div class="camera-guide"></div>
-            <div id="countdownOverlay">3</div>
-            <div id="flashEffect"></div>
-        </div>
-
-        <div class="preview-area" id="previewArea">
-            <div class="preview-thumb"></div>
-            <div class="preview-thumb"></div>
-            <div class="preview-thumb"></div>
-            <div class="preview-thumb"></div>
-        </div>
-
-        <div class="controls">
-            <button class="btn-capsule" onclick="toggleCamera()">
-                <span id="camBtnText">CAMERA ON</span>
-            </button>
+            <div id="countdownBox">3</div>
+            <div id="flashOverlay"></div>
             
-            <div class="btn-capture" onclick="startCaptureSequence()">
-                <div class="btn-capture-inner"></div>
+            <div class="side-previews">
+                <div class="slot" id="slot0"></div>
+                <div class="slot" id="slot1"></div>
+                <div class="slot" id="slot2"></div>
+                <div class="slot" id="slot3"></div>
             </div>
+        </div>
 
-            <button class="btn-capsule" id="modeBtn" onclick="toggleMode()">
-                COLOR
-            </button>
+        <div class="booth-footer">
+            <button class="btn-ui" onclick="changeMode()" id="modeBtn">COLOR MODE</button>
+            <div class="capture-btn" onclick="takePhotos()">
+                <div class="capture-btn-inner"></div>
+            </div>
+            <button class="btn-ui" onclick="location.reload()">RE-START</button>
         </div>
     </div>
 
     <div id="resultScreen">
-        <div class="film-container" id="captureFilm">
-            <div class="film-header">SENAPHOTOBOOTH</div>
-            <div id="filmSlots">
-                </div>
-            <div class="film-footer-deco">
-                <div class="k-star" style="position:relative; width:12px; height:12px; background:#D4B2A7;"></div>
-                <div class="k-star" style="position:relative; width:12px; height:12px; background:#D4B2A7;"></div>
-                <div class="k-star" style="position:relative; width:12px; height:12px; background:#D4B2A7;"></div>
+        <div class="result-container">
+            <div class="film-paper" id="filmOutput">
+                <div class="film-logo">SENA PHOTOBOOTH</div>
+                <div id="photoGrid" style="display:flex; flex-direction:column; gap:10px;">
+                    </div>
+                <div style="text-align:center; opacity:0.3; margin-top:10px;">✦ ✦ ✦</div>
             </div>
-        </div>
 
-        <div class="result-actions">
-            <button class="btn-capsule" onclick="downloadStrip()">DOWNLOAD</button>
-            <button class="btn-capsule" onclick="resetBooth()" style="background: #eee;">RESET</button>
+            <div class="actions-panel">
+                <div id="qrcode"></div>
+                <div style="font-size: 14px; opacity:0.6; margin-top:-10px;">SCAN TO SAVE PHOTO</div>
+                
+                <button class="download-btn" onclick="saveToDevice()">
+                    <span>💾</span> SAVE PHOTO
+                </button>
+                
+                <div style="text-decoration: underline; cursor:pointer; margin-top:10px;" onclick="location.reload()">
+                    TAKE ANOTHER ONE
+                </div>
+            </div>
         </div>
     </div>
 
     <audio id="sndBeep" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
-    <audio id="sndShutter" src="https://assets.mixkit.co/active_storage/sfx/582/582-preview.mp3"></audio>
+    <audio id="sndClick" src="https://assets.mixkit.co/active_storage/sfx/582/582-preview.mp3"></audio>
 
     <script>
         const video = document.getElementById('video');
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const countdownOverlay = document.getElementById('countdownOverlay');
-        const flashEffect = document.getElementById('flashEffect');
-        const previewArea = document.getElementById('previewArea');
-        const filmSlots = document.getElementById('filmSlots');
+        const countdownBox = document.getElementById('countdownBox');
+        const flashOverlay = document.getElementById('flashOverlay');
+        const photoGrid = document.getElementById('photoGrid');
         
-        let stream = null;
-        let capturedImages = [];
+        let capturedPhotos = [];
         let isMono = false;
-        let isCapturing = false;
+        let isRunning = false;
 
-        // --- CAMERA LOGIC ---
-        async function initApp() {
-            document.getElementById('startScreen').classList.add('hide');
-            document.getElementById('boothScreen').style.visibility = 'visible';
-            await startCamera();
-        }
-
-        async function startCamera() {
+        // --- STEP 1: START CAMERA ---
+        async function initBooth() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: "user",
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    } 
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user', width: 1280, height: 720 } 
                 });
                 video.srcObject = stream;
-                statusDot.classList.add('active');
-                statusText.innerText = '● ON';
-                document.getElementById('camBtnText').innerText = 'CAMERA OFF';
+                document.getElementById('startScreen').classList.add('hide');
+                document.getElementById('boothScreen').style.display = 'flex';
             } catch (err) {
-                alert("กรุณาอนุญาตการเข้าถึงกล้อง");
+                alert("Please enable camera ✨");
             }
         }
 
-        function toggleCamera() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-                statusDot.classList.remove('active');
-                statusText.innerText = '○ OFF';
-                document.getElementById('camBtnText').innerText = 'CAMERA ON';
-            } else {
-                startCamera();
-            }
-        }
-
-        function toggleMode() {
+        // --- STEP 2: MODE CHANGE ---
+        function changeMode() {
             isMono = !isMono;
-            const modeBtn = document.getElementById('modeBtn');
-            if (isMono) {
-                video.classList.add('mono');
-                modeBtn.innerText = 'MONO';
-            } else {
-                video.classList.remove('mono');
-                modeBtn.innerText = 'COLOR';
-            }
+            video.classList.toggle('grayscale', isMono);
+            document.getElementById('modeBtn').innerText = isMono ? "B&W MODE" : "COLOR MODE";
         }
 
-        // --- CAPTURE SEQUENCE ---
-        async function startCaptureSequence() {
-            if (isCapturing || !stream) return;
-            isCapturing = true;
-            capturedImages = [];
-            previewArea.innerHTML = '';
-            
+        // --- STEP 3: CAPTURE LOGIC ---
+        async function takePhotos() {
+            if (isRunning) return;
+            isRunning = true;
+            capturedPhotos = [];
+
+            // Reset Slots
+            for(let i=0; i<4; i++) {
+                const s = document.getElementById(`slot${i}`);
+                s.classList.remove('active');
+                s.innerHTML = '';
+            }
+
             for (let i = 0; i < 4; i++) {
-                await runCountdown(3);
-                captureImage();
-                await new Promise(r => setTimeout(r, 800)); // Gap between shots
+                await startCountdown(3);
+                doCapture(i);
+                await new Promise(r => setTimeout(r, 700)); // Pause after shot
             }
 
-            setTimeout(showResults, 1000);
+            setTimeout(renderFinalResult, 1000);
         }
 
-        function runCountdown(seconds) {
+        function startCountdown(sec) {
             return new Promise(resolve => {
-                let count = seconds;
-                countdownOverlay.style.opacity = '1';
-                
-                const timer = setInterval(() => {
+                let count = sec;
+                countdownBox.style.opacity = '1';
+                const itv = setInterval(() => {
                     document.getElementById('sndBeep').play();
-                    countdownOverlay.innerText = count;
-                    count--;
-
-                    if (count < 0) {
-                        clearInterval(timer);
-                        countdownOverlay.style.opacity = '0';
+                    countdownBox.innerText = count;
+                    if (count === 0) {
+                        clearInterval(itv);
+                        countdownBox.style.opacity = '0';
                         resolve();
                     }
+                    count--;
                 }, 800);
             });
         }
 
-        function captureImage() {
-            // Shutter Sound
-            document.getElementById('sndShutter').currentTime = 0;
-            document.getElementById('sndShutter').play();
-
-            // Flash effect
-            flashEffect.style.opacity = '1';
-            setTimeout(() => flashEffect.style.opacity = '0', 100);
+        function doCapture(index) {
+            // Sound & Flash
+            document.getElementById('sndClick').play();
+            flashOverlay.style.opacity = '1';
+            setTimeout(() => flashOverlay.style.opacity = '0', 100);
 
             // Canvas Drawing
             const canvas = document.createElement('canvas');
@@ -511,90 +377,79 @@
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
             
-            // Mirror flip for saving
+            // Mirror flip
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
+            if(isMono) ctx.filter = "grayscale(1) contrast(1.1) brightness(1.1)";
             
-            if (isMono) ctx.filter = 'grayscale(1) contrast(1.1) brightness(1.1)';
-            
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-            capturedImages.push(dataUrl);
+            ctx.drawImage(video, 0, 0);
+            const imgData = canvas.toDataURL('image/jpeg', 0.9);
+            capturedPhotos.push(imgData);
 
-            // Add to Preview UI
-            const thumb = document.createElement('div');
-            thumb.className = 'preview-thumb';
-            thumb.innerHTML = `<img src="${dataUrl}">`;
-            previewArea.appendChild(thumb);
-            setTimeout(() => thumb.classList.add('show'), 50);
+            // Show in internal side slot
+            const slot = document.getElementById(`slot${index}`);
+            slot.innerHTML = `<img src="${imgData}">`;
+            slot.classList.add('active');
         }
 
-        // --- RESULT & PRINT LOGIC ---
-        function showResults() {
-            filmSlots.innerHTML = '';
-            capturedImages.forEach(img => {
-                const slot = document.createElement('div');
-                slot.className = 'film-img-slot';
-                slot.innerHTML = `<img src="${img}">`;
-                filmSlots.appendChild(slot);
+        // --- STEP 4: FINAL RESULT ---
+        function renderFinalResult() {
+            photoGrid.innerHTML = '';
+            capturedPhotos.forEach(src => {
+                const div = document.createElement('div');
+                div.className = 'film-photo';
+                div.innerHTML = `<img src="${src}">`;
+                photoGrid.appendChild(div);
             });
+
+            // Generate QR (Mockup URL)
+            document.getElementById('qrcode').innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), {
+                text: "https://sena-booth.com/view/photo_" + Date.now(),
+                width: 140,
+                height: 140,
+                colorDark : "#5A6B7F",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
             document.getElementById('resultScreen').style.display = 'flex';
         }
 
-        async function downloadStrip() {
-            // สร้าง Canvas ขนาดจริงสำหรับการพิมพ์ (1200x1800 px โดยประมาณ)
-            const stripCanvas = document.createElement('canvas');
-            const ctx = stripCanvas.getContext('2d');
-            
-            const w = 800;
-            const h = 2400; // ขนาดแนวยาว 4 รูป
-            stripCanvas.width = w;
-            stripCanvas.height = h;
+        // --- STEP 5: SAVE AS STRIP ---
+        async function saveToDevice() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1000;
+            canvas.height = 2400;
 
-            // พื้นหลังฟิล์ม
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fillRect(0, 0, w, h);
+            // White Background
+            ctx.fillStyle = "white";
+            ctx.fillRect(0,0, canvas.width, canvas.height);
 
-            // วาดรูป 4 รูป
-            let yOffset = 120;
-            const imgW = 720;
-            const imgH = 480;
+            // Logo Text
+            ctx.fillStyle = "#5A6B7F";
+            ctx.font = "lighter 45px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("SENA PHOTOBOOTH", 500, 120);
 
-            for (let i = 0; i < capturedImages.length; i++) {
-                const img = await loadImage(capturedImages[i]);
-                ctx.drawImage(img, (w - imgW) / 2, yOffset, imgW, imgH);
-                yOffset += imgH + 30;
+            // Draw Photos
+            let y = 200;
+            for(let i=0; i<capturedPhotos.length; i++) {
+                const img = await new Promise(r => {
+                    const iEl = new Image();
+                    iEl.onload = () => r(iEl);
+                    iEl.src = capturedPhotos[i];
+                });
+                ctx.drawImage(img, 75, y, 850, 500);
+                y += 530;
             }
 
-            // ใส่ข้อความ
-            ctx.fillStyle = "#4A4A4A";
-            ctx.font = "lighter 40px Helvetica";
-            ctx.textAlign = "center";
-            ctx.fillText("SENA PHOTOBOOTH", w / 2, h - 100);
-
-            // ดาวน์โหลด
+            // Download
             const link = document.createElement('a');
-            link.download = 'SENA-STRIP.jpg';
-            link.href = stripCanvas.toDataURL('image/jpeg', 0.95);
+            link.download = 'SENA_K_STRIP.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.98);
             link.click();
         }
-
-        function loadImage(src) {
-            return new Promise(resolve => {
-                const img = new Image();
-                img.onload = () => resolve(img);
-                img.src = src;
-            });
-        }
-
-        function resetBooth() {
-            document.getElementById('resultScreen').style.display = 'none';
-            previewArea.innerHTML = '';
-            capturedImages = [];
-            isCapturing = false;
-        }
-
     </script>
 </body>
 </html>
