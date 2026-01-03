@@ -6,10 +6,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+*{box-sizing:border-box;}
+
 body{
     margin:0;
-    font-family: Arial, sans-serif;
-    background:#f6f5f2;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg,#f7fbff,#eef5ff);
     height:100vh;
     display:flex;
     justify-content:center;
@@ -17,55 +19,46 @@ body{
     color:#222;
 }
 
-.star{position:fixed;color:#bbb;font-size:14px;}
-.star:nth-child(1){top:30px;left:40px;}
-.star:nth-child(2){top:90px;right:60px;}
-.star:nth-child(3){bottom:60px;left:80px;}
-
-.screen{display:none;flex-direction:column;align-items:center;}
+/* ---------- GLOBAL ---------- */
+.screen{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+}
 .active{display:flex;}
 
-h1{letter-spacing:3px;margin-bottom:20px;}
+h1{
+    letter-spacing:4px;
+    font-weight:500;
+    margin-bottom:20px;
+}
 
 button{
-    padding:14px 36px;
-    margin:8px;
+    padding:14px 40px;
+    margin:10px;
     font-size:18px;
-    border-radius:12px;
-    border:1px solid #ccc;
-    background:#fff;
+    border-radius:14px;
+    border:1px solid #cfdfff;
+    background:white;
+    cursor:pointer;
 }
 
 .primary{
-    background:#111;
-    color:#fff;
+    background:#6fa8ff;
+    color:white;
     border:none;
 }
 
-.layout-preview{
-    width:120px;
-    height:240px;
-    border:1px solid #ccc;
-    background:white;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    padding:8px;
-}
-
-.layout-preview div{
-    flex:1;
-    border:1px solid #ddd;
-    margin:4px 0;
-    background:#eee;
-}
-
+/* ---------- CAMERA ---------- */
 .camera{
     width:320px;
     aspect-ratio:3/4;
     background:black;
-    border-radius:16px;
+    border-radius:20px;
     overflow:hidden;
+    position:relative;
+    box-shadow:0 12px 30px rgba(0,0,0,.2);
 }
 
 video,canvas{
@@ -74,55 +67,66 @@ video,canvas{
     object-fit:cover;
 }
 
+#countdown{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:90px;
+    color:white;
+    display:none;
+}
+
+/* ---------- RESULT ---------- */
 #final{
     background:white;
-    border-radius:16px;
-    box-shadow:0 10px 30px rgba(0,0,0,.2);
+    border-radius:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
+}
+.caption{
+    margin-top:10px;
+    font-size:12px;
+    letter-spacing:2px;
+    color:#555;
 }
 </style>
 </head>
 
 <body>
 
-<div class="star">✦</div>
-<div class="star">✦</div>
-<div class="star">✦</div>
-
-<!-- เลือก Layout -->
-<div id="layout" class="screen active">
-    <h1>LAYOUT</h1>
-    <div class="layout-preview" onclick="selectLayout()">
-        <div></div><div></div><div></div><div></div>
-    </div>
-    <button class="primary" onclick="show('mode')">NEXT</button>
-</div>
-
-<!-- เลือกโหมด -->
-<div id="mode" class="screen">
-    <h1>MODE</h1>
-    <button onclick="setMode('color')">COLOR</button>
-    <button onclick="setMode('mono')">MONO</button>
-</div>
-
-<!-- กล้อง -->
-<div id="booth" class="screen">
+<!-- หน้าแรก -->
+<div id="home" class="screen active">
     <h1>SENA PHOTOBOOTH</h1>
+    <button onclick="selectMode('color')">COLOR</button>
+    <button onclick="selectMode('mono')">MONO</button>
+</div>
+
+<!-- หน้าถ่าย -->
+<div id="booth" class="screen">
+    <h1>READY</h1>
     <div class="camera">
         <video id="video" autoplay playsinline></video>
+        <div id="countdown">3</div>
     </div>
-    <button class="primary" onclick="takePhoto()">TAKE PHOTO</button>
+    <button class="primary" onclick="startSession()">TAKE PHOTO</button>
 </div>
 
-<!-- ผลลัพธ์ -->
+<!-- หน้าผลลัพธ์ -->
 <div id="result" class="screen">
-    <h1>RESULT</h1>
+    <h1>YOUR PHOTO</h1>
     <canvas id="final" width="600" height="1600"></canvas>
+    <div class="caption">SENA PHOTOBOOTH</div>
+    <button class="primary" onclick="download()">DOWNLOAD</button>
     <button onclick="reset()">FINISH</button>
 </div>
 
 <script>
 let mode="color";
+let shots=[];
+let shotIndex=0;
+
 const video=document.getElementById("video");
+const cd=document.getElementById("countdown");
 const final=document.getElementById("final");
 const fctx=final.getContext("2d");
 
@@ -131,50 +135,90 @@ function show(id){
     document.getElementById(id).classList.add('active');
 }
 
-function selectLayout(){}
-
-function setMode(m){
+function selectMode(m){
     mode=m;
     show('booth');
-    navigator.mediaDevices.getUserMedia({video:true})
+    navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}})
     .then(s=>video.srcObject=s);
 }
 
-function takePhoto(){
+function startSession(){
+    shots=[];
+    shotIndex=0;
+    takeNext();
+}
+
+function takeNext(){
+    if(shotIndex>=4){
+        makeStrip();
+        return;
+    }
+    let c=3;
+    cd.style.display="block";
+    cd.innerText=c;
+
+    let timer=setInterval(()=>{
+        c--;
+        cd.innerText=c;
+        if(c===0){
+            clearInterval(timer);
+            cd.style.display="none";
+            capture();
+        }
+    },1000);
+}
+
+function capture(){
     const temp=document.createElement("canvas");
     temp.width=video.videoWidth;
     temp.height=video.videoHeight;
     const tctx=temp.getContext("2d");
     tctx.drawImage(video,0,0);
 
-    if(mode==="mono"){
-        let img=tctx.getImageData(0,0,temp.width,temp.height);
-        for(let i=0;i<img.data.length;i+=4){
+    // ฟิลเตอร์โพลารอยด์นุ่ม ๆ
+    let img=tctx.getImageData(0,0,temp.width,temp.height);
+    for(let i=0;i<img.data.length;i+=4){
+        img.data[i]+=10;     // warm
+        img.data[i+1]+=10;
+        img.data[i+2]+=10;
+        if(mode==="mono"){
             let a=(img.data[i]+img.data[i+1]+img.data[i+2])/3;
             img.data[i]=img.data[i+1]=img.data[i+2]=a;
         }
-        tctx.putImageData(img,0,0);
     }
+    tctx.putImageData(img,0,0);
 
-    // วาด strip (รูปเดียวซ้ำ 4 ช่อง)
+    shots.push(temp);
+    shotIndex++;
+    setTimeout(takeNext,500);
+}
+
+function makeStrip(){
     show('result');
-    fctx.fillStyle="#fff";
+    fctx.fillStyle="#ffffff";
     fctx.fillRect(0,0,600,1600);
 
-    let y=60;
-    for(let i=0;i<4;i++){
-        fctx.drawImage(temp,60,y,480,300);
+    let y=80;
+    shots.forEach(s=>{
+        fctx.drawImage(s,60,y,480,300);
         y+=360;
-    }
+    });
 
     fctx.fillStyle="#000";
     fctx.font="24px Arial";
     fctx.textAlign="center";
-    fctx.fillText("✦ SENA PHOTOBOOTH ✦",300,1540);
+    fctx.fillText("SENA PHOTOBOOTH",300,1540);
+}
+
+function download(){
+    const a=document.createElement("a");
+    a.download="SENA_PHOTOBOOTH.png";
+    a.href=final.toDataURL("image/png");
+    a.click();
 }
 
 function reset(){
-    show('layout');
+    show('home');
 }
 </script>
 
