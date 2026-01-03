@@ -2,195 +2,483 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH | COMPACT</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Space+Grotesk:wght@300;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENA PHOTOBOOTH - @SAPHASENA</title>
     <style>
-        :root { --brand-red: #ff4757; }
-        body { background: #f0f2f5; font-family: 'Space Grotesk', sans-serif; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;600&family=Permanent+Marker&display=swap');
 
-        /* ย่อส่วนคอนเทนเนอร์หลักให้เล็กลง */
-        .app-shell {
-            width: 90vw; max-width: 960px; height: 80vh; max-height: 600px;
-            display: grid; grid-template-columns: 1fr 240px; gap: 20px;
+        :root {
+            --bg-color: #f0f0f0;
+            --booth-color: #ffffff;
+            --accent-color: #333;
         }
 
-        /* เครื่อง Photo Booth ขนาดกะทัดรัด */
-        .booth-unit {
-            position: relative; background: white; border-radius: 30px;
-            padding: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-            display: flex; flex-direction: column; border: 1px solid #fff;
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* ป้องกัน Scroll ตอนรูปเลื่อน */
         }
 
-        /* Pins ขนาดเล็ก */
-        .sd-pins { position: absolute; right: 30px; top: -8px; display: flex; gap: 6px; }
-        .pin { width: 18px; height: 35px; background: linear-gradient(180deg, #fbbf24, #d97706); border-radius: 0 0 4px 4px; }
-
-        .viewfinder { flex: 1; background: #121212; border-radius: 20px; overflow: hidden; position: relative; }
-        #webcam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-
-        /* Sidebar ขนาดสลิม */
-        .film-sidebar {
-            background: white; border-radius: 30px; display: flex;
-            flex-direction: column; padding: 18px; gap: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        /* --- UI Layout (ตามภาพสเก็ตช์ที่ 3) --- */
+        .booth-container {
+            display: grid;
+            grid-template-columns: 100px 1fr 100px; /* ซ้าย กลาง ขวา */
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+            align-items: center;
         }
 
-        /* แผ่นฟิล์มสไตล์มินิมอลขนาดจิ๋ว */
-        .film-strip-render {
-            background: white; padding: 10px 10px 25px 10px;
-            display: flex; flex-direction: column; gap: 8px; border: 1px solid #f1f1f1;
+        /* ปุ่มฟิลเตอร์ด้านซ้าย */
+        .controls-left {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
-        .shot-preview { width: 100%; aspect-ratio: 4/3; background: #f8f8f8; overflow: hidden; border-radius: 2px; }
-        .shot-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ตัวเลขถอยหลังเล็กลง */
-        .overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.1); z-index: 50; }
-        .cd-text { font-size: 100px; font-weight: 900; color: white; }
+        .filter-btn {
+            padding: 15px;
+            border: 2px solid black;
+            background: white;
+            font-family: 'Kanit', sans-serif;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 3px 3px 0px rgba(0,0,0,1);
+        }
 
-        /* ปุ่ม Shutter แบบ Small-size */
-        .controls { height: 90px; display: flex; align-items: center; justify-content: center; gap: 20px; }
-        .shutter-btn { width: 65px; height: 65px; background: #f8f8f8; border-radius: 50%; padding: 6px; cursor: pointer; border: 1px solid #eee; }
-        .shutter-inner { width: 100%; height: 100%; background: var(--brand-red); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .filter-btn.active {
+            background: black;
+            color: white;
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px rgba(0,0,0,1);
+        }
 
-        /* ปุ่มโหมดขนาดกะทัดรัด */
-        .filter-btn { padding: 6px 14px; border-radius: 10px; font-size: 10px; font-weight: 700; background: #f8f8f8; color: #71717a; border: 1px solid #eee; }
-        .filter-btn.active { background: #18181b; color: white; border-color: #18181b; }
+        /* หน้าจอแสดงผลตรงกลาง */
+        .viewfinder-wrapper {
+            position: relative;
+            border: 4px solid black;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 4/3;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+        }
 
-        #flash { position: fixed; inset: 0; background: white; opacity: 0; z-index: 1000; pointer-events: none; }
-        .btn-action { width: 100%; py: 12px; border-radius: 12px; font-size: 12px; font-weight: 700; transition: 0.2s; }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* กลับด้านเหมือนกระจก */
+        }
+
+        /* ป้าย FREE ด้านขวา */
+        .sign-right {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 2rem;
+            text-align: center;
+            transform: rotate(5deg);
+        }
+
+        /* ปุ่มชัตเตอร์ */
+        .shutter-area {
+            grid-column: 2;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .shutter-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid black;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        
+        .shutter-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px; height: 60px;
+            background: black; /* สีปุ่มกด */
+            border-radius: 50%;
+        }
+
+        .shutter-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Countdown Overlay */
+        .countdown {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 0 10px black;
+            display: none;
+            z-index: 10;
+        }
+
+        /* Flash Effect */
+        .flash {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s;
+        }
+
+        /* --- Printing Animation Section (สำคัญมาก) --- */
+        .printer-slot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* เริ่มจากข้างบน */
+            z-index: 100;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s;
+        }
+
+        .printer-slot.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* ตัวรูปที่ปริ้นออกมา */
+        .photo-strip {
+            width: 300px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            /* เริ่มต้นซ่อนอยู่ข้างบน */
+            transform: translateY(-120%); 
+        }
+
+        /* Animation การเลื่อนลง */
+        .printing-animation {
+            animation: slideDown 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes slideDown {
+            0% { transform: translateY(-120%); }
+            100% { transform: translateY(10%); } /* เลื่อนลงมาโชว์กลางจอ */
+        }
+
+        .download-btn {
+            margin-top: 20px;
+            padding: 10px 30px;
+            background: #25D366; /* สีเขียวเหมือนในรูป 'โหลด' */
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            display: none; /* ซ่อนก่อน รอรูปปริ้นเสร็จ */
+            font-family: 'Kanit', sans-serif;
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* ฟิลเตอร์ CSS สำหรับ Video Preview */
+        .filter-bw {
+            filter: grayscale(100%) contrast(1.2);
+        }
+
+        /* Header Title */
+        .header-title {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .sub-header {
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            color: #666;
+        }
+
     </style>
 </head>
 <body>
 
-<div id="flash"></div>
+    <div class="header-title">
+        SENA PHOTOBOOTH <br>
+        <span class="sub-header">@SAPHASENA</span>
+    </div>
 
-<div class="app-shell">
-    <div class="flex flex-col h-full">
-        <div class="flex justify-between items-center mb-4 px-2">
-            <h1 style="font-family: 'Montserrat';" class="text-2xl font-black italic tracking-tighter text-slate-800">SENA</h1>
-            <div class="flex gap-1.5">
-                <button onclick="setFilter('color')" id="f-color" class="filter-btn active">COLOR</button>
-                <button onclick="setFilter('bw')" id="f-bw" class="filter-btn">B&W</button>
-            </div>
+    <div class="booth-container">
+        <div class="controls-left">
+            <button class="filter-btn active" onclick="setFilter('color')">สี</button>
+            <button class="filter-btn" onclick="setFilter('bw')">ขาวดำ</button>
         </div>
 
-        <div class="booth-unit flex-1">
-            <div class="sd-pins">
-                <div class="pin"></div><div class="pin"></div><div class="pin"></div>
-            </div>
-            <div class="viewfinder">
-                <video id="webcam" autoplay playsinline muted></video>
-                <div id="overlay" class="overlay"><div id="cd-num" class="cd-text">3</div></div>
-            </div>
-            <div class="controls">
-                <div class="shutter-btn" id="shutter">
-                    <div class="shutter-inner"><i data-lucide="camera" color="white" size="20"></i></div>
-                </div>
-            </div>
+        <div class="viewfinder-wrapper">
+            <video id="video" autoplay playsinline></video>
+            <div id="countdown" class="countdown">3</div>
+            <div id="flash" class="flash"></div>
+        </div>
+
+        <div class="sign-right">
+            0 ฿<br>FREE
+        </div>
+
+        <div class="shutter-area">
+            <div class="shutter-btn" onclick="startBooth()"></div>
         </div>
     </div>
 
-    <div class="film-sidebar">
-        <div id="capture-area" class="film-strip-render">
-            <div class="shot-preview" id="s1"></div>
-            <div class="shot-preview" id="s2"></div>
-            <div class="shot-preview" id="s3"></div>
-            <div class="text-center mt-2">
-                <p class="text-[8px] font-bold tracking-widest text-slate-900">SENA PHOTOBOOTH</p>
-                <p style="font-family: 'Caveat';" class="text-xs text-slate-400">Taking a picture of us</p>
-            </div>
-        </div>
-        
-        <button id="btn-download" class="hidden btn-action py-3 bg-slate-900 text-white flex items-center justify-center gap-2">
-            <i data-lucide="download" size="14"></i> DOWNLOAD
-        </button>
-        <button onclick="location.reload()" class="btn-action py-3 bg-slate-100 text-slate-500 text-[10px]">RESET</button>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <div id="printerSlot" class="printer-slot">
+        <img id="finalImage" class="photo-strip" src="" alt="Photo Strip">
+        <button id="downloadBtn" class="download-btn" onclick="downloadImage()">โหลดรูปลงเครื่อง</button>
+        <button onclick="resetBooth()" style="position:absolute; top:20px; right:20px; padding:10px; cursor:pointer;">ถ่ายใหม่ (x)</button>
     </div>
-</div>
 
-<canvas id="canvas" class="hidden"></canvas>
+    <script>
+        // --- Setup Variables ---
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const countdownEl = document.getElementById('countdown');
+        const flashEl = document.getElementById('flash');
+        const printerSlot = document.getElementById('printerSlot');
+        const finalImage = document.getElementById('finalImage');
+        const downloadBtn = document.getElementById('downloadBtn');
 
-<script>
-    const video = document.getElementById('webcam');
-    const shutter = document.getElementById('shutter');
-    const overlay = document.getElementById('overlay');
-    const cdNum = document.getElementById('cd-num');
-    let filter = 'color';
-    let images = [];
+        let currentFilter = 'color'; // 'color' or 'bw'
+        let capturedImages = [];
+        let isShooting = false;
 
-    async function init() {
-        const stream = await navigator.mediaDevices.getUserMedia({video: {aspectRatio: 4/3, width: {ideal: 1280}}});
-        video.srcObject = stream;
-        lucide.createIcons();
-    }
-
-    function setFilter(m) {
-        filter = m;
-        document.getElementById('f-color').className = `filter-btn ${m==='color'?'active':''}`;
-        document.getElementById('f-bw').className = `filter-btn ${m==='bw'?'active':''}`;
-    }
-
-    async function start() {
-        shutter.style.opacity = '0.3';
-        shutter.style.pointerEvents = 'none';
-        images = [];
-        for(let i=1; i<=3; i++) {
-            await countdown();
-            await capture(i);
-            if(i<3) await new Promise(r => setTimeout(r, 1200)); 
+        // --- Camera Setup ---
+        async function setupCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 1280, height: 720, facingMode: "user" }, 
+                    audio: false 
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                alert("กรุณาอนุญาตให้เข้าถึงกล้อง / Please allow camera access");
+            }
         }
-        document.getElementById('btn-download').classList.remove('hidden');
-    }
+        setupCamera();
 
-    function countdown() {
-        return new Promise(res => {
-            overlay.style.display = 'flex';
-            let c = 3; cdNum.innerText = c;
-            const t = setInterval(() => {
-                c--;
-                if(c===0) { clearInterval(t); overlay.style.display='none'; res(); }
-                else { cdNum.innerText = c; gsap.fromTo(cdNum, {scale:0.6, opacity:0}, {scale:1, opacity:1, duration:0.3}); }
-            }, 1000);
-        });
-    }
-
-    function capture(idx) {
-        return new Promise(res => {
-            gsap.fromTo("#flash", {opacity:1}, {opacity:0, duration:0.4});
-            const cvs = document.getElementById('canvas');
-            const ctx = cvs.getContext('2d');
-            cvs.width = video.videoWidth; cvs.height = video.videoHeight;
-            ctx.translate(cvs.width, 0); ctx.scale(-1, 1);
-            if(filter==='bw') ctx.filter = 'grayscale(1) contrast(1.2) brightness(1.1)';
-            else ctx.filter = 'brightness(1.05) contrast(1.05)';
-            ctx.drawImage(video, 0, 0);
+        // --- Filter Logic ---
+        function setFilter(type) {
+            if(isShooting) return; // ห้ามเปลี่ยนตอนถ่าย
+            currentFilter = type;
             
-            const data = cvs.toDataURL('image/jpeg', 0.8);
-            images.push(data);
-            document.getElementById(`s${idx}`).innerHTML = `<img src="${data}">`;
-            setTimeout(res, 400);
-        });
-    }
+            // UI Update
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
 
-    document.getElementById('btn-download').onclick = () => {
-        const target = document.getElementById('capture-area');
-        html2canvas(target, {scale: 2}).then(canvas => {
+            // Video Preview Update
+            if (type === 'bw') {
+                video.classList.add('filter-bw');
+            } else {
+                video.classList.remove('filter-bw');
+            }
+        }
+
+        // --- Main Shooting Logic ---
+        async function startBooth() {
+            if(isShooting) return;
+            isShooting = true;
+            capturedImages = [];
+
+            // ถ่าย 3 รูป
+            for (let i = 1; i <= 3; i++) {
+                await doCountdown(3);
+                captureFrame();
+                // พักนิดนึงก่อนรูปถัดไป
+                await new Promise(r => setTimeout(r, 1000)); 
+            }
+
+            // ประมวลผลรูปภาพ
+            processStrip();
+        }
+
+        function doCountdown(seconds) {
+            return new Promise(resolve => {
+                countdownEl.style.display = 'block';
+                let counter = seconds;
+                countdownEl.innerText = counter;
+
+                const timer = setInterval(() => {
+                    counter--;
+                    if (counter > 0) {
+                        countdownEl.innerText = counter;
+                    } else {
+                        clearInterval(timer);
+                        countdownEl.style.display = 'none';
+                        resolve();
+                    }
+                }, 1000);
+            });
+        }
+
+        function captureFrame() {
+            // Flash effect
+            flashEl.style.opacity = 1;
+            setTimeout(() => flashEl.style.opacity = 0, 100);
+
+            // Capture logic
+            const w = video.videoWidth;
+            const h = video.videoHeight;
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            const tCtx = tempCanvas.getContext('2d');
+
+            // Flip horizontally for capture (to match mirror view)
+            tCtx.translate(w, 0);
+            tCtx.scale(-1, 1);
+            
+            // Apply filter if needed (draw grayscale to canvas)
+            if (currentFilter === 'bw') {
+                tCtx.filter = 'grayscale(100%) contrast(1.2)';
+            }
+            
+            tCtx.drawImage(video, 0, 0, w, h);
+            capturedImages.push(tempCanvas);
+        }
+
+        // --- Drawing the Strip (เหมือนรูปสเก็ตช์ 1 และ 2) ---
+        function processStrip() {
+            // ตั้งค่าขนาด Strip (สมมติ 600x1800px)
+            const stripWidth = 600;
+            const photoHeight = 400; // 3 รูป = 1200
+            const headerHeight = 200;
+            const footerHeight = 100;
+            const gap = 30; 
+            const totalHeight = headerHeight + (photoHeight * 3) + (gap * 2) + footerHeight;
+
+            canvas.width = stripWidth;
+            canvas.height = totalHeight;
+
+            // 1. พื้นหลัง (สีขาว)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, stripWidth, totalHeight);
+
+            // 2. วาด Header (SENA PHOTOBOOTH)
+            // ถ้ามีไฟล์รูป Doodle ให้ใช้ ctx.drawImage(img, ...)
+            // ตรงนี้ใช้การวาดเส้นและข้อความจำลอง Doodle
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 50px "Permanent Marker"';
+            ctx.textAlign = 'center';
+            ctx.fillText("SENA", stripWidth / 2, 80);
+            ctx.font = '40px "Permanent Marker"';
+            ctx.fillText("PHOTOBOOTH", stripWidth / 2, 130);
+            
+            // วาดดาว/doodle ตกแต่ง (จำลอง)
+            ctx.font = '40px sans-serif';
+            ctx.fillText("✨", 50, 100);
+            ctx.fillText("✨", 550, 100);
+
+            // 3. วาดรูปถ่าย 3 รูป
+            let currentY = headerHeight;
+            const photoWidth = 500; // รูปกว้าง
+            const photoX = (stripWidth - photoWidth) / 2;
+
+            capturedImages.forEach((imgCanvas, index) => {
+                // วาดกรอบรูปสไตล์ Hand drawn (เส้นยึกยือเล็กน้อย)
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 3;
+                
+                // วาดรูป
+                // คำนวณ Aspect Ratio เพื่อ Crop รูปให้พอดีกรอบ
+                const srcW = imgCanvas.width;
+                const srcH = imgCanvas.height;
+                const srcRatio = srcW / srcH;
+                const destRatio = photoWidth / photoHeight;
+                
+                let drawW, drawH, drawX, drawY;
+
+                if (srcRatio > destRatio) {
+                     drawH = srcH;
+                     drawW = srcH * destRatio;
+                     drawX = (srcW - drawW) / 2;
+                     drawY = 0;
+                } else {
+                     drawW = srcW;
+                     drawH = srcW / destRatio;
+                     drawX = 0;
+                     drawY = (srcH - drawH) / 2;
+                }
+
+                ctx.drawImage(imgCanvas, drawX, drawY, drawW, drawH, photoX, currentY, photoWidth, photoHeight);
+                
+                // วาดกรอบทับ (ทำเหมือนเส้นปากกา)
+                ctx.strokeRect(photoX - 5, currentY - 5, photoWidth + 10, photoHeight + 10);
+                
+                // ตกแต่งข้างรูป
+                ctx.font = '30px sans-serif';
+                ctx.fillText(index % 2 === 0 ? "★" : "↝", 30, currentY + photoHeight/2);
+                ctx.fillText(index % 2 === 0 ? "↝" : "★", stripWidth - 30, currentY + photoHeight/2);
+
+                currentY += photoHeight + gap;
+            });
+
+            // 4. วาด Footer (@SAPHASENA)
+            ctx.font = '30px "Kanit"';
+            ctx.fillStyle = '#333';
+            ctx.fillText("@SAPHASENA", stripWidth / 2, totalHeight - 40);
+
+            // --- Show Result ---
+            const dataURL = canvas.toDataURL('image/png');
+            finalImage.src = dataURL;
+
+            // Trigger Animation
+            printerSlot.classList.add('active');
+            finalImage.classList.add('printing-animation');
+
+            // Show Download button after animation finishes
+            setTimeout(() => {
+                downloadBtn.style.display = 'block';
+            }, 3000); // รอ 3 วินาทีตาม Animation
+        }
+
+        // --- Download ---
+        function downloadImage() {
             const link = document.createElement('a');
-            link.download = `SENA_${Date.now()}.png`;
+            link.download = 'sena-photobooth.png';
             link.href = canvas.toDataURL();
             link.click();
-        });
-    };
+        }
 
-    shutter.onclick = start;
-    init();
-</script>
+        function resetBooth() {
+            printerSlot.classList.remove('active');
+            finalImage.classList.remove('printing-animation');
+            downloadBtn.style.display = 'none';
+            isShooting = false;
+        }
+
+    </script>
 </body>
 </html>
