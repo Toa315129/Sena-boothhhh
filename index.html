@@ -5,56 +5,136 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SENA PHOTOBOOTH</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
+/* =================================================
+   THEME – Korean DIY / Hand-drawn
+================================================= */
 :root{
-  --cream:#FFF6D8;
-  --blue:#EAF2FF;
-  --ink:#1E2A44;
+  --cream:#FFF7DD;
+  --blue:#E9F1FF;
+  --ink:#1F2A44;
+  --paper:#fffdf4;
 }
 
 *{box-sizing:border-box;}
+
 body{
   margin:0;
   height:100vh;
-  font-family:'Patrick Hand', cursive;
-  background:var(--cream);
+  font-family:'Gaegu', cursive;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.02),
+      rgba(0,0,0,0.02) 1px,
+      transparent 1px,
+      transparent 4px
+    ),
+    var(--cream);
   color:var(--ink);
 }
 
-.screen{display:none; height:100%; width:100%;}
-.active{display:flex;}
+/* =================================================
+   SCREEN SYSTEM
+================================================= */
+.screen{
+  display:none;
+  width:100%;
+  height:100%;
+}
+.screen.active{
+  display:flex;
+}
 
 .center{
   justify-content:center;
   align-items:center;
   flex-direction:column;
+  text-align:center;
 }
 
+/* =================================================
+   DOODLES & STARS
+================================================= */
+.star{
+  width:22px;
+  height:22px;
+  background:var(--ink);
+  clip-path:polygon(
+    50% 0%, 60% 40%, 100% 50%, 60% 60%,
+    50% 100%, 40% 60%, 0% 50%, 40% 40%
+  );
+  transform:rotate(12deg);
+}
+
+.doodle{
+  position:absolute;
+  font-size:20px;
+  opacity:.6;
+}
+
+/* =================================================
+   BUTTONS (Sticker Style)
+================================================= */
 button{
-  font-family:'Patrick Hand';
-  padding:18px 36px;
-  font-size:22px;
-  border-radius:24px;
-  border:3px solid var(--ink);
+  font-family:'Gaegu';
+  padding:18px 40px;
+  font-size:26px;
+  border-radius:999px;
+  border:4px solid var(--ink);
   background:var(--blue);
+  transition:.2s;
+}
+button:active{
+  transform:scale(.95) rotate(-1deg);
 }
 
-/* CAMERA */
+.circle-btn{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  font-size:42px;
+  background:white;
+}
+
+/* =================================================
+   START
+================================================= */
+#start h1{
+  font-size:48px;
+  margin-bottom:10px;
+}
+#start p{
+  font-size:22px;
+  margin-bottom:30px;
+}
+
+/* =================================================
+   BOOTH
+================================================= */
 .booth{
   display:flex;
   gap:20px;
   padding:20px;
 }
 
-.camera{
+.camera-box{
   width:60%;
-  background:var(--blue);
+  background:var(--paper);
   border:4px solid var(--ink);
-  border-radius:28px;
-  overflow:hidden;
+  border-radius:36px 32px 34px 30px;
+  padding:14px;
   position:relative;
+}
+
+.camera-frame{
+  width:100%;
+  height:100%;
+  border:4px dashed var(--ink);
+  border-radius:30px;
+  overflow:hidden;
 }
 
 video{
@@ -63,6 +143,15 @@ video{
   object-fit:cover;
 }
 
+/* CAMERA STATUS */
+#camStatus{
+  position:absolute;
+  top:14px;
+  left:18px;
+  font-size:18px;
+}
+
+/* COUNTDOWN */
 #countdown{
   position:absolute;
   inset:0;
@@ -71,8 +160,15 @@ video{
   align-items:center;
   font-size:96px;
   color:white;
+  text-shadow:4px 4px var(--ink);
+  animation:pop .4s ease;
+}
+@keyframes pop{
+  0%{transform:scale(.7);}
+  100%{transform:scale(1);}
 }
 
+/* PREVIEW */
 .preview{
   width:40%;
   display:flex;
@@ -82,48 +178,78 @@ video{
 
 .preview canvas{
   background:white;
-  border:3px solid var(--ink);
-  border-radius:14px;
+  border:4px solid var(--ink);
+  border-radius:22px;
   height:30%;
+  transition:.3s;
+}
+.preview canvas.filled{
+  animation:appear .4s ease;
+}
+@keyframes appear{
+  from{transform:scale(.8); opacity:.5;}
+  to{transform:scale(1); opacity:1;}
+}
+
+/* =================================================
+   RESULT
+================================================= */
+#final{
+  background:white;
+  border:4px solid var(--ink);
+  border-radius:32px 28px 34px 30px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- START -->
+<!-- ================= START SCREEN ================= -->
 <div id="start" class="screen active center">
+  <div class="star"></div>
   <h1>SENA PHOTOBOOTH</h1>
   <p>แตะเพื่อเริ่มถ่าย 📸</p>
   <button onclick="goMode()">START</button>
+  <div class="doodle" style="bottom:20px;">☺︎ ✿ ★</div>
 </div>
 
-<!-- MODE -->
+<!-- ================= MODE SELECT ================= -->
 <div id="mode" class="screen center">
   <h2>เลือกโหมดภาพ</h2>
   <button onclick="selectMode('color')">COLOR</button><br><br>
   <button onclick="selectMode('mono')">MONO</button>
 </div>
 
-<!-- BOOTH -->
+<!-- ================= BOOTH ================= -->
 <div id="booth" class="screen">
   <div class="booth">
-    <div class="camera">
-      <video id="video" autoplay playsinline></video>
+
+    <div class="camera-box">
+      <div id="camStatus">● CAMERA ON</div>
+
+      <div class="camera-frame">
+        <video id="video" autoplay playsinline></video>
+      </div>
       <div id="countdown">3</div>
     </div>
+
     <div class="preview">
       <canvas width="240" height="320"></canvas>
       <canvas width="240" height="320"></canvas>
       <canvas width="240" height="320"></canvas>
     </div>
   </div>
+
   <div class="center">
-    <button onclick="startShoot()">TAKE PHOTO</button>
+    <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center;">
+      <button onclick="toggleCamera()">CAMERA</button>
+      <button onclick="toggleMode()">MODE</button>
+      <button class="circle-btn" onclick="startShoot()">●</button>
+    </div>
   </div>
 </div>
 
-<!-- RESULT -->
+<!-- ================= RESULT ================= -->
 <div id="result" class="screen center">
   <canvas id="final" width="420" height="1100"></canvas><br>
   <button onclick="download()">DOWNLOAD</button><br><br>
@@ -131,33 +257,75 @@ video{
 </div>
 
 <script>
+/* =================================================
+   GLOBAL STATE (เดิม + เพิ่ม)
+================================================= */
 const screens=document.querySelectorAll('.screen');
 const video=document.getElementById('video');
 const previews=document.querySelectorAll('.preview canvas');
 const cd=document.getElementById('countdown');
 const final=document.getElementById('final');
 const fctx=final.getContext('2d');
+const camStatus=document.getElementById('camStatus');
 
 let mode='color';
 let shots=[];
+let stream=null;
 
+/* =================================================
+   SCREEN CONTROL (เดิม)
+================================================= */
 function show(id){
   screens.forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-
 function goMode(){ show('mode'); }
 
+/* =================================================
+   CAMERA CONTROL (เพิ่ม)
+================================================= */
 function selectMode(m){
   mode=m;
   show('booth');
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}})
-    .then(s=>video.srcObject=s);
+  startCamera();
 }
 
+function startCamera(){
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}})
+    .then(s=>{
+      stream=s;
+      video.srcObject=s;
+      camStatus.textContent='● CAMERA ON';
+    });
+}
+
+function toggleCamera(){
+  if(stream){
+    stream.getTracks().forEach(t=>t.stop());
+    stream=null;
+    camStatus.textContent='○ CAMERA OFF';
+  }else{
+    startCamera();
+  }
+}
+
+/* =================================================
+   MODE TOGGLE (เพิ่ม)
+================================================= */
+function toggleMode(){
+  mode = mode==='color'?'mono':'color';
+  alert('MODE: '+mode.toUpperCase());
+}
+
+/* =================================================
+   SHOOT FLOW (เดิม)
+================================================= */
 function startShoot(){
   shots=[];
-  previews.forEach(c=>c.getContext('2d').clearRect(0,0,c.width,c.height));
+  previews.forEach(c=>{
+    c.classList.remove('filled');
+    c.getContext('2d').clearRect(0,0,c.width,c.height);
+  });
   take(0);
 }
 
@@ -171,16 +339,21 @@ function take(i){
   const timer=setInterval(()=>{
     t--;
     cd.textContent=t;
+    beep();
     if(t===0){
       clearInterval(timer);
       cd.style.display='none';
       capture(i);
-      setTimeout(()=>take(i+1),400);
+      setTimeout(()=>take(i+1),500);
     }
   },1000);
 }
 
+/* =================================================
+   CAPTURE (MONO REAL – เดิม)
+================================================= */
 function capture(i){
+  playShutter();
   const temp=document.createElement('canvas');
   temp.width=video.videoWidth;
   temp.height=video.videoHeight;
@@ -190,7 +363,7 @@ function capture(i){
   if(mode==='mono'){
     const img=ctx.getImageData(0,0,temp.width,temp.height);
     for(let p=0;p<img.data.length;p+=4){
-      const g=img.data[p]*.3+img.data[p+1]*.59+img.data[p+2]*.11;
+      const g=img.data[p]*0.3+img.data[p+1]*0.59+img.data[p+2]*0.11;
       img.data[p]=img.data[p+1]=img.data[p+2]=g;
     }
     ctx.putImageData(img,0,0);
@@ -198,22 +371,34 @@ function capture(i){
 
   shots.push(temp);
   drawCover(previews[i].getContext('2d'),temp,0,0,240,320);
+  previews[i].classList.add('filled');
 }
 
+/* =================================================
+   POLAROID (เดิม)
+================================================= */
 function makeFinal(){
   show('result');
   fctx.fillStyle='white';
   fctx.fillRect(0,0,420,1100);
+
+  fctx.font='26px Gaegu';
+  fctx.textAlign='center';
+  fctx.fillStyle='#000';
+  fctx.fillText('SENAPHOTOBOOTH',210,60);
+
   let y=100;
   shots.forEach(s=>{
     drawCover(fctx,s,40,y,340,240);
     y+=270;
   });
-  fctx.font='24px Patrick Hand';
-  fctx.textAlign='center';
-  fctx.fillText('SENAPHOTOBOOTH',210,1050);
+
+  fctx.fillText('⭐ ✿ ★ ☺︎',210,1050);
 }
 
+/* =================================================
+   UTIL – CENTER CROP (เดิม)
+================================================= */
 function drawCover(ctx,img,x,y,w,h){
   const ir=img.width/img.height;
   const tr=w/h;
@@ -230,14 +415,39 @@ function drawCover(ctx,img,x,y,w,h){
   ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
 }
 
+/* =================================================
+   AUDIO (เพิ่ม)
+================================================= */
+function playShutter(){
+  const a=new AudioContext();
+  const n=a.createBufferSource();
+  const b=a.createBuffer(1,44100,44100);
+  const d=b.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  n.buffer=b;
+  n.connect(a.destination);
+  n.start();
+}
+function beep(){
+  const a=new AudioContext();
+  const o=a.createOscillator();
+  o.frequency.value=700;
+  o.connect(a.destination);
+  o.start();
+  o.stop(a.currentTime+0.05);
+}
+
+/* =================================================
+   ACTIONS (เดิม)
+================================================= */
 function download(){
   const a=document.createElement('a');
   a.href=final.toDataURL('image/png');
   a.download='SENA_PHOTOBOOTH.png';
   a.click();
 }
-
 function reset(){ show('start'); }
 </script>
+
 </body>
 </html>
