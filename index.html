@@ -3,444 +3,475 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH | ULTIMATE</title>
-    
+    <title>SENA PHOTOBOOTH</title>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    
     <style>
         :root {
-            --bg-color: #F0F0F0;
-            --booth-white: #FFFFFF;
-            --ink: #111111;
-            --border-thick: 3px;
-            --shadow-hard: 6px 6px 0px var(--ink);
-            --radius: 16px;
-            --anim-speed: 0.4s;
+            --bg: #FAFAFA;
+            --ink: #181818;
+            --paper: #FFFFFF;
+            --stroke: 3px;
+            --shadow: 6px 6px 0px rgba(0,0,0,0.15);
+            --font: 'Patrick Hand', cursive;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
-
-        body {
-            margin: 0;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(#ccc 1.5px, transparent 1.5px);
-            background-size: 24px 24px;
-            font-family: 'Patrick Hand', cursive;
-            height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden;
-            color: var(--ink);
-        }
-
-        /* --- THE KIOSK CHASSIS --- */
-        .app-shell {
-            width: 100%; max-width: 440px; height: 92vh;
-            background: var(--booth-white);
-            border: var(--border-thick) solid var(--ink);
-            border-radius: var(--radius);
-            position: relative; overflow: hidden;
-            box-shadow: 12px 12px 0px rgba(0,0,0,0.15);
-            display: flex; flex-direction: column;
-        }
-
-        /* --- HEADER --- */
-        header {
-            border-bottom: var(--border-thick) solid var(--ink);
-            padding: 20px 0; text-align: center;
-            background: #fff; z-index: 20;
-            position: relative;
-        }
-        h1 { font-size: 2.8rem; margin: 0; line-height: 0.8; letter-spacing: 2px; text-transform: uppercase; }
-        .tagline { font-size: 1.1rem; color: #666; margin-top: 5px; letter-spacing: 1px; }
-
-        /* --- SCREENS --- */
-        .screen-container { position: relative; flex: 1; width: 100%; overflow: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
+        body {
+            margin: 0; padding: 0;
+            background: var(--bg);
+            font-family: var(--font);
+            color: var(--ink);
+            height: 100vh;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* --- STRUCTURE --- */
+        #app {
+            width: 100%; max-width: 450px; height: 100%;
+            position: relative; overflow: hidden;
+            background: var(--bg);
+        }
+
         .screen {
             position: absolute; inset: 0;
-            padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
-            background: #fff;
-            transition: transform var(--anim-speed) cubic-bezier(0.7, 0, 0.3, 1);
-            transform: translateY(100%); z-index: 1;
+            background: var(--bg);
+            display: flex; flex-direction: column;
+            transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+            z-index: 10;
         }
-        .screen.active { transform: translateY(0); z-index: 10; }
-        .screen.prev { transform: translateY(-15%); opacity: 0.5; filter: blur(2px); z-index: 1; }
-
-        /* --- UI CONTROLS --- */
-        .label-text { font-size: 1.4rem; width: 100%; text-align: left; margin: 15px 0 8px 0; font-weight: bold; }
         
-        /* Option Grid */
-        .option-grid { display: flex; gap: 10px; width: 100%; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
-        .opt-btn {
-            flex: 1; min-width: 80px; padding: 12px 5px;
-            border: 2px solid #ddd; border-radius: 10px;
-            background: #fff; cursor: pointer;
-            font-family: inherit; font-size: 1.2rem; text-align: center;
-            transition: 0.2s; position: relative;
-        }
-        .opt-btn.active {
-            border: var(--border-thick) solid var(--ink);
-            background: var(--ink); color: #fff;
-            box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
-            transform: translateY(-2px);
-        }
-        .color-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); margin: 0 auto; }
+        .screen.hidden { transform: translateY(-100%); pointer-events: none; }
+        .screen.below { transform: translateY(100%); }
+        .screen.active { transform: translateY(0); z-index: 20; }
 
-        /* BIG BUTTONS */
-        .btn-main {
-            width: 100%; padding: 18px; margin-top: auto;
-            background: var(--ink); color: #fff;
-            border: var(--border-thick) solid var(--ink);
-            border-radius: 12px;
-            font-family: inherit; font-size: 2rem;
-            cursor: pointer; text-transform: uppercase;
+        /* --- 1. HOME SCREEN (THE EXTERIOR) --- */
+        #screen-home {
+            align-items: center; justify-content: center;
+            background-image: radial-gradient(#ddd 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* The Drawn Booth */
+        .booth-exterior {
+            width: 320px; height: 500px;
+            border: var(--stroke) solid var(--ink);
+            background: #fff;
+            position: relative;
+            display: flex;
+            box-shadow: 10px 10px 0px var(--ink);
+        }
+
+        .booth-sign {
+            position: absolute; top: -60px; left: -3px; right: -3px;
+            height: 55px;
+            border: var(--stroke) solid var(--ink);
+            background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; letter-spacing: 2px;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.1);
+        }
+        .booth-sign::after { content:''; position:absolute; bottom:-10px; left:20px; width:10px; height:10px; background:var(--ink); }
+        .booth-sign::before { content:''; position:absolute; bottom:-10px; right:20px; width:10px; height:10px; background:var(--ink); }
+
+        .exterior-left {
+            flex: 1; border-right: var(--stroke) solid var(--ink);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; position: relative;
+        }
+        
+        /* The "Featured Strips" Window */
+        .window-frame {
+            width: 100%; height: 120px;
+            border: var(--stroke) solid var(--ink);
+            margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; background: #eee;
+        }
+        .mini-strip { width: 30px; height: 100px; background: #fff; border: 1px solid #000; margin: 0 2px; transform: rotate(5deg); }
+
+        .coin-slot {
+            width: 40px; height: 80px;
+            border: var(--stroke) solid var(--ink);
+            background: #ddd; position: relative;
+            margin-top: 40px;
+        }
+        .coin-slot::after { content:''; position:absolute; top:10px; left:50%; transform:translate(-50%); width:4px; height:30px; background:#000; }
+
+        .exterior-right {
+            flex: 1; position: relative;
+            background: repeating-linear-gradient(90deg, #fff, #fff 10px, #eee 10px, #eee 20px);
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        /* THE ENTER BUTTON */
+        .btn-enter {
+            background: #fff; border: var(--stroke) solid var(--ink);
+            padding: 15px 25px; font-size: 1.5rem; font-family: var(--font);
+            cursor: pointer; position: absolute; z-index: 5;
             box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
+            transition: 0.2s;
         }
-        .btn-main:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0px rgba(0,0,0,0.2); }
-        .btn-secondary { background: #fff; color: var(--ink); margin-top: 10px; font-size: 1.2rem; padding: 12px; }
+        .btn-enter:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0px rgba(0,0,0,0.2); }
 
-        /* --- CAMERA & COUNTDOWN --- */
-        .cam-wrapper {
+        /* --- 2. INSIDE BOOTH (CAMERA) --- */
+        #screen-booth { background: #fff; padding: 20px; }
+        
+        .booth-header { text-align: center; margin-bottom: 10px; font-size: 1.5rem; }
+        
+        .cam-frame {
             width: 100%; aspect-ratio: 3/4;
-            background: #000; border-radius: 12px;
-            border: var(--border-thick) solid var(--ink);
-            position: relative; overflow: hidden;
-            box-shadow: var(--shadow-hard);
+            background: #000; border: var(--stroke) solid var(--ink);
+            border-radius: 12px; position: relative; overflow: hidden;
+            box-shadow: var(--shadow);
         }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+
+        .countdown {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-size: 8rem; color: #fff; text-shadow: 4px 4px 0 #000; display: none;
+        }
+
+        /* Control Panel */
+        .controls { margin-top: auto; width: 100%; }
+        .control-group { margin-bottom: 15px; }
+        .control-label { font-size: 1.2rem; margin-bottom: 5px; font-weight: bold; }
         
-        .countdown-overlay {
-            position: absolute; inset: 0;
-            display: flex; justify-content: center; align-items: center;
-            pointer-events: none;
+        .opt-row { display: flex; gap: 10px; }
+        .btn-opt {
+            flex: 1; padding: 10px; border: 2px solid #ccc; background: #fff;
+            border-radius: 8px; font-family: inherit; font-size: 1rem; cursor: pointer;
         }
-        #count-num { font-size: 8rem; color: #fff; text-shadow: 4px 4px 0 #000; display: none; }
-
-        .pose-status { margin-top: 20px; font-size: 1.5rem; text-align: center; }
-
-        /* --- THE PRINTER (Animation Magic) --- */
-        .printer-mouth {
-            width: 260px; height: 12px; background: #333;
-            border-radius: 6px; margin: 0 auto 0 auto;
-            position: relative; z-index: 20;
-            box-shadow: 0 4px 0 rgba(255,255,255,0.5); /* Highlight below slot */
-        }
-        
-        .print-area {
-            position: relative; width: 100%; height: 100%;
-            display: flex; justify-content: center; perspective: 1000px;
+        .btn-opt.active {
+            border: var(--stroke) solid var(--ink); background: var(--ink); color: #fff;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.2); transform: translateY(-2px);
         }
 
-        .photo-strip {
-            width: 240px; height: auto;
-            border: 2px solid var(--ink);
-            background: #fff;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            position: absolute; top: -600px; /* Start hidden above */
-            z-index: 5;
-            transform-origin: top center;
+        .btn-shutter {
+            width: 100%; padding: 15px; font-size: 1.8rem;
+            background: #fff; border: var(--stroke) solid var(--ink);
+            border-radius: 50px; cursor: pointer; margin-top: 10px;
+            box-shadow: 4px 4px 0 var(--ink); transition: 0.1s;
         }
-        
-        /* Animation States */
-        .photo-strip.printing { animation: printSlide 3s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
-        .photo-strip.resting { top: 20px; transform: rotate(-2deg); transition: 0.5s; }
+        .btn-shutter:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
 
-        @keyframes printSlide {
-            0% { top: -600px; }
-            100% { top: 20px; } /* Stops right below slot */
+        /* --- 3. PRINT SCREEN (RESULT) --- */
+        #screen-print {
+            align-items: center; padding-top: 40px;
+            background-image: radial-gradient(#ccc 1px, transparent 1px); background-size: 20px 20px;
         }
 
-        .action-panel {
-            position: absolute; bottom: 30px; width: 85%;
-            opacity: 0; pointer-events: none; transition: 0.5s;
+        .printer-slot-machinery {
+            width: 280px; height: 20px; background: #222;
+            border-radius: 10px; margin-bottom: 0; position: relative; z-index: 50;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
         }
-        .action-panel.visible { opacity: 1; pointer-events: auto; }
 
-        /* --- FLASH EFFECT --- */
-        .flash { position: fixed; inset:0; background:#fff; z-index:99; opacity:0; pointer-events:none; }
-        .flash.fire { animation: flashAnim 0.15s ease-out; }
-        @keyframes flashAnim { 0% { opacity:1;} 100% { opacity:0; } }
+        .paper-container {
+            position: relative; width: 260px; height: 500px;
+            overflow: hidden; margin-top: -10px;
+            display: flex; justify-content: center;
+        }
+
+        .final-strip {
+            width: 240px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: absolute; top: -600px; /* Hidden */
+            transition: top 3s cubic-bezier(0.45, 0, 0.55, 1);
+        }
+        .final-strip.printing { top: 20px; }
+
+        .actions {
+            margin-top: 20px; display: flex; gap: 15px; opacity: 0; transition: 0.5s;
+        }
+        .actions.visible { opacity: 1; }
+
+        .btn-action {
+            padding: 12px 25px; border: var(--stroke) solid var(--ink);
+            background: #fff; font-family: inherit; font-size: 1.2rem; cursor: pointer;
+            border-radius: 8px; box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+        }
+        .btn-download { background: var(--ink); color: #fff; }
+
+        /* Flash */
+        .flash-overlay { position: fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:99; }
+        .flash-overlay.fire { animation: flash 0.15s; }
+        @keyframes flash { 0% { opacity:1; } 100% { opacity:0; } }
 
     </style>
 </head>
 <body>
 
-    <div class="app-shell">
-        <header>
-            <h1>SENA BOOTH</h1>
-            <div class="tagline">The Official Photo Studio</div>
-        </header>
+<div id="app">
 
-        <div class="screen-container">
-            
-            <div id="scr-home" class="screen active">
-                <div style="width:100%;">
-                    <div class="label-text">Select Style</div>
-                    <div class="option-grid">
-                        <button class="opt-btn active" onclick="setMode('color', this)">Color</button>
-                        <button class="opt-btn" onclick="setMode('bw', this)">B&W</button>
-                        <button class="opt-btn" onclick="setMode('sepia', this)">Vintage</button>
-                    </div>
-
-                    <div class="label-text">Frame Color</div>
-                    <div class="option-grid">
-                        <button class="opt-btn active" onclick="setFrame('#FFFFFF', 'black', this)"><div class="color-dot" style="background:#fff"></div></button>
-                        <button class="opt-btn" onclick="setFrame('#111111', 'white', this)"><div class="color-dot" style="background:#000"></div></button>
-                        <button class="opt-btn" onclick="setFrame('#FFF8E1', 'black', this)"><div class="color-dot" style="background:#FFF8E1"></div></button>
-                        <button class="opt-btn" onclick="setFrame('#FFC0CB', 'black', this)"><div class="color-dot" style="background:#FFC0CB"></div></button>
-                    </div>
+    <div id="screen-home" class="screen active">
+        <div class="booth-exterior">
+            <div class="booth-sign">SENA PHOTOBOOTH</div>
+            <div class="exterior-left">
+                <div class="window-frame">
+                    <div class="mini-strip" style="background:#eee;"></div>
+                    <div class="mini-strip"></div>
+                    <div class="mini-strip" style="background:#333;"></div>
                 </div>
-
-                <div style="flex:1; display:flex; align-items:center; justify-content:center;">
-                    <p style="font-size:1.4rem; text-align:center; color:#888;">
-                        Step inside.<br>Strike a pose.<br>Keep the memory.
-                    </p>
-                </div>
-
-                <button class="btn-main" onclick="startSession()">START CAMERA</button>
+                <div style="font-size:0.9rem; transform:rotate(-5deg);">featured strips</div>
+                <div class="coin-slot"></div>
             </div>
-
-            <div id="scr-cam" class="screen">
-                <div class="cam-wrapper">
-                    <video id="video" autoplay playsinline muted></video>
-                    <div class="countdown-overlay"><div id="count-num">3</div></div>
-                </div>
-                <div class="pose-status" id="pose-tracker">Ready?</div>
+            <div class="exterior-right">
+                <div style="position:absolute; inset:0; border-left:2px solid rgba(0,0,0,0.1); width:20px; left:20%;"></div>
+                <div style="position:absolute; inset:0; border-left:2px solid rgba(0,0,0,0.1); width:20px; left:50%;"></div>
+                
+                <button class="btn-enter" onclick="enterBooth()">enter &rarr;</button>
             </div>
+        </div>
+        <p style="margin-top:20px; color:#888;">&copy; SENA STUDIOS</p>
+    </div>
 
-            <div id="scr-print" class="screen" style="background:#f9f9f9; padding-top:0;">
-                <div style="width:100%; background:#fff; padding:15px 0; border-bottom:1px solid #eee; display:flex; justify-content:center; z-index:15;">
-                    <div class="printer-mouth"></div>
-                </div>
+    <div id="screen-booth" class="screen hidden">
+        <div class="booth-header">Ready to snap?</div>
+        
+        <div class="cam-frame">
+            <video id="video" autoplay playsinline muted></video>
+            <div id="countdown" class="countdown">3</div>
+        </div>
 
-                <div class="print-area">
-                    <img id="final-img" class="photo-strip" alt="Photo Strip">
-                </div>
-
-                <div class="action-panel" id="end-menu">
-                    <button class="btn-main" onclick="downloadStrip()">DOWNLOAD PHOTO</button>
-                    <button class="btn-main btn-secondary" onclick="resetApp()">NEW SESSION</button>
+        <div class="controls">
+            <div class="control-group">
+                <div class="control-label">1. Tone</div>
+                <div class="opt-row">
+                    <button class="btn-opt active" onclick="setFilter('color', this)">Color</button>
+                    <button class="btn-opt" onclick="setFilter('bw', this)">B&W</button>
+                    <button class="btn-opt" onclick="setFilter('warm', this)">Warm</button>
                 </div>
             </div>
 
+            <div class="control-group">
+                <div class="control-label">2. Frame</div>
+                <div class="opt-row">
+                    <button class="btn-opt active" onclick="setFrame('#FFF', '#000', this)">White</button>
+                    <button class="btn-opt" onclick="setFrame('#000', '#FFF', this)" style="background:#333; color:#fff;">Black</button>
+                    <button class="btn-opt" onclick="setFrame('#FFD1DC', '#000', this)" style="background:#FFD1DC;">Pink</button>
+                </div>
+            </div>
+
+            <button class="btn-shutter" onclick="startSequence()">START SHOOTING</button>
         </div>
     </div>
 
-    <div class="flash" id="flash"></div>
-    <canvas id="canvas" style="display:none;"></canvas>
+    <div id="screen-print" class="screen hidden">
+        <h2 style="margin-bottom:10px;">PRINTING MEMORIES...</h2>
+        
+        <div class="printer-slot-machinery"></div>
+        
+        <div class="paper-container">
+            <img id="result-img" class="final-strip" alt="Your Photo">
+        </div>
 
-    <script>
-        // --- SYSTEM CORE ---
-        const config = { mode: 'color', bg: '#FFFFFF', ink: '#111111' };
-        let stream = null;
-        let shots = [];
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        <div class="actions" id="end-actions">
+            <button class="btn-action btn-download" onclick="downloadImg()">Download</button>
+            <button class="btn-action" onclick="resetBooth()">Home</button>
+        </div>
+    </div>
 
-        // --- AUDIO ENGINE ---
-        const AudioEngine = {
-            ctx: null,
-            init: function() {
-                if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            },
-            play: function(type) {
-                if(!this.ctx) this.init();
-                if(this.ctx.state === 'suspended') this.ctx.resume();
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.connect(gain); gain.connect(this.ctx.destination);
+</div>
 
-                const now = this.ctx.currentTime;
-                if(type === 'beep') {
-                    osc.frequency.setValueAtTime(800, now);
-                    gain.gain.setValueAtTime(0.1, now);
-                    osc.start(now); osc.stop(now + 0.1);
-                } else if(type === 'shutter') {
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(150, now);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                    osc.start(now); osc.stop(now + 0.15);
-                }
-            }
-        };
+<div class="flash-overlay" id="flash"></div>
+<canvas id="canvas" style="display:none;"></canvas>
 
-        // --- UX CONTROLS ---
-        function setMode(m, el) {
-            config.mode = m;
-            document.querySelectorAll('#scr-home .opt-btn:nth-child(-n+3)').forEach(b => b.classList.remove('active'));
-            el.classList.add('active');
-        }
-        function setFrame(bg, ink, el) {
-            config.bg = bg; config.ink = ink;
-            document.querySelectorAll('#scr-home .opt-btn:nth-child(n+4)').forEach(b => b.classList.remove('active'));
-            el.classList.add('active');
-        }
-        function navigate(toId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(toId).classList.add('active');
-        }
+<script>
+    // STATE
+    const state = { filter: 'color', frameBg: '#FFF', frameInk: '#000' };
+    const screens = {
+        home: document.getElementById('screen-home'),
+        booth: document.getElementById('screen-booth'),
+        print: document.getElementById('screen-print')
+    };
+    
+    let stream;
+    let shots = [];
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
-        // --- CAMERA SEQUENCE ---
-        async function startSession() {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 1280, height: 720 } });
-                video.srcObject = stream;
-                
-                // CSS Filter for preview
-                video.style.filter = config.mode === 'bw' ? 'grayscale(100%)' : 
-                                     config.mode === 'sepia' ? 'sepia(40%) contrast(105%)' : 'none';
-                
-                navigate('scr-cam');
-                setTimeout(runBoothLogic, 1000);
-            } catch(e) { alert("Camera Permission Denied"); }
-        }
-
-        async function runBoothLogic() {
-            shots = [];
-            for(let i=1; i<=3; i++) {
-                document.getElementById('pose-tracker').innerText = `Pose ${i} of 3`;
-                await countdown(3);
-                await snap();
-            }
-            document.getElementById('pose-tracker').innerText = "Processing...";
-            finishSession();
-        }
-
-        function countdown(n) {
-            return new Promise(resolve => {
-                let c = n;
-                const el = document.getElementById('count-num');
-                el.style.display = 'block'; el.innerText = c;
-                AudioEngine.play('beep');
-                
-                const timer = setInterval(() => {
-                    c--;
-                    if(c > 0) {
-                        el.innerText = c;
-                        AudioEngine.play('beep');
-                    } else {
-                        clearInterval(timer);
-                        el.style.display = 'none';
-                        resolve();
-                    }
-                }, 1000);
+    // --- NAVIGATION ---
+    async function enterBooth() {
+        // Ask for camera first
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'user', width: 1280, height: 720 } 
             });
-        }
-
-        function snap() {
-            return new Promise(resolve => {
-                AudioEngine.play('shutter');
-                const flash = document.getElementById('flash');
-                flash.classList.add('fire');
-                setTimeout(() => flash.classList.remove('fire'), 200);
-
-                const w = video.videoWidth; const h = video.videoHeight;
-                const tc = document.createElement('canvas');
-                tc.width = w; tc.height = h;
-                const tctx = tc.getContext('2d');
-                
-                tctx.translate(w, 0); tctx.scale(-1, 1);
-                tctx.drawImage(video, 0, 0, w, h);
-                
-                // Apply Filter to Canvas Data
-                if(config.mode === 'bw') {
-                    tctx.globalCompositeOperation = 'saturation';
-                    tctx.fillStyle = '#000';
-                    tctx.fillRect(0,0,w,h);
-                } else if(config.mode === 'sepia') {
-                    tctx.globalCompositeOperation = 'overlay';
-                    tctx.fillStyle = 'rgba(112, 66, 20, 0.3)';
-                    tctx.fillRect(0,0,w,h);
-                }
-
-                shots.push(tc);
-                setTimeout(resolve, 800); // Wait a bit between shots
-            });
-        }
-
-        // --- RENDERING ENGINE ---
-        function finishSession() {
-            if(stream) stream.getTracks().forEach(t => t.stop());
-
-            const stripW = 600; 
-            const photoW = 520; const photoH = (photoW * 3) / 4;
-            const gap = 30; const topPad = 140; const botPad = 100;
-            const totalH = topPad + (photoH * 3) + (gap * 2) + botPad;
-
-            canvas.width = stripW; canvas.height = totalH;
-
-            // Draw Background
-            ctx.fillStyle = config.bg;
-            ctx.fillRect(0,0,stripW,totalH);
-
-            // Draw Border Frame
-            ctx.strokeStyle = config.ink; ctx.lineWidth = 4;
-            ctx.strokeRect(5,5,stripW-10,totalH-10);
-
-            // Draw Header
-            ctx.fillStyle = config.ink; ctx.textAlign = 'center';
-            ctx.font = 'bold 70px "Patrick Hand"';
-            ctx.fillText('SENA BOOTH', stripW/2, 90);
-
-            // Draw Photos
-            let y = topPad;
-            shots.forEach(shot => {
-                // Smart Crop
-                const sRatio = shot.width / shot.height;
-                const dRatio = 4/3;
-                let sx, sy, sw, sh;
-                
-                if (sRatio > dRatio) {
-                    sh = shot.height; sw = sh * dRatio;
-                    sx = (shot.width - sw) / 2; sy = 0;
-                } else {
-                    sw = shot.width; sh = sw / dRatio;
-                    sx = 0; sy = (shot.height - sh) / 2;
-                }
-
-                ctx.drawImage(shot, sx, sy, sw, sh, (stripW-photoW)/2, y, photoW, photoH);
-                ctx.strokeRect((stripW-photoW)/2, y, photoW, photoH); // Photo Border
-                y += photoH + gap;
-            });
-
-            // Draw Footer
-            ctx.font = '30px "Patrick Hand"';
-            ctx.fillText(new Date().toLocaleDateString('en-US').toUpperCase(), stripW/2, totalH - 40);
-
-            // Start Animation
-            const img = document.getElementById('final-img');
-            img.src = canvas.toDataURL('image/jpeg', 0.95);
+            video.srcObject = stream;
             
-            navigate('scr-print');
+            // Animation: Home slides UP, Booth slides IN
+            screens.home.classList.add('hidden');
+            screens.booth.classList.remove('hidden');
+            screens.booth.classList.add('active');
+        } catch(e) {
+            alert("Camera access is needed to enter the booth!");
+        }
+    }
+
+    // --- SETTINGS ---
+    function setFilter(type, el) {
+        state.filter = type;
+        // Update UI
+        document.querySelectorAll('.control-group:first-child .btn-opt').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        
+        // Update Video Preview
+        if(type === 'bw') video.style.filter = 'grayscale(100%) contrast(1.1)';
+        else if(type === 'warm') video.style.filter = 'sepia(0.3) saturate(1.2)';
+        else video.style.filter = 'none';
+    }
+
+    function setFrame(bg, ink, el) {
+        state.frameBg = bg; state.frameInk = ink;
+        document.querySelectorAll('.control-group:last-child .btn-opt').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    // --- CAPTURE LOGIC ---
+    async function startSequence() {
+        shots = [];
+        const btn = document.querySelector('.btn-shutter');
+        btn.disabled = true;
+        btn.innerText = "CAPTURING...";
+
+        for(let i=1; i<=3; i++) {
+            await runCountdown(3);
+            await captureShot();
+        }
+
+        btn.innerText = "PROCESSING...";
+        generateStrip();
+    }
+
+    function runCountdown(n) {
+        return new Promise(resolve => {
+            const el = document.getElementById('countdown');
+            el.style.display = 'flex';
+            let c = n;
+            el.innerText = c;
             
-            // Trigger Animation Sequence
+            const intv = setInterval(() => {
+                c--;
+                if(c > 0) el.innerText = c;
+                else {
+                    clearInterval(intv);
+                    el.style.display = 'none';
+                    resolve();
+                }
+            }, 1000);
+        });
+    }
+
+    function captureShot() {
+        return new Promise(resolve => {
+            // Flash
+            const f = document.getElementById('flash');
+            f.classList.add('fire');
+            setTimeout(() => f.classList.remove('fire'), 150);
+
+            // Draw Video to Temp Canvas
+            const w = video.videoWidth; 
+            const h = video.videoHeight;
+            const tc = document.createElement('canvas');
+            tc.width = w; tc.height = h;
+            const tctx = tc.getContext('2d');
+            
+            // Mirror
+            tctx.translate(w, 0); tctx.scale(-1, 1);
+            tctx.drawImage(video, 0, 0, w, h);
+
+            // Apply Filter (Baked in)
+            if(state.filter === 'bw') {
+                tctx.globalCompositeOperation = 'saturation';
+                tctx.fillStyle = '#000'; tctx.fillRect(0,0,w,h);
+            } else if(state.filter === 'warm') {
+                tctx.globalCompositeOperation = 'overlay';
+                tctx.fillStyle = 'rgba(255, 200, 100, 0.2)'; tctx.fillRect(0,0,w,h);
+            }
+
+            shots.push(tc);
+            setTimeout(resolve, 800); // Pause between shots
+        });
+    }
+
+    // --- GENERATE & PRINT ---
+    function generateStrip() {
+        // Cleanup Camera
+        if(stream) stream.getTracks().forEach(t => t.stop());
+
+        const stripW = 600; 
+        const photoW = 540; const photoH = (photoW * 3) / 4;
+        const gap = 30; const headH = 140; const footH = 80;
+        const totalH = headH + (photoH * 3) + (gap * 2) + footH;
+
+        canvas.width = stripW; canvas.height = totalH;
+        
+        // Background
+        ctx.fillStyle = state.frameBg;
+        ctx.fillRect(0,0,stripW,totalH);
+        
+        // Header Text
+        ctx.fillStyle = state.frameInk;
+        ctx.textAlign = 'center';
+        ctx.font = '70px "Patrick Hand"';
+        ctx.fillText('SENA', stripW/2, 70);
+        ctx.font = '40px "Patrick Hand"';
+        ctx.fillText('PHOTOBOOTH', stripW/2, 115);
+
+        // Draw Photos
+        let y = headH;
+        shots.forEach(shot => {
+            // Center Crop Logic
+            const sR = shot.width / shot.height;
+            const dR = 4/3;
+            let sx, sy, sw, sh;
+            if(sR > dR) { sh = shot.height; sw = sh * dR; sx=(shot.width-sw)/2; sy=0; }
+            else { sw = shot.width; sh = sw/dR; sx=0; sy=(shot.height-sh)/2; }
+
+            ctx.drawImage(shot, sx, sy, sw, sh, (stripW-photoW)/2, y, photoW, photoH);
+            
+            // Border around photo
+            ctx.lineWidth = 4; ctx.strokeStyle = state.frameInk;
+            ctx.strokeRect((stripW-photoW)/2, y, photoW, photoH);
+            
+            y += photoH + gap;
+        });
+
+        // Footer Date
+        ctx.font = '24px "Patrick Hand"';
+        ctx.fillText(new Date().toLocaleDateString(), stripW/2, totalH - 30);
+
+        // Show Result Screen
+        const img = document.getElementById('result-img');
+        img.src = canvas.toDataURL('image/jpeg', 0.95);
+
+        screens.booth.classList.remove('active');
+        screens.booth.classList.add('hidden'); // Move out
+        screens.print.classList.remove('hidden');
+        screens.print.classList.add('active');
+
+        // Animation Trigger
+        setTimeout(() => {
+            img.classList.add('printing');
             setTimeout(() => {
-                img.classList.add('printing'); // Slide Out
-                setTimeout(() => {
-                    img.classList.add('resting'); // Rotate slightly
-                    document.getElementById('end-menu').classList.add('visible');
-                }, 3000);
-            }, 500);
-        }
+                document.getElementById('end-actions').classList.add('visible');
+            }, 3000);
+        }, 500);
+    }
 
-        function downloadStrip() {
-            const link = document.createElement('a');
-            link.download = 'SENA_STRIP.jpg';
-            link.href = canvas.toDataURL('image/jpeg', 1.0);
-            link.click();
-        }
+    function downloadImg() {
+        const a = document.createElement('a');
+        a.download = 'sena-booth-memory.jpg';
+        a.href = canvas.toDataURL('image/jpeg', 1.0);
+        a.click();
+    }
 
-        function resetApp() {
-            const img = document.getElementById('final-img');
-            img.classList.remove('printing', 'resting');
-            img.src = "";
-            document.getElementById('end-menu').classList.remove('visible');
-            navigate('scr-home');
-        }
-    </script>
+    function resetBooth() {
+        location.reload();
+    }
+
+</script>
 </body>
 </html>
