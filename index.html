@@ -6,73 +6,66 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{box-sizing:border-box;}
-
 body{
     margin:0;
-    font-family:'Helvetica Neue', Arial, sans-serif;
-    background:#f7f6f3;
+    font-family: Arial, sans-serif;
+    background:#f6f5f2;
     height:100vh;
-    overflow:hidden;
-    user-select:none;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     color:#222;
 }
 
-/* ดาว */
-.star{
-    position:fixed;
-    font-size:14px;
-    color:#bbb;
-}
-.star.s1{top:40px;left:30px;}
-.star.s2{top:120px;right:50px;}
-.star.s3{bottom:80px;left:60px;}
-.star.s4{bottom:40px;right:80px;}
+.star{position:fixed;color:#bbb;font-size:14px;}
+.star:nth-child(1){top:30px;left:40px;}
+.star:nth-child(2){top:90px;right:60px;}
+.star:nth-child(3){bottom:60px;left:80px;}
 
-.screen{
-    display:none;
-    width:100%;
-    height:100%;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-}
+.screen{display:none;flex-direction:column;align-items:center;}
 .active{display:flex;}
 
-h1{
-    font-weight:500;
-    letter-spacing:4px;
-    margin-bottom:20px;
-}
-
-p{margin:10px 0;font-size:16px;}
+h1{letter-spacing:3px;margin-bottom:20px;}
 
 button{
-    padding:16px 42px;
+    padding:14px 36px;
     margin:8px;
     font-size:18px;
-    border-radius:14px;
-    border:1px solid #ddd;
-    background:white;
-    cursor:pointer;
+    border-radius:12px;
+    border:1px solid #ccc;
+    background:#fff;
 }
-button:hover{background:#f0f0f0;}
 
 .primary{
     background:#111;
-    color:white;
+    color:#fff;
     border:none;
 }
-.primary:hover{background:#000;}
+
+.layout-preview{
+    width:120px;
+    height:240px;
+    border:1px solid #ccc;
+    background:white;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:8px;
+}
+
+.layout-preview div{
+    flex:1;
+    border:1px solid #ddd;
+    margin:4px 0;
+    background:#eee;
+}
 
 .camera{
-    width:360px;
+    width:320px;
     aspect-ratio:3/4;
-    background:#000;
-    border-radius:18px;
+    background:black;
+    border-radius:16px;
     overflow:hidden;
-    position:relative;
-    box-shadow:0 10px 30px rgba(0,0,0,.2);
 }
 
 video,canvas{
@@ -81,187 +74,107 @@ video,canvas{
     object-fit:cover;
 }
 
-#countdown{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    font-size:90px;
-    color:white;
-    display:none;
-}
-
-.frame-btn{
-    padding:14px 28px;
-    border-radius:14px;
-    font-size:16px;
-}
-.f1{background:#ffffff;}
-.f2{background:#f2efe9;}
-.f3{background:#e6e6e6;}
-.f4{background:#000;color:white;}
-
 #final{
     background:white;
     border-radius:16px;
     box-shadow:0 10px 30px rgba(0,0,0,.2);
-}
-
-.footer{
-    margin-top:12px;
-    font-size:12px;
-    letter-spacing:2px;
-    color:#555;
-}
-
-@media print{
-    body *{visibility:hidden;}
-    #final{visibility:visible;position:absolute;top:0;left:0;}
 }
 </style>
 </head>
 
 <body>
 
-<!-- ดาว -->
-<div class="star s1">✦</div>
-<div class="star s2">✦</div>
-<div class="star s3">✦</div>
-<div class="star s4">✦</div>
+<div class="star">✦</div>
+<div class="star">✦</div>
+<div class="star">✦</div>
 
-<!-- HOME -->
-<div id="home" class="screen active">
-    <h1>SENA PHOTOBOOTH</h1>
-    <button class="primary" onclick="show('coin')">START</button>
+<!-- เลือก Layout -->
+<div id="layout" class="screen active">
+    <h1>LAYOUT</h1>
+    <div class="layout-preview" onclick="selectLayout()">
+        <div></div><div></div><div></div><div></div>
+    </div>
+    <button class="primary" onclick="show('mode')">NEXT</button>
 </div>
 
-<!-- COIN -->
-<div id="coin" class="screen">
-    <h1>INSERT COIN</h1>
-    <p id="coinText">0 / 10 BAHT</p>
-    <button onclick="insertCoin()">+10</button>
-</div>
-
-<!-- FRAME -->
-<div id="frame" class="screen">
-    <h1>FRAME COLOR</h1>
-    <button class="frame-btn f1" onclick="setFrame('#ffffff')">WHITE</button>
-    <button class="frame-btn f2" onclick="setFrame('#f2efe9')">CREAM</button>
-    <button class="frame-btn f3" onclick="setFrame('#e6e6e6')">GRAY</button>
-    <button class="frame-btn f4" onclick="setFrame('#000000')">BLACK</button>
-</div>
-
-<!-- MODE -->
+<!-- เลือกโหมด -->
 <div id="mode" class="screen">
     <h1>MODE</h1>
-    <button onclick="selectMode('color')">COLOR</button>
-    <button onclick="selectMode('mono')">MONO</button>
+    <button onclick="setMode('color')">COLOR</button>
+    <button onclick="setMode('mono')">MONO</button>
 </div>
 
-<!-- BOOTH -->
+<!-- กล้อง -->
 <div id="booth" class="screen">
     <h1>SENA PHOTOBOOTH</h1>
     <div class="camera">
         <video id="video" autoplay playsinline></video>
-        <canvas id="canvas" style="display:none;"></canvas>
-        <div id="countdown">3</div>
     </div>
-    <div class="footer">✦ โรงเรียนตะกั่วป่าเสนานุกูล ✦</div>
+    <button class="primary" onclick="takePhoto()">TAKE PHOTO</button>
 </div>
 
-<!-- RESULT -->
+<!-- ผลลัพธ์ -->
 <div id="result" class="screen">
-    <h1>YOUR PHOTO</h1>
-    <canvas id="final" width="800" height="2000"></canvas>
-    <button class="primary" onclick="window.print()">PRINT</button>
-    <button onclick="download()">DOWNLOAD</button>
+    <h1>RESULT</h1>
+    <canvas id="final" width="600" height="1600"></canvas>
     <button onclick="reset()">FINISH</button>
 </div>
 
 <script>
-let coin=0,price=10,frame="#fff",mode="color";
-let shots=[],count=0;
-
+let mode="color";
 const video=document.getElementById("video");
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
 const final=document.getElementById("final");
 const fctx=final.getContext("2d");
-const cd=document.getElementById("countdown");
 
 function show(id){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
-function insertCoin(){
-    coin+=10;
-    document.getElementById("coinText").innerText=`${coin} / ${price} BAHT`;
-    if(coin>=price) show('frame');
-}
+function selectLayout(){}
 
-function setFrame(c){frame=c;show('mode');}
-
-function selectMode(m){
-    mode=m;show('booth');
-    navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}})
+function setMode(m){
+    mode=m;
+    show('booth');
+    navigator.mediaDevices.getUserMedia({video:true})
     .then(s=>video.srcObject=s);
-    shots=[];count=0;
-    setTimeout(nextShot,1000);
 }
 
-function nextShot(){
-    if(count>=4){makeStrip();return;}
-    let c=3;cd.style.display="block";cd.innerText=c;
-    let t=setInterval(()=>{
-        c--;cd.innerText=c;
-        if(c==0){clearInterval(t);cd.style.display="none";take();}
-    },1000);
-}
+function takePhoto(){
+    const temp=document.createElement("canvas");
+    temp.width=video.videoWidth;
+    temp.height=video.videoHeight;
+    const tctx=temp.getContext("2d");
+    tctx.drawImage(video,0,0);
 
-function take(){
-    canvas.width=video.videoWidth;
-    canvas.height=video.videoHeight;
-    ctx.drawImage(video,0,0);
-    if(mode=="mono"){
-        let img=ctx.getImageData(0,0,canvas.width,canvas.height);
+    if(mode==="mono"){
+        let img=tctx.getImageData(0,0,temp.width,temp.height);
         for(let i=0;i<img.data.length;i+=4){
             let a=(img.data[i]+img.data[i+1]+img.data[i+2])/3;
             img.data[i]=img.data[i+1]=img.data[i+2]=a;
         }
-        ctx.putImageData(img,0,0);
+        tctx.putImageData(img,0,0);
     }
-    shots.push(canvas.toDataURL());
-    count++;setTimeout(nextShot,700);
-}
 
-function makeStrip(){
+    // วาด strip (รูปเดียวซ้ำ 4 ช่อง)
     show('result');
-    fctx.fillStyle=frame;
-    fctx.fillRect(0,0,800,2000);
-    let y=100;
-    shots.forEach(s=>{
-        let i=new Image();
-        i.onload=()=>fctx.drawImage(i,100,y,600,400);
-        i.src=s;y+=450;
-    });
-    setTimeout(()=>{
-        fctx.fillStyle=frame=="#000"?"#fff":"#000";
-        fctx.font="36px Arial";
-        fctx.textAlign="center";
-        fctx.fillText("✦ SENA PHOTOBOOTH ✦",400,1900);
-    },500);
-}
+    fctx.fillStyle="#fff";
+    fctx.fillRect(0,0,600,1600);
 
-function download(){
-    let a=document.createElement("a");
-    a.download="SENA_PHOTOBOOTH.png";
-    a.href=final.toDataURL();
-    a.click();
+    let y=60;
+    for(let i=0;i<4;i++){
+        fctx.drawImage(temp,60,y,480,300);
+        y+=360;
+    }
+
+    fctx.fillStyle="#000";
+    fctx.font="24px Arial";
+    fctx.textAlign="center";
+    fctx.fillText("✦ SENA PHOTOBOOTH ✦",300,1540);
 }
 
 function reset(){
-    coin=0;show('home');
+    show('layout');
 }
 </script>
 
