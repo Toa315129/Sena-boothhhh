@@ -3,242 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA SKETCH BOOTH</title>
+    <title>SENA PHOTOBOOTH</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #F8F8F8;
-            --card-bg: #FFFFFF;
-            --stroke: #121212;
-            --stroke-width: 3px;
-            --shadow-offset: 4px;
+            --bg-body: #F4F4F4;
+            --paper: #FFFFFF;
+            --ink: #111111;
+            --stroke: 3px;
+            --shadow: 5px;
             --radius: 12px;
             
-            /* Colors */
+            /* Frame Colors */
             --c-white: #ffffff;
-            --c-cream: #FFF5E1;
-            --c-black: #121212;
-            --c-blue: #CDE8FF;
-            --c-rainbow: linear-gradient(135deg, #FFC3A0 0%, #FFAFBD 100%);
-
-            --font-main: 'Patrick Hand', cursive;
+            --c-cream: #FFF8E7;
+            --c-black: #1a1a1a;
+            --c-blue: #D6EFFF;
+            --c-rainbow: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
 
         body {
             margin: 0;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(#ddd 1.5px, transparent 1.5px);
-            background-size: 24px 24px;
-            font-family: var(--font-main);
+            background-color: var(--bg-body);
+            /* Dot Grid Background style like Sketchbooks */
+            background-image: radial-gradient(var(--ink) 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Patrick Hand', cursive;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            color: var(--stroke);
+            color: var(--ink);
         }
 
-        /* --- CONTAINER: The "Sketch" Box --- */
-        .app-shell {
-            width: 100%; max-width: 440px; height: 94vh;
-            background: var(--card-bg);
-            border: var(--stroke-width) solid var(--stroke);
-            border-radius: 20px;
+        /* --- THE BOOTH CONTAINER --- */
+        .booth-shell {
+            width: 100%; max-width: 420px; height: 92vh;
+            background: var(--paper);
+            border: var(--stroke) solid var(--ink);
+            border-radius: 16px;
             position: relative; overflow: hidden;
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
+            /* Hard Shadow Effect */
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.15);
             display: flex; flex-direction: column;
         }
 
+        /* Screens */
         .screen {
             position: absolute; inset: 0;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 30px 20px;
-            background: var(--card-bg);
-            transition: opacity 0.3s ease;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px;
+            background: var(--paper);
+            transition: opacity 0.3s;
             opacity: 0; pointer-events: none; z-index: 1;
         }
         .screen.active { opacity: 1; pointer-events: all; z-index: 10; }
 
-        /* --- TYPOGRAPHY & UI --- */
-        h1 { font-size: 3.5rem; margin: 10px 0 5px 0; line-height: 1; text-align: center; }
-        p { font-size: 1.2rem; margin: 0 0 30px 0; color: #666; text-align: center; }
+        /* --- UI COMPONENTS (Sketch Style) --- */
+        h1 { font-size: 3.2rem; margin: 10px 0; line-height: 0.9; text-align: center; letter-spacing: 1px; }
+        .subtitle { font-size: 1.2rem; margin-bottom: 30px; color: #555; border-bottom: 2px dashed #aaa; padding-bottom: 5px; }
 
-        .label { font-size: 1.3rem; margin-bottom: 10px; display: block; width: 100%; text-align: left; }
+        .label { font-size: 1.4rem; width: 100%; text-align: left; margin-bottom: 8px; margin-top: 15px; font-weight: bold; }
 
-        /* Custom Checkbox/Radio Groups */
-        .opt-group {
-            display: flex; gap: 10px; width: 100%; margin-bottom: 25px;
-            overflow-x: auto; padding-bottom: 5px;
+        /* Custom Selector Buttons */
+        .grid-options {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%;
         }
-        
-        .opt-btn {
-            flex: 1; min-width: 60px; height: 50px;
-            border: 2px solid #ddd; border-radius: var(--radius);
-            background: #fff; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-main); font-size: 1.1rem;
-            transition: all 0.2s; position: relative;
+        .opt-circle {
+            aspect-ratio: 1/1;
+            border: 2px solid #ddd; border-radius: 50%;
+            cursor: pointer; position: relative;
+            transition: transform 0.2s;
         }
-        .opt-btn.active {
-            border: var(--stroke-width) solid var(--stroke);
-            box-shadow: 3px 3px 0px var(--stroke);
-            transform: translate(-1px, -1px);
-            color: var(--stroke); font-weight: bold; background: #fff;
+        .opt-circle.active {
+            border: var(--stroke) solid var(--ink);
+            transform: scale(1.1);
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
         }
-        
-        /* Color Circles inside buttons */
-        .dot { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #ddd; }
 
-        /* Big Action Button */
-        .btn-main {
+        .mode-options {
+            display: flex; gap: 10px; width: 100%;
+        }
+        .btn-mode {
+            flex: 1; padding: 12px;
+            border: 2px solid #ddd; border-radius: 8px;
+            background: #fff; font-family: 'Patrick Hand', cursive;
+            font-size: 1.2rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-mode.active {
+            border: var(--stroke) solid var(--ink);
+            background: var(--ink); color: #fff;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            transform: translate(-2px, -2px);
+        }
+
+        .btn-xl {
             width: 100%; padding: 15px; margin-top: auto;
-            background: var(--stroke); color: #fff;
-            border: var(--stroke-width) solid var(--stroke);
-            border-radius: 15px;
-            font-family: var(--font-main); font-size: 1.8rem;
+            background: #fff; color: var(--ink);
+            border: var(--stroke) solid var(--ink);
+            border-radius: 12px;
+            font-family: 'Patrick Hand', cursive; font-size: 2rem;
             cursor: pointer;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
+            box-shadow: 6px 6px 0px var(--ink); /* Brutalist Shadow */
+            transition: all 0.1s;
         }
-        .btn-main:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,0.2); }
-        .btn-main.outline { background: #fff; color: var(--stroke); }
+        .btn-xl:active {
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0px var(--ink);
+        }
+        .btn-xl.black { background: var(--ink); color: #fff; }
 
-        /* --- CAMERA UI --- */
-        .cam-container {
+        /* --- CAMERA SCREEN --- */
+        .viewfinder {
             width: 100%; aspect-ratio: 3/4;
-            background: #000; border-radius: var(--radius);
-            border: var(--stroke-width) solid var(--stroke);
+            background: #000;
+            border: var(--stroke) solid var(--ink);
+            border-radius: 12px;
             position: relative; overflow: hidden;
             box-shadow: 6px 6px 0px #eee;
         }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         
         .countdown {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 6rem; color: #fff; text-shadow: 3px 3px 0px #000; display: none;
+            position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+            font-size: 8rem; color: #fff; 
+            text-shadow: 4px 4px 0px var(--ink); display: none;
         }
-
-        /* --- PRINTING ANIMATION (Clear Box) --- */
-        #screen-print { justify-content: flex-start; padding-top: 0; overflow: hidden; }
         
-        /* The Slot */
-        .slot-header {
-            width: 100%; height: 60px; background: var(--stroke);
+        .status-bar {
+            margin-top: 20px; font-size: 1.5rem; 
+            display: flex; gap: 5px; align-items: center;
+        }
+
+        /* --- PRINT SCREEN & ANIMATION --- */
+        #screen-print { justify-content: flex-start; padding-top: 0; overflow: hidden; }
+
+        .printer-header {
+            width: 100%; height: 70px; background: var(--ink);
+            position: absolute; top:0; left:0; z-index: 20;
             display: flex; align-items: flex-end; justify-content: center;
-            position: absolute; top: 0; left: 0; z-index: 20;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        .slot-hole { width: 220px; height: 8px; background: #333; border-radius: 4px; margin-bottom: 10px; }
-
-        .print-stage {
-            position: relative; width: 100%; height: 100%;
-            display: flex; justify-content: center;
+        .printer-slot {
+            width: 240px; height: 10px; background: #333;
+            border-radius: 5px; margin-bottom: 15px;
         }
 
-        .paper {
+        .paper-strip {
             width: 240px; height: auto;
-            border: 2px solid var(--stroke);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            position: absolute; top: -400px; /* Start Hidden above */
+            border: 2px solid var(--ink);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            position: absolute; top: -500px; /* Hidden above */
             z-index: 5;
-        }
-
-        /* Animations */
-        .paper.anim-print { animation: slideOut 3.5s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
-        .paper.anim-drop { animation: dropBox 0.6s ease-in forwards; }
-
-        @keyframes slideOut {
-            0% { top: -400px; }
-            100% { top: 60px; } /* Stops just below slot */
-        }
-        @keyframes dropBox {
-            0% { top: 60px; transform: rotate(0deg); }
-            100% { top: 55%; transform: rotate(-5deg); } /* Drop into box */
+            background: #fff;
         }
 
         /* The Clear Box (Acrylic Tray) */
-        .tray {
-            position: absolute; bottom: 140px;
+        .tray-container {
+            position: absolute; bottom: 100px;
             width: 280px; height: 120px;
-            background: rgba(255, 255, 255, 0.5); /* Semi-transparent */
-            border: 3px solid rgba(18, 18, 18, 0.2); /* Sketchy light border */
+            /* Glass Effect */
+            background: rgba(255, 255, 255, 0.4);
+            border: 2px solid rgba(0,0,0,0.1); /* Thin border */
             border-top: none;
             border-radius: 0 0 20px 20px;
-            z-index: 30;
             backdrop-filter: blur(4px);
+            z-index: 30;
             display: flex; align-items: center; justify-content: center;
         }
-        /* Shine on glass */
-        .tray::after {
-            content: ''; position: absolute; top: 10px; right: 10px;
-            width: 20px; height: 60px; background: rgba(255,255,255,0.6);
-            border-radius: 10px; transform: rotate(20deg);
+        .tray-front {
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 100%);
+            border-radius: 0 0 20px 20px; pointer-events: none;
         }
 
-        .action-bar {
+        .actions {
             position: absolute; bottom: 20px; width: 90%;
-            display: flex; flex-direction: column; gap: 10px;
             opacity: 0; transition: opacity 0.5s; z-index: 40;
+            display: flex; gap: 10px;
+        }
+        .btn-small { flex: 1; padding: 10px; border: 2px solid var(--ink); background: #fff; font-family: inherit; font-size: 1.2rem; cursor: pointer; border-radius: 8px; font-weight: bold; }
+
+        /* Animation Keyframes */
+        .anim-print { animation: slideDown 3.5s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
+        .anim-drop { animation: dropTray 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes slideDown { 0% { top: -500px; } 100% { top: 70px; } }
+        @keyframes dropTray { 
+            0% { top: 70px; transform: rotate(0deg); } 
+            100% { top: 40%; transform: rotate(-3deg) translateY(20px); } 
         }
 
         /* Flash */
-        .flash { position: fixed; inset:0; background:white; opacity:0; pointer-events:none; z-index:99; transition:0.1s;}
+        .flash { position: fixed; inset:0; background:white; opacity:0; pointer-events:none; z-index:99; transition:0.1s; }
+        
     </style>
 </head>
 <body>
 
-    <div class="app-shell">
-
+    <div class="booth-shell">
+        
         <div id="screen-home" class="screen active">
-            <div style="flex:1; display:flex; flex-direction:column; justify-content:center; width:100%;">
-                <h1>SENA<br>BOOTH</h1>
-                <p>Sketch Studio Edition</p>
+            <h1>SENA<br>BOOTH</h1>
+            <div class="subtitle">Sketch Studio Edition</div>
 
-                <span class="label">1. Choose Frame</span>
-                <div class="opt-group">
-                    <div class="opt-btn active" onclick="setFrame('white', this)"><div class="dot" style="background:#fff"></div></div>
-                    <div class="opt-btn" onclick="setFrame('cream', this)"><div class="dot" style="background:#FFF5E1"></div></div>
-                    <div class="opt-btn" onclick="setFrame('blue', this)"><div class="dot" style="background:#CDE8FF"></div></div>
-                    <div class="opt-btn" onclick="setFrame('black', this)"><div class="dot" style="background:#000"></div></div>
-                    <div class="opt-btn" onclick="setFrame('rainbow', this)"><div class="dot" style="background:linear-gradient(45deg, #ff9a9e, #fad0c4)"></div></div>
-                </div>
-
-                <span class="label">2. Choose Mood</span>
-                <div class="opt-group">
-                    <div class="opt-btn active" onclick="setMode('normal', this)">Color</div>
-                    <div class="opt-btn" onclick="setMode('film', this)">Film</div>
-                    <div class="opt-btn" onclick="setMode('bw', this)">B&W</div>
-                </div>
+            <div class="label">1. Frame Color</div>
+            <div class="grid-options">
+                <div class="opt-circle active" style="background:var(--c-white)" onclick="setFrame('white', this)"></div>
+                <div class="opt-circle" style="background:var(--c-cream)" onclick="setFrame('cream', this)"></div>
+                <div class="opt-circle" style="background:var(--c-black)" onclick="setFrame('black', this)"></div>
+                <div class="opt-circle" style="background:var(--c-blue)" onclick="setFrame('blue', this)"></div>
+                <div class="opt-circle" style="background:var(--c-rainbow)" onclick="setFrame('rainbow', this)"></div>
             </div>
 
-            <button class="btn-main" onclick="startCamera()">Start Photo</button>
+            <div class="label">2. Look & Feel</div>
+            <div class="mode-options">
+                <div class="btn-mode active" onclick="setMode('normal', this)">Color</div>
+                <div class="btn-mode" onclick="setMode('film', this)">Film</div>
+                <div class="btn-mode" onclick="setMode('bw', this)">B&W</div>
+            </div>
+
+            <button class="btn-xl black" onclick="startCamera()">START</button>
         </div>
 
         <div id="screen-cam" class="screen">
-            <h2>Get Ready!</h2>
-            <div class="cam-container">
+            <div class="label" style="text-align:center; margin-top:0;">Strike a Pose!</div>
+            <div class="viewfinder">
                 <video id="video" autoplay playsinline muted></video>
                 <div id="count" class="countdown">3</div>
             </div>
-            <p style="margin-top:20px" id="status-text">Pose 1 of 3</p>
+            <div class="status-bar" id="status-text">1 / 3</div>
         </div>
 
         <div id="screen-print" class="screen">
-            <div class="slot-header">
-                <div class="slot-hole"></div>
+            <div class="printer-header">
+                <div class="printer-slot"></div>
             </div>
 
-            <div class="print-stage">
-                <img id="print-paper" class="paper" alt="Photo">
-                <div class="tray"></div> </div>
+            <img id="print-paper" class="paper-strip" alt="Photo Strip">
 
-            <div class="action-bar" id="end-actions">
-                <button class="btn-main" onclick="downloadImg()">Download Image</button>
-                <button class="btn-main outline" onclick="reset()">Back to Home</button>
+            <div class="tray-container">
+                <div class="tray-front"></div>
+            </div>
+
+            <div class="actions" id="end-actions">
+                <button class="btn-small" onclick="downloadImg()" style="background:var(--ink); color:#fff;">Download</button>
+                <button class="btn-small" onclick="reset()">Home</button>
             </div>
         </div>
 
@@ -248,26 +263,30 @@
     <canvas id="canvas" style="display: none;"></canvas>
 
     <script>
-        // --- CONFIG ---
+        // Configuration
         const config = { frame: 'white', mode: 'normal' };
         const colors = {
-            white: '#ffffff', cream: '#FFF5E1', black: '#121212', blue: '#CDE8FF',
+            white: '#ffffff', cream: '#FFF8E7', black: '#1a1a1a', blue: '#D6EFFF',
             rainbow: 'rainbow'
         };
+
         let stream, audioCtx, shots = [];
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        // --- AUDIO ---
+        // --- SOUNDS ---
         function playSound(type) {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if(audioCtx.state === 'suspended') audioCtx.resume();
             const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
             
-            if(type === 'beep') { o.frequency.value = 800; g.gain.value = 0.05; o.start(); o.stop(audioCtx.currentTime+0.1); }
-            if(type === 'snap') { 
-                o.type='square'; o.frequency.value=150; g.gain.value=0.1; 
+            if(type === 'beep') { 
+                o.frequency.value = 1000; g.gain.value = 0.05; 
+                o.start(); o.stop(audioCtx.currentTime+0.1); 
+            }
+            if(type === 'shutter') { 
+                o.type='square'; o.frequency.value=150; g.gain.value=0.1;
                 g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.1);
                 o.start(); o.stop(audioCtx.currentTime+0.1);
             }
@@ -275,40 +294,45 @@
         }
 
         // --- UI LOGIC ---
-        function setFrame(v, el) { 
-            config.frame = v; 
-            document.querySelectorAll('.opt-group:nth-of-type(1) .opt-btn').forEach(b => b.classList.remove('active'));
+        function setFrame(val, el) {
+            config.frame = val;
+            document.querySelectorAll('.opt-circle').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
         }
-        function setMode(v, el) { 
-            config.mode = v;
-            document.querySelectorAll('.opt-group:nth-of-type(2) .opt-btn').forEach(b => b.classList.remove('active'));
+        function setMode(val, el) {
+            config.mode = val;
+            document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
+        }
+        function switchScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
 
-        // --- CAMERA ---
+        // --- CAMERA & CAPTURE ---
         async function startCamera() {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 1280, height: 720 } });
                 video.srcObject = stream;
                 
-                // Filter Preview
+                // Live Filter Preview
                 let f = 'none';
                 if(config.mode === 'bw') f = 'grayscale(100%)';
-                if(config.mode === 'film') f = 'sepia(30%) contrast(110%) saturate(90%)';
+                if(config.mode === 'film') f = 'sepia(20%) contrast(110%) saturate(90%)';
                 video.style.filter = f;
 
                 switchScreen('screen-cam');
                 setTimeout(runSequence, 1000);
-            } catch(e) { alert('Camera access required'); }
+            } catch(e) { alert("Camera access required"); }
         }
 
         async function runSequence() {
             shots = [];
             for(let i=1; i<=3; i++) {
-                document.getElementById('status-text').innerText = `Pose ${i} / 3`;
+                document.getElementById('status-text').innerText = `${i} / 3`;
                 await countdown(3);
                 await capture();
+                await new Promise(r => setTimeout(r, 800));
             }
             finish();
         }
@@ -328,7 +352,7 @@
 
         function capture() {
             return new Promise(r => {
-                playSound('snap');
+                playSound('shutter');
                 const f = document.getElementById('flash');
                 f.style.opacity = 1; setTimeout(() => f.style.opacity = 0, 100);
 
@@ -340,53 +364,54 @@
                 tctx.translate(w, 0); tctx.scale(-1, 1);
                 tctx.drawImage(video, 0, 0, w, h);
 
-                // Apply Canvas Filters
+                // --- HARDCODED FILTERS (Canvas Level) ---
                 if(config.mode === 'bw') {
                     tctx.globalCompositeOperation = 'saturation';
                     tctx.fillStyle = '#000';
-                    tctx.fillRect(0,0,w,h);
+                    tctx.fillRect(0,0,w,h); // Remove all color
                 } else if(config.mode === 'film') {
                     tctx.globalCompositeOperation = 'overlay';
-                    tctx.fillStyle = 'rgba(255, 220, 150, 0.15)';
+                    tctx.fillStyle = 'rgba(255, 220, 180, 0.2)'; // Warm film tint
                     tctx.fillRect(0,0,w,h);
                 }
 
                 shots.push(tc);
-                setTimeout(r, 800);
+                r();
             });
         }
 
-        // --- RENDER ---
+        // --- RENDER & ANIMATION ---
         function finish() {
             if(stream) stream.getTracks().forEach(t => t.stop());
 
-            const stripW = 600; const totalH = 1600;
-            const photoW = 520; const photoH = (photoW*3)/4;
-            const gap = 30; let y = 160;
+            const stripW = 600; const photoW = 520; const photoH = (photoW*3)/4;
+            const gap = 30; const headH = 150; const footH = 100;
+            const totalH = headH + (photoH*3) + (gap*2) + footH;
 
             canvas.width = stripW; canvas.height = totalH;
 
-            // Background
+            // 1. Background
             if(config.frame === 'rainbow') {
                 const g = ctx.createLinearGradient(0,0,stripW,totalH);
-                g.addColorStop(0, '#ff9a9e'); g.addColorStop(1, '#fad0c4');
+                g.addColorStop(0, '#ff9a9e'); g.addColorStop(1, '#fecfef');
                 ctx.fillStyle = g;
             } else { ctx.fillStyle = colors[config.frame]; }
             ctx.fillRect(0,0,stripW,totalH);
 
-            // Border Frame
-            ctx.strokeStyle = '#121212'; ctx.lineWidth = 6;
+            // 2. Sketch Border (Outer)
+            ctx.strokeStyle = '#111'; ctx.lineWidth = 6;
             ctx.strokeRect(4,4,stripW-8,totalH-8);
 
-            // Header
-            ctx.fillStyle = (config.frame==='black') ? '#fff' : '#121212';
-            ctx.textAlign = 'center'; 
-            ctx.font = '80px "Patrick Hand"'; ctx.fillText("SENA", stripW/2, 90);
-            ctx.font = '40px "Patrick Hand"'; ctx.fillText("SKETCH BOOTH", stripW/2, 135);
+            // 3. Header
+            ctx.fillStyle = (config.frame==='black') ? '#fff' : '#111';
+            ctx.textAlign = 'center';
+            ctx.font = '80px "Patrick Hand"'; ctx.fillText("SENA", stripW/2, 85);
+            ctx.font = '40px "Patrick Hand"'; ctx.fillText("PHOTOBOOTH", stripW/2, 125);
 
-            // Photos
+            // 4. Photos
+            let y = headH;
             shots.forEach(s => {
-                // Crop Logic
+                // Crop Center
                 const sR = s.width/s.height; const dR = 4/3;
                 let sx, sy, sw, sh;
                 if(sR > dR) { sh=s.height; sw=sh*dR; sx=(s.width-sw)/2; sy=0; }
@@ -394,41 +419,42 @@
 
                 ctx.drawImage(s, sx, sy, sw, sh, (stripW-photoW)/2, y, photoW, photoH);
                 
-                // Photo Border
-                ctx.strokeStyle = (config.frame==='black')?'#fff':'#121212';
+                // Photo Border (Sketchy)
+                ctx.strokeStyle = (config.frame==='black') ? '#fff' : '#111';
                 ctx.lineWidth = 4;
                 ctx.strokeRect((stripW-photoW)/2, y, photoW, photoH);
                 
                 y += photoH + gap;
             });
 
-            // Footer
+            // 5. Footer
             ctx.font = '30px "Patrick Hand"';
-            ctx.fillText(new Date().toLocaleDateString(), stripW/2, totalH-50);
+            ctx.fillText(new Date().toLocaleDateString('en-GB'), stripW/2, totalH-50);
 
-            // Display & Animate
+            // Display
             const img = document.getElementById('print-paper');
             img.src = canvas.toDataURL('image/jpeg', 0.95);
-            
+
             switchScreen('screen-print');
-            
-            // Animation Sequence
+
+            // --- ANIMATION SEQUENCE ---
+            // 1. Slide Down
             setTimeout(() => {
-                img.classList.add('anim-print'); // Slide Down
+                img.classList.add('anim-print');
+                
+                // 2. Drop into Tray
                 setTimeout(() => {
                     img.classList.remove('anim-print');
-                    img.classList.add('anim-drop'); // Drop to Box
+                    img.classList.add('anim-drop');
+                    
+                    // 3. Show Buttons
                     setTimeout(() => {
                         document.getElementById('end-actions').style.opacity = 1;
                     }, 800);
-                }, 3500); // Print Duration
+                }, 3500); // Wait for print slide
             }, 500);
         }
 
-        function switchScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
         function downloadImg() {
             const a = document.createElement('a');
             a.download = 'SENA-SKETCH.jpg';
@@ -436,7 +462,6 @@
             a.click();
         }
         function reset() { location.reload(); }
-
     </script>
 </body>
 </html>
