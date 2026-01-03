@@ -8,9 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-/* =================================================
-   THEME – Korean DIY / Hand-drawn
-================================================= */
 :root{
   --cream:#FFF7DD;
   --blue:#E9F1FF;
@@ -36,104 +33,62 @@ body{
   color:var(--ink);
 }
 
-/* =================================================
-   SCREEN SYSTEM
-================================================= */
-.screen{
-  display:none;
-  width:100%;
-  height:100%;
-}
-.screen.active{
-  display:flex;
-}
+.screen{display:none;width:100%;height:100%;}
+.screen.active{display:flex;}
+.center{justify-content:center;align-items:center;flex-direction:column;text-align:center;}
 
-.center{
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  text-align:center;
-}
-
-/* =================================================
-   DOODLES & STARS
-================================================= */
 .star{
-  width:22px;
-  height:22px;
-  background:var(--ink);
+  width:22px;height:22px;background:var(--ink);
   clip-path:polygon(
-    50% 0%, 60% 40%, 100% 50%, 60% 60%,
-    50% 100%, 40% 60%, 0% 50%, 40% 40%
+    50% 0%,60% 40%,100% 50%,60% 60%,
+    50% 100%,40% 60%,0% 50%,40% 40%
   );
   transform:rotate(12deg);
 }
 
-.doodle{
-  position:absolute;
-  font-size:20px;
-  opacity:.6;
-}
-
-/* =================================================
-   BUTTONS (Sticker Style)
-================================================= */
 button{
   font-family:'Gaegu';
-  padding:18px 40px;
-  font-size:26px;
+  padding:16px 36px;
+  font-size:24px;
   border-radius:999px;
   border:4px solid var(--ink);
   background:var(--blue);
-  transition:.2s;
 }
-button:active{
-  transform:scale(.95) rotate(-1deg);
-}
+button:active{transform:scale(.95) rotate(-1deg);}
 
 .circle-btn{
-  width:110px;
-  height:110px;
+  width:96px;height:96px;
   border-radius:50%;
-  font-size:42px;
+  font-size:38px;
   background:white;
 }
 
-/* =================================================
-   START
-================================================= */
-#start h1{
-  font-size:48px;
-  margin-bottom:10px;
-}
-#start p{
-  font-size:22px;
-  margin-bottom:30px;
-}
+/* START */
+#start h1{font-size:46px;}
+#start p{font-size:22px;margin-bottom:28px;}
 
-/* =================================================
-   BOOTH
-================================================= */
+/* BOOTH */
 .booth{
   display:flex;
-  gap:20px;
-  padding:20px;
+  gap:16px;
+  padding:16px;
+  width:100%;
 }
 
 .camera-box{
-  width:60%;
+  width:58%;
   background:var(--paper);
   border:4px solid var(--ink);
-  border-radius:36px 32px 34px 30px;
-  padding:14px;
+  border-radius:32px;
+  padding:12px;
   position:relative;
 }
 
 .camera-frame{
   width:100%;
-  height:100%;
+  height:420px; /* 🔽 ลดความสูง */
   border:4px dashed var(--ink);
-  border-radius:30px;
+  border-radius:28px;
   overflow:hidden;
 }
 
@@ -143,90 +98,71 @@ video{
   object-fit:cover;
 }
 
-/* CAMERA STATUS */
 #camStatus{
   position:absolute;
-  top:14px;
-  left:18px;
+  top:10px;
+  left:16px;
   font-size:18px;
 }
 
-/* COUNTDOWN */
 #countdown{
   position:absolute;
   inset:0;
   display:none;
   justify-content:center;
   align-items:center;
-  font-size:96px;
+  font-size:88px;
   color:white;
   text-shadow:4px 4px var(--ink);
-  animation:pop .4s ease;
-}
-@keyframes pop{
-  0%{transform:scale(.7);}
-  100%{transform:scale(1);}
 }
 
-/* PREVIEW */
 .preview{
-  width:40%;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
+  width:42%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
 }
 
 .preview canvas{
   background:white;
   border:4px solid var(--ink);
-  border-radius:22px;
-  height:30%;
-  transition:.3s;
-}
-.preview canvas.filled{
-  animation:appear .4s ease;
-}
-@keyframes appear{
-  from{transform:scale(.8); opacity:.5;}
-  to{transform:scale(1); opacity:1;}
+  border-radius:20px;
+  width:100%;
+  height:200px; /* 🔽 ย่อ */
 }
 
-/* =================================================
-   RESULT
-================================================= */
+/* RESULT */
 #final{
   background:white;
   border:4px solid var(--ink);
-  border-radius:32px 28px 34px 30px;
+  border-radius:32px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= START SCREEN ================= -->
+<!-- START -->
 <div id="start" class="screen active center">
   <div class="star"></div>
   <h1>SENA PHOTOBOOTH</h1>
   <p>แตะเพื่อเริ่มถ่าย 📸</p>
   <button onclick="goMode()">START</button>
-  <div class="doodle" style="bottom:20px;">☺︎ ✿ ★</div>
 </div>
 
-<!-- ================= MODE SELECT ================= -->
+<!-- MODE -->
 <div id="mode" class="screen center">
   <h2>เลือกโหมดภาพ</h2>
   <button onclick="selectMode('color')">COLOR</button><br><br>
   <button onclick="selectMode('mono')">MONO</button>
 </div>
 
-<!-- ================= BOOTH ================= -->
+<!-- BOOTH -->
 <div id="booth" class="screen">
   <div class="booth">
 
     <div class="camera-box">
       <div id="camStatus">● CAMERA ON</div>
-
       <div class="camera-frame">
         <video id="video" autoplay playsinline></video>
       </div>
@@ -237,11 +173,12 @@ video{
       <canvas width="240" height="320"></canvas>
       <canvas width="240" height="320"></canvas>
       <canvas width="240" height="320"></canvas>
+      <canvas width="240" height="320"></canvas>
     </div>
   </div>
 
   <div class="center">
-    <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center;">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;">
       <button onclick="toggleCamera()">CAMERA</button>
       <button onclick="toggleMode()">MODE</button>
       <button class="circle-btn" onclick="startShoot()">●</button>
@@ -249,17 +186,14 @@ video{
   </div>
 </div>
 
-<!-- ================= RESULT ================= -->
+<!-- RESULT -->
 <div id="result" class="screen center">
-  <canvas id="final" width="420" height="1100"></canvas><br>
+  <canvas id="final" width="420" height="1350"></canvas><br>
   <button onclick="download()">DOWNLOAD</button><br><br>
   <button onclick="reset()">FINISH</button>
 </div>
 
 <script>
-/* =================================================
-   GLOBAL STATE (เดิม + เพิ่ม)
-================================================= */
 const screens=document.querySelectorAll('.screen');
 const video=document.getElementById('video');
 const previews=document.querySelectorAll('.preview canvas');
@@ -272,18 +206,12 @@ let mode='color';
 let shots=[];
 let stream=null;
 
-/* =================================================
-   SCREEN CONTROL (เดิม)
-================================================= */
 function show(id){
   screens.forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-function goMode(){ show('mode'); }
+function goMode(){show('mode');}
 
-/* =================================================
-   CAMERA CONTROL (เพิ่ม)
-================================================= */
 function selectMode(m){
   mode=m;
   show('booth');
@@ -304,42 +232,28 @@ function toggleCamera(){
     stream.getTracks().forEach(t=>t.stop());
     stream=null;
     camStatus.textContent='○ CAMERA OFF';
-  }else{
-    startCamera();
-  }
+  }else startCamera();
 }
 
-/* =================================================
-   MODE TOGGLE (เพิ่ม)
-================================================= */
 function toggleMode(){
-  mode = mode==='color'?'mono':'color';
+  mode=mode==='color'?'mono':'color';
   alert('MODE: '+mode.toUpperCase());
 }
 
-/* =================================================
-   SHOOT FLOW (เดิม)
-================================================= */
+/* 🔴 จาก 3 → 4 รูป */
 function startShoot(){
   shots=[];
-  previews.forEach(c=>{
-    c.classList.remove('filled');
-    c.getContext('2d').clearRect(0,0,c.width,c.height);
-  });
+  previews.forEach(c=>c.getContext('2d').clearRect(0,0,c.width,c.height));
   take(0);
 }
 
 function take(i){
-  if(i>=3){ makeFinal(); return; }
-
+  if(i>=4){makeFinal();return;}
   let t=3;
   cd.style.display='flex';
   cd.textContent=t;
-
   const timer=setInterval(()=>{
-    t--;
-    cd.textContent=t;
-    beep();
+    t--;cd.textContent=t;
     if(t===0){
       clearInterval(timer);
       cd.style.display='none';
@@ -349,11 +263,7 @@ function take(i){
   },1000);
 }
 
-/* =================================================
-   CAPTURE (MONO REAL – เดิม)
-================================================= */
 function capture(i){
-  playShutter();
   const temp=document.createElement('canvas');
   temp.width=video.videoWidth;
   temp.height=video.videoHeight;
@@ -371,82 +281,45 @@ function capture(i){
 
   shots.push(temp);
   drawCover(previews[i].getContext('2d'),temp,0,0,240,320);
-  previews[i].classList.add('filled');
 }
 
-/* =================================================
-   POLAROID (เดิม)
-================================================= */
 function makeFinal(){
   show('result');
   fctx.fillStyle='white';
-  fctx.fillRect(0,0,420,1100);
+  fctx.fillRect(0,0,420,1350);
 
-  fctx.font='26px Gaegu';
+  /* 🔥 ชื่อใหญ่ขึ้น */
+  fctx.font='38px Gaegu';
   fctx.textAlign='center';
   fctx.fillStyle='#000';
-  fctx.fillText('SENAPHOTOBOOTH',210,60);
+  fctx.fillText('SENAPHOTOBOOTH',210,70);
 
-  let y=100;
+  let y=110;
   shots.forEach(s=>{
-    drawCover(fctx,s,40,y,340,240);
-    y+=270;
+    drawCover(fctx,s,40,y,340,220);
+    y+=250;
   });
 
-  fctx.fillText('⭐ ✿ ★ ☺︎',210,1050);
+  fctx.font='26px Gaegu';
+  fctx.fillText('@saphasena68',210,1300);
 }
 
-/* =================================================
-   UTIL – CENTER CROP (เดิม)
-================================================= */
 function drawCover(ctx,img,x,y,w,h){
   const ir=img.width/img.height;
   const tr=w/h;
   let sx,sy,sw,sh;
-  if(ir>tr){
-    sh=img.height;
-    sw=sh*tr;
-    sx=(img.width-sw)/2; sy=0;
-  }else{
-    sw=img.width;
-    sh=sw/tr;
-    sx=0; sy=(img.height-sh)/2;
-  }
+  if(ir>tr){sh=img.height;sw=sh*tr;sx=(img.width-sw)/2;sy=0;}
+  else{sw=img.width;sh=sw/tr;sx=0;sy=(img.height-sh)/2;}
   ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
 }
 
-/* =================================================
-   AUDIO (เพิ่ม)
-================================================= */
-function playShutter(){
-  const a=new AudioContext();
-  const n=a.createBufferSource();
-  const b=a.createBuffer(1,44100,44100);
-  const d=b.getChannelData(0);
-  for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
-  n.buffer=b;
-  n.connect(a.destination);
-  n.start();
-}
-function beep(){
-  const a=new AudioContext();
-  const o=a.createOscillator();
-  o.frequency.value=700;
-  o.connect(a.destination);
-  o.start();
-  o.stop(a.currentTime+0.05);
-}
-
-/* =================================================
-   ACTIONS (เดิม)
-================================================= */
 function download(){
   const a=document.createElement('a');
   a.href=final.toDataURL('image/png');
   a.download='SENA_PHOTOBOOTH.png';
   a.click();
 }
-function reset(){ show('start'); }
+function reset(){show('start');}
 </script>
 
 </body>
