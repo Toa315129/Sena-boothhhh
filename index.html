@@ -3,169 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH - SCAN & SAVE</title>
+    <title>SENA PHOTOBOOTH PREMIUM V.4</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600&family=Prompt:wght@200;400&display=swap');
+
         :root {
-            --cream-bg: #FFFDF7;
-            --soft-blue: #E8F2FF;
-            --accent-blue: #B5D5FF;
-            --white: #FFFFFF;
-            --text-main: #5A6B7F;
-            --shadow: 0 10px 30px rgba(181, 213, 255, 0.2);
+            --bg: #FDFCF8;
+            --primary: #A3C9FF;
+            --secondary: #FFD1DC;
+            --dark: #4A5568;
+            --glass: rgba(255, 255, 255, 0.8);
+            --shadow-soft: 0 20px 50px rgba(0,0,0,0.05);
+            --shadow-bold: 0 15px 35px rgba(163, 201, 255, 0.3);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: sans-serif; }
-        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: var(--cream-bg); color: var(--text-main); overflow: hidden; }
+        /* --- GLOBAL SETUP --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body, html {
+            margin: 0; padding: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg); color: var(--dark);
+            font-family: 'Prompt', sans-serif; overflow: hidden;
+        }
 
-        /* --- START --- */
-        #startScreen { position: fixed; inset: 0; z-index: 1000; background: radial-gradient(circle, var(--white), var(--soft-blue)); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #startScreen.hide { opacity: 0; visibility: hidden; transition: 0.5s; }
-        .start-btn { width: 140px; height: 140px; background: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; box-shadow: var(--shadow); border: 6px solid var(--soft-blue); cursor: pointer; }
+        /* --- BACKGROUND DECO --- */
+        .blobs { position: fixed; inset: 0; z-index: -1; filter: blur(80px); opacity: 0.5; }
+        .blob { position: absolute; border-radius: 50%; animation: move 20s infinite alternate; }
+        .b1 { width: 400px; height: 400px; background: var(--primary); top: -100px; left: -100px; }
+        .b2 { width: 350px; height: 350px; background: var(--secondary); bottom: -100px; right: -100px; }
+        @keyframes move { from { transform: translate(0,0); } to { transform: translate(100px, 100px); } }
 
-        /* --- BOOTH --- */
-        #boothScreen { display: none; height: 100vh; flex-direction: column; align-items: center; padding: 20px; gap: 15px; }
-        .camera-box { position: relative; width: 70%; max-width: 400px; aspect-ratio: 3/4; background: #000; border-radius: 25px; border: 8px solid var(--white); box-shadow: var(--shadow); overflow: hidden; }
-        #video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        /* --- SCREENS MANAGER --- */
+        .screen {
+            position: fixed; inset: 0; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px; transition: all 0.5s ease;
+        }
+        .screen.active { display: flex; }
 
-        .inner-previews { position: absolute; right: 10px; top: 10px; bottom: 10px; width: 50px; display: flex; flex-direction: column; gap: 5px; z-index: 5; }
-        .mini-slot { width: 100%; aspect-ratio: 1/1; background: rgba(255,255,255,0.2); border-radius: 6px; border: 1.5px solid var(--white); overflow: hidden; opacity: 0; }
-        .mini-slot.active { opacity: 1; transition: 0.4s; }
-        .mini-slot img { width: 100%; height: 100%; object-fit: cover; }
-        #countdown { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 100px; color: white; opacity: 0; pointer-events: none; }
+        /* --- 1. INTRO SCREEN --- */
+        #screen-intro { background: white; z-index: 100; }
+        .brand-logo { font-family: 'Montserrat'; font-weight: 200; font-size: 80px; letter-spacing: 20px; margin-bottom: 10px; }
+        .brand-sub { font-size: 18px; letter-spacing: 5px; opacity: 0.5; margin-bottom: 60px; }
+        .start-trigger {
+            width: 220px; height: 220px; border-radius: 50%;
+            background: white; border: 1px solid #eee; box-shadow: var(--shadow-soft);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .start-trigger:hover { transform: scale(1.05); box-shadow: var(--shadow-bold); border-color: var(--primary); }
+        .start-trigger span { font-size: 24px; font-weight: 600; color: var(--primary); letter-spacing: 2px; }
 
-        .btn-main { width: 75px; height: 75px; background: white; border-radius: 50%; border: 6px solid var(--soft-blue); box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; }
-        .btn-main-inner { width: 50px; height: 50px; background: var(--accent-blue); border-radius: 50%; }
+        /* --- 2. CAMERA SCREEN --- */
+        .booth-layout { display: flex; gap: 40px; align-items: center; width: 100%; max-width: 1100px; }
+        
+        .camera-viewport {
+            position: relative; width: 600px; height: 800px;
+            background: #1a1a1a; border-radius: 40px; border: 15px solid white;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15); overflow: hidden;
+        }
+        #video-feed { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        /* --- RESULT --- */
-        #resultScreen { position: fixed; inset: 0; z-index: 2000; background: var(--cream-bg); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .result-wrap { display: flex; gap: 20px; align-items: flex-end; }
-        .film-strip { background: white; padding: 10px 10px 30px 10px; box-shadow: var(--shadow); width: 220px; display: flex; flex-direction: column; gap: 6px; }
-        .film-img { width: 100%; aspect-ratio: 3/2.2; background: #eee; overflow: hidden; }
-        .film-img img { width: 100%; height: 100%; object-fit: cover; }
+        /* Sidebar Preview */
+        .history-rail {
+            width: 100px; display: flex; flex-direction: column; gap: 15px;
+        }
+        .rail-slot {
+            width: 100px; height: 100px; background: var(--glass);
+            border: 3px solid white; border-radius: 20px; overflow: hidden;
+            box-shadow: var(--shadow-soft); transform: translateX(50px); opacity: 0;
+            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .rail-slot.captured { transform: translateX(0); opacity: 1; }
+        .rail-slot img { width: 100%; height: 100%; object-fit: cover; }
 
-        #qrcode { background: white; padding: 10px; border-radius: 12px; box-shadow: var(--shadow); min-width: 120px; min-height: 120px; display: flex; align-items: center; justify-content: center; }
-        .loading-text { font-size: 10px; color: #888; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.5; } }
+        /* Countdown */
+        #count-num {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-size: 200px; color: white; font-weight: bold; text-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            opacity: 0; pointer-events: none; z-index: 50;
+        }
 
-        #flash { position: absolute; inset: 0; background: white; opacity: 0; z-index: 100; pointer-events: none; }
+        /* Filter Selector */
+        .filter-bar {
+            display: flex; gap: 15px; margin-top: 30px;
+        }
+        .filter-btn {
+            padding: 10px 25px; background: white; border: none; border-radius: 20px;
+            box-shadow: var(--shadow-soft); font-size: 14px; cursor: pointer; transition: 0.3s;
+        }
+        .filter-btn.active { background: var(--primary); color: white; transform: translateY(-5px); }
+
+        /* --- 3. FRAME SELECTOR SCREEN --- */
+        .frame-grid { display: flex; gap: 30px; margin-top: 40px; }
+        .frame-opt {
+            width: 120px; height: 160px; border-radius: 15px; border: 5px solid white;
+            cursor: pointer; box-shadow: var(--shadow-soft); transition: 0.3s;
+        }
+        .frame-opt:hover { transform: translateY(-10px); }
+        .frame-opt.active { border-color: var(--primary); scale: 1.1; }
+
+        /* --- 4. FINAL SCREEN --- */
+        .final-container { display: flex; gap: 60px; align-items: center; }
+        
+        /* The Printed Strip */
+        .print-strip {
+            background: white; width: 320px; padding: 20px 20px 60px 20px;
+            display: flex; flex-direction: column; gap: 12px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.15);
+            transition: 0.5s;
+        }
+        .photo-frame { width: 100%; aspect-ratio: 3/2.2; background: #f9f9f9; overflow: hidden; }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .strip-footer { text-align: center; margin-top: 20px; font-family: 'Montserrat'; letter-spacing: 5px; opacity: 0.6; }
+
+        .qr-panel {
+            display: flex; flex-direction: column; align-items: center; gap: 20px;
+        }
+        #final-qr {
+            background: white; padding: 20px; border-radius: 30px;
+            box-shadow: var(--shadow-bold); min-width: 180px; min-height: 180px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .btn-dl {
+            width: 280px; height: 80px; background: var(--primary);
+            border: none; border-radius: 25px; color: white;
+            font-size: 22px; font-weight: bold; box-shadow: 0 10px 0 #89b3eb;
+            cursor: pointer; transition: 0.1s; display: flex; align-items: center; justify-content: center; gap: 15px;
+        }
+        .btn-dl:active { transform: translateY(6px); box-shadow: 0 4px 0 #89b3eb; }
+
+        /* --- UTILS --- */
+        #flash-bang { position: fixed; inset: 0; background: white; opacity: 0; pointer-events: none; z-index: 9999; }
+        .loading-dots:after { content: '.'; animation: dots 1.5s steps(5, end) infinite; }
+        @keyframes dots { 0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); } 40% { color: #4A5568; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); } 60% { text-shadow: .25em 0 0 #4A5568, .5em 0 0 rgba(0,0,0,0); } 80%, 100% { text-shadow: .25em 0 0 #4A5568, .5em 0 0 #4A5568; } }
     </style>
 </head>
 <body>
 
-    <div id="startScreen">
-        <h1 style="font-weight: 200; letter-spacing: 8px;">SENA</h1>
-        <div class="start-btn" onclick="openBooth()">START</div>
-    </div>
+    <div id="flash-bang"></div>
+    <div class="blobs"><div class="blob b1"></div><div class="blob b2"></div></div>
 
-    <div id="boothScreen">
-        <div class="camera-box">
-            <video id="video" autoplay playsinline></video>
-            <div id="countdown">3</div>
-            <div id="flash"></div>
-            <div class="inner-previews"><div class="mini-slot" id="m0"></div><div class="mini-slot" id="m1"></div><div class="mini-slot" id="m2"></div><div class="mini-slot" id="m3"></div></div>
-        </div>
-        <div class="btn-main" onclick="startCapture()"><div class="btn-main-inner"></div></div>
-    </div>
-
-    <div id="resultScreen">
-        <div class="result-wrap">
-            <div class="film-strip" id="captureFilm">
-                <div id="resultImages"></div>
-                <div style="text-align:center; font-size:10px; margin-top:10px; opacity:0.5;">SENA STUDIO</div>
-            </div>
-            <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
-                <div id="qrcode"><span class="loading-text">สร้าง QR Code...</span></div>
-                <div style="font-size: 10px; width: 120px; text-align: center;">สแกนแล้ว "กดค้างที่รูป" เพื่อบันทึกเข้ามือถือ</div>
-                <button onclick="location.reload()" style="border:none; background:none; text-decoration:underline; font-size:12px; cursor:pointer;">ถ่ายใหม่</button>
-            </div>
+    <div id="screen-intro" class="screen active">
+        <div class="brand-logo animate__animated animate__fadeInDown">SENA</div>
+        <div class="brand-sub animate__animated animate__fadeIn animate__delay-1s">SELIPHOTO STUDIO</div>
+        <div class="start-trigger animate__animated animate__pulse animate__infinite" onclick="navTo('camera')">
+            <span>TOUCH</span>
+            <small style="opacity:0.4; letter-spacing:2px; margin-top:5px;">TO START</small>
         </div>
     </div>
 
-    <audio id="sndClick" src="https://www.soundjay.com/communication/shutter-click-06.mp3"></audio>
-    <audio id="sndBeep" src="https://www.soundjay.com/buttons/beep-07.mp3"></audio>
+    <div id="screen-camera" class="screen">
+        <div class="booth-layout">
+            <div class="history-rail">
+                <div class="rail-slot" id="slot-0"></div>
+                <div class="rail-slot" id="slot-1"></div>
+                <div class="rail-slot" id="slot-2"></div>
+                <div class="rail-slot" id="slot-3"></div>
+            </div>
+
+            <div class="camera-viewport">
+                <video id="video-feed" autoplay playsinline></video>
+                <div id="count-num">3</div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <div style="font-size:24px; font-weight:600;">SELECT FILTER</div>
+                <div class="filter-bar" style="flex-direction:column;">
+                    <button class="filter-btn active" onclick="setFilter('none', this)">ORIGINAL</button>
+                    <button class="filter-btn" onclick="setFilter('grayscale(1) contrast(1.2)', this)">K-MONO</button>
+                    <button class="filter-btn" onclick="setFilter('sepia(0.3) brightness(1.1) saturate(1.2)', this)">VINTAGE</button>
+                    <button class="filter-btn" onclick="setFilter('brightness(1.2) contrast(0.9) saturate(1.1)', this)">SOFT GLOW</button>
+                </div>
+                <button class="start-trigger" style="width:120px; height:120px; margin-top:40px;" onclick="startSequence()">
+                    <span style="font-size:16px;">SHOOT!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-frame" class="screen">
+        <h2 style="font-size:32px; letter-spacing:5px;">PICK YOUR FRAME</h2>
+        <div class="frame-grid">
+            <div class="frame-opt" style="background:#FFFFFF;" onclick="selectFrame('#FFFFFF', this)"></div>
+            <div class="frame-opt" style="background:#FFD1DC;" onclick="selectFrame('#FFD1DC', this)"></div>
+            <div class="frame-opt" style="background:#E3F1FF;" onclick="selectFrame('#E3F1FF', this)"></div>
+            <div class="frame-opt" style="background:#1A1A1A;" onclick="selectFrame('#1A1A1A', this)"></div>
+            <div class="frame-opt" style="background:repeating-linear-gradient(45deg, #fff, #fff 10px, #fdfcf8 10px, #fdfcf8 20px);" onclick="selectFrame('pattern', this)"></div>
+        </div>
+        <button class="btn-dl" style="margin-top:50px; width:200px;" onclick="renderFinal()">CONTINUE</button>
+    </div>
+
+    <div id="screen-final" class="screen">
+        <div class="final-container">
+            <div class="print-strip" id="printable-area">
+                <div id="final-photos-list"></div>
+                <div class="strip-footer">SENA STUDIO</div>
+            </div>
+
+            <div class="qr-panel">
+                <div id="final-qr"><span class="loading-dots">UPLOADING</span></div>
+                <p class="save-hint"><b>SCAN TO GET PHOTO</b><br>สแกนแล้วกดค้างที่รูปเพื่อบันทึก</p>
+                <button class="btn-dl" onclick="downloadManual()">💾 DOWNLOAD</button>
+                <div onclick="location.reload()" style="cursor:pointer; text-decoration:underline; opacity:0.5; margin-top:20px;">FINISH SESSION</div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="aud-click" src="https://www.soundjay.com/communication/shutter-click-06.mp3"></audio>
+    <audio id="aud-beep" src="https://www.soundjay.com/buttons/beep-07.mp3"></audio>
 
     <script>
-        const video = document.getElementById('video');
-        const countdownEl = document.getElementById('countdown');
-        const flashEl = document.getElementById('flash');
-        let photos = [];
-
-        async function openBooth() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-            video.srcObject = stream;
-            document.getElementById('startScreen').classList.add('hide');
-            document.getElementById('boothScreen').style.display = 'flex';
+        let currentFilter = 'none';
+        let selectedFrameColor = '#FFFFFF';
+        let capturedImages = [];
+        const video = document.getElementById('video-feed');
+        
+        // --- NAVIGATION ---
+        function navTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + screenId).classList.add('active');
+            if(screenId === 'camera') initCamera();
         }
 
-        async function startCapture() {
-            photos = [];
-            for (let i = 0; i < 4; i++) {
-                await runTimer(3);
-                capture(i);
-                await new Promise(r => setTimeout(r, 600));
-            }
-            showResult();
-        }
-
-        function runTimer(sec) {
-            return new Promise(resolve => {
-                let t = sec;
-                countdownEl.style.opacity = '1';
-                const timer = setInterval(() => {
-                    document.getElementById('sndBeep').play();
-                    countdownEl.innerText = t;
-                    if (t === 0) { clearInterval(timer); countdownEl.style.opacity = '0'; resolve(); }
-                    t--;
-                }, 800);
-            });
-        }
-
-        function capture(idx) {
-            document.getElementById('sndClick').play();
-            flashEl.style.opacity = '1'; setTimeout(() => flashEl.style.opacity = '0', 100);
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
-            ctx.drawImage(video, 0, 0);
-            const data = canvas.toDataURL('image/jpeg', 0.8);
-            photos.push(data);
-            const slot = document.getElementById(`m${idx}`);
-            slot.innerHTML = `<img src="${data}">`; slot.classList.add('active');
-        }
-
-        async function showResult() {
-            const container = document.getElementById('resultImages');
-            container.innerHTML = '';
-            photos.forEach(p => {
-                const d = document.createElement('div');
-                d.className = 'film-img'; d.innerHTML = `<img src="${p}">`;
-                container.appendChild(d);
-            });
-            document.getElementById('resultScreen').style.display = 'flex';
-            
-            // --- สร้างรูป Strip เพื่ออัปโหลด ---
-            const finalCanvas = document.createElement('canvas');
-            finalCanvas.width = 800; finalCanvas.height = 1900;
-            const fCtx = finalCanvas.getContext('2d');
-            fCtx.fillStyle = "white"; fCtx.fillRect(0,0,800,1900);
-            fCtx.fillStyle = "#5A6B7F"; fCtx.font = "30px Arial"; fCtx.textAlign = "center"; fCtx.fillText("SENA PHOTOBOOTH", 400, 80);
-            let y = 140;
-            for(let p of photos) {
-                const img = await new Promise(r => { const i = new Image(); i.onload = ()=>r(i); i.src=p; });
-                fCtx.drawImage(img, 60, y, 680, 410); y += 430;
-            }
-            
-            uploadAndGenerateQR(finalCanvas.toDataURL('image/jpeg', 0.9));
-        }
-
-        async function uploadAndGenerateQR(base64Data) {
+        // --- CAMERA SYSTEM ---
+        async function initCamera() {
             try {
-                // ใช้ ImgBB API (Free Key สำหรับทดสอบ)
-                const apiKey = '676d911b6678b8723c3b0f55e3780a47'; // <--- ถ้าใช้เยอะๆ แนะนำสมัครเองฟรีครับ
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 1280, height: 720, facingMode: 'user' } 
+                });
+                video.srcObject = stream;
+            } catch (err) { alert("Camera Error: " + err); }
+        }
+
+        function setFilter(filterStr, btn) {
+            currentFilter = filterStr;
+            video.style.filter = filterStr;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // --- SHOOTING LOGIC ---
+        async function startSequence() {
+            capturedImages = [];
+            for(let i=0; i<4; i++) {
+                await doCountdown(3);
+                takeShot(i);
+                await new Promise(r => setTimeout(r, 800));
+            }
+            navTo('frame');
+        }
+
+        function doCountdown(seconds) {
+            return new Promise(resolve => {
+                let count = seconds;
+                const el = document.getElementById('count-num');
+                el.style.opacity = '1';
+                const timer = setInterval(() => {
+                    document.getElementById('aud-beep').play();
+                    el.innerText = count;
+                    if(count <= 0) {
+                        clearInterval(timer);
+                        el.style.opacity = '0';
+                        resolve();
+                    }
+                    count--;
+                }, 1000);
+            });
+        }
+
+        function takeShot(index) {
+            // Flash & Sound
+            document.getElementById('aud-click').play();
+            const flash = document.getElementById('flash-bang');
+            flash.style.opacity = '1';
+            setTimeout(() => flash.style.opacity = '0', 150);
+
+            // Draw to Canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.filter = currentFilter;
+            ctx.drawImage(video, 0, 0);
+
+            const data = canvas.toDataURL('image/jpeg', 0.9);
+            capturedImages.push(data);
+
+            // Update Sidebar
+            const slot = document.getElementById('slot-' + index);
+            slot.innerHTML = `<img src="${data}">`;
+            slot.classList.add('captured');
+        }
+
+        // --- FRAME SELECTOR ---
+        function selectFrame(color, btn) {
+            selectedFrameColor = color;
+            document.querySelectorAll('.frame-opt').forEach(o => o.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // --- FINAL RENDERING ---
+        async function renderFinal() {
+            navTo('final');
+            const list = document.getElementById('final-photos-list');
+            const strip = document.getElementById('printable-area');
+            
+            // Apply frame color
+            if(selectedFrameColor === 'pattern') {
+                strip.style.background = 'repeating-linear-gradient(45deg, #fff, #fff 10px, #fdfcf8 10px, #fdfcf8 20px)';
+            } else {
+                strip.style.background = selectedFrameColor;
+                strip.style.color = (selectedFrameColor === '#1A1A1A') ? 'white' : 'var(--dark)';
+            }
+
+            list.innerHTML = '';
+            capturedImages.forEach(img => {
+                const div = document.createElement('div');
+                div.className = 'photo-frame animate__animated animate__fadeInUp';
+                div.innerHTML = `<img src="${img}">`;
+                list.appendChild(div);
+            });
+
+            // Generate High-Res Image for Upload
+            const finalImage = await generateHighResStrip();
+            uploadAndQR(finalImage);
+        }
+
+        async function generateHighResStrip() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1200;
+            canvas.height = 2800;
+
+            // Background
+            ctx.fillStyle = (selectedFrameColor === 'pattern') ? '#FFFFFF' : selectedFrameColor;
+            ctx.fillRect(0,0, canvas.width, canvas.height);
+
+            // Draw Photos
+            let y = 180;
+            for(let src of capturedImages) {
+                const img = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; });
+                ctx.drawImage(img, 100, y, 1000, 600);
+                y += 640;
+            }
+
+            // Footer Text
+            ctx.fillStyle = (selectedFrameColor === '#1A1A1A') ? 'white' : '#4A5568';
+            ctx.font = "lighter 40px Montserrat";
+            ctx.textAlign = "center";
+            ctx.fillText("S E N A   S T U D I O", 600, 2720);
+
+            return canvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        // --- CLOUD UPLOAD & QR ---
+        async function uploadAndQR(base64Data) {
+            try {
+                const apiKey = '676d911b6678b8723c3b0f55e3780a47'; // ImgBB API
                 const formData = new FormData();
                 formData.append('image', base64Data.split(',')[1]);
 
@@ -176,12 +378,27 @@
                 const result = await response.json();
                 const url = result.data.url;
 
-                // สร้าง QR Code จากลิงก์ที่ได้จริง
-                document.getElementById('qrcode').innerHTML = "";
-                new QRCode(document.getElementById("qrcode"), { text: url, width: 120, height: 120 });
+                // Create QR
+                document.getElementById('final-qr').innerHTML = '';
+                new QRCode(document.getElementById("final-qr"), {
+                    text: url,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#4A5568",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
             } catch (e) {
-                document.getElementById('qrcode').innerHTML = "<small>เน็ตมีปัญหาจ้า</small>";
+                document.getElementById('final-qr').innerHTML = 'Upload Failed';
             }
+        }
+
+        function downloadManual() {
+            generateHighResStrip().then(url => {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'SENA_STUDIO_STRIP.jpg';
+                a.click();
+            });
         }
     </script>
 </body>
