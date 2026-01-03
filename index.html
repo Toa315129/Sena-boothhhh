@@ -3,334 +3,468 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH | Cute Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <title>SENA PHOTOBOOTH | Kiosk Edition</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;700&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            /* ชุดสีใหม่ น่ารัก พาสเทล */
-            --bg-color: #FFF9E6; /* สีครีมไข่ไก่ */
-            --booth-bg: #FFFAE1;
-            --text-color: #4A4A4A; /* สีดำซอฟต์ๆ */
-            --accent-color: #FF9FAC; /* สีชมพูพาสเทล */
-            --accent-color-2: #7EC8E3; /* สีฟ้าพาสเทล */
-            --border-color: #4A4A4A;
-            --shadow-hard: 6px 6px 0px rgba(0,0,0,0.15);
-            --font-cute: 'Patrick Hand', cursive;
+            /* Palette: White, Cream, Pastel Blue, Black */
+            --bg-body: #FDFBF7;   /* Cream White */
+            --kiosk-bg: #FFFFFF;  /* Pure White */
+            --blue-pastel: #C4E4FF;
+            --black: #121212;
+            --border-width: 3px;
+            --radius: 20px;
+            
+            --font-main: 'Fredoka', sans-serif;
+            --font-tech: 'DM Sans', sans-serif;
         }
 
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
         body {
             margin: 0;
-            font-family: var(--font-cute);
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-body);
+            font-family: var(--font-main);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            color: var(--black);
             overflow: hidden;
-            background-image: radial-gradient(#E6E1CF 1px, transparent 1px);
-            background-size: 20px 20px; /* พื้นหลังลายจุดเล็กๆ */
+            /* Minimal Grid Pattern */
+            background-image: radial-gradient(var(--black) 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+            opacity: 0.95;
         }
 
-        /* --- ตัวตู้ (The Booth Case) --- */
-        .app-container {
+        /* --- THE KIOSK (ตัวตู้) --- */
+        .kiosk-casing {
             width: 100%;
-            max-width: 460px;
-            height: 100%;
-            background: var(--booth-bg);
+            max-width: 440px;
+            height: 95vh;
+            background: var(--kiosk-bg);
+            border: var(--border-width) solid var(--black);
+            border-radius: var(--radius);
             position: relative;
+            overflow: hidden;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.15);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            border: 4px solid var(--border-color); /* ขอบหนาเหมือนวาด */
         }
 
-        @media (min-width: 500px) {
-            .app-container { 
-                height: 92vh; 
-                border-radius: 35px; /* มุมโค้งมน */
-                box-shadow: var(--shadow-hard);
-            }
-        }
-
-        /* Deco elements (ลวดลายตกแต่ง) */
-        .deco { position: absolute; font-weight: bold; pointer-events: none; z-index: 0; }
-        .d-star1 { top: 20px; left: 20px; color: var(--accent-color); font-size: 2rem; transform: rotate(-15deg); }
-        .d-star2 { bottom: 30px; right: 20px; color: var(--accent-color-2); font-size: 2.5rem; transform: rotate(10deg); }
-        .d-line1 { top: 120px; right: -10px; color: var(--border-color); font-size: 1.5rem; }
-        .d-line2 { bottom: 100px; left: -10px; color: var(--border-color); font-size: 1.5rem; }
-
+        /* Screen Wrapper */
         .screen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; inset: 0;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: transparent;
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            opacity: 0; pointer-events: none; padding: 30px; z-index: 2;
+            background: var(--kiosk-bg);
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            opacity: 0; pointer-events: none;
+            padding: 25px;
+            z-index: 1;
+        }
+        .screen.active { opacity: 1; pointer-events: all; transform: scale(1); z-index: 10; }
+
+        /* --- 1. START SCREEN --- */
+        .logo-area {
+            text-align: center; margin-bottom: 40px;
+            position: relative;
+        }
+        .logo-main {
+            font-size: 3rem; font-weight: 600; letter-spacing: -1px;
+            line-height: 1; margin: 0;
+        }
+        .logo-sub {
+            font-family: var(--font-tech); font-size: 0.9rem; letter-spacing: 2px;
+            text-transform: uppercase; margin-top: 10px; color: #666;
+        }
+        
+        .deco-star {
+            position: absolute; font-size: 2rem; color: var(--black); animation: spin 4s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Controls */
+        .settings-box {
+            width: 100%; border: var(--border-width) solid var(--black);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+            background: var(--bg-body);
+        }
+        
+        .opt-label {
+            font-family: var(--font-tech); font-weight: 700; font-size: 0.8rem;
+            text-transform: uppercase; margin-bottom: 12px; display: block; letter-spacing: 1px;
         }
 
-        .screen.active { opacity: 1; pointer-events: all; transform: scale(1); }
-
-        /* --- Screen 1: Home --- */
-        .brand-logo {
-            font-size: 2.8rem; letter-spacing: 1px; margin-bottom: 5px;
-            text-transform: uppercase; text-align: center;
-            text-shadow: 3px 3px 0px #fff, 5px 5px 0px var(--border-color);
+        /* Filter Toggle (Original / BW) */
+        .toggle-sw {
+            display: flex; width: 100%; height: 50px;
+            border: var(--border-width) solid var(--black); border-radius: 50px;
+            position: relative; background: #fff; overflow: hidden; cursor: pointer;
         }
-        .brand-sub { font-size: 1.2rem; margin-bottom: 40px; color: var(--accent-color-2); font-weight: bold; }
-
-        .control-group { width: 100%; margin-bottom: 25px; background: #fff; padding: 20px; border-radius: 25px; border: 3px solid var(--border-color); box-shadow: var(--shadow-hard); }
-        .label { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; display: block; text-align: center; }
-
-        /* Color Picker Cute Style */
-        .color-row { display: flex; gap: 15px; justify-content: center; }
-        .c-btn {
-            width: 45px; height: 45px; border-radius: 50%; 
-            border: 3px solid var(--border-color); cursor: pointer;
-            transition: transform 0.2s; box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        .toggle-bg {
+            position: absolute; left: 0; top: 0; width: 50%; height: 100%;
+            background: var(--blue-pastel); border-right: var(--border-width) solid var(--black);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .c-btn.active { transform: scale(1.1) translate(-2px, -2px); box-shadow: 4px 4px 0px var(--border-color); }
+        .toggle-opt {
+            flex: 1; z-index: 2; display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-tech); font-weight: 700; font-size: 0.9rem;
+            transition: color 0.3s;
+        }
 
-        /* Filter Switch Cute Style */
-        .mode-switch {
-            display: flex; background: var(--border-color); border-radius: 30px; padding: 4px;
-            position: relative; width: 220px; margin: 0 auto; border: 3px solid var(--border-color);
+        .start-btn {
+            width: 100%; padding: 18px; border-radius: 50px;
+            background: var(--black); color: #fff;
+            font-family: var(--font-tech); font-size: 1.1rem; font-weight: 700;
+            border: none; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: transform 0.1s;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-        .mode-bg {
-            position: absolute; top:4px; left:4px; width: calc(50% - 4px); height: calc(100% - 8px);
-            background: #fff; border-radius: 25px; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border: 2px solid var(--border-color);
-        }
-        .m-btn {
-            flex: 1; border: none; background: transparent; padding: 8px; font-size: 1.1rem; color: #fff;
-            font-family: var(--font-cute); cursor: pointer; z-index: 2; transition: color 0.3s;
-        }
-        .m-btn.active-text { color: var(--border-color); }
+        .start-btn:active { transform: scale(0.97); }
 
-        .big-btn {
-            background: var(--accent-color); color: #fff; border: 3px solid var(--border-color); 
-            padding: 15px 0; width: 100%; border-radius: 30px; font-size: 1.5rem; 
-            font-family: var(--font-cute); cursor: pointer;
-            box-shadow: var(--shadow-hard); transition: all 0.2s; margin-top: 15px;
-            text-shadow: 2px 2px 0px var(--border-color);
-        }
-        .big-btn:active { transform: translate(4px, 4px); box-shadow: none; }
-        .big-btn.secondary { background: #fff; color: var(--text-color); }
-
-        /* --- Screen 2: Capture --- */
-        .camera-frame {
-            width: 100%; aspect-ratio: 3/4; background: #000; border-radius: 25px;
-            overflow: hidden; position: relative; 
-            border: 5px solid #fff; outline: 3px solid var(--border-color);
-            box-shadow: var(--shadow-hard);
+        /* --- 2. CAPTURE SCREEN --- */
+        .cam-frame {
+            width: 100%; aspect-ratio: 3/4;
+            background: #000; border: var(--border-width) solid var(--black);
+            border-radius: 16px; overflow: hidden; position: relative;
+            box-shadow: 8px 8px 0px var(--blue-pastel);
         }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .countdown-big {
-            position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-            font-size: 7rem; color: #fff; text-shadow: 4px 4px 0px var(--border-color); display: none;
+        
+        .countdown {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 6rem; color: #fff; text-shadow: 0 4px 0 #000;
+            display: none; font-weight: 600;
         }
-        .strip-preview {
-            display: flex; gap: 10px; margin-top: 25px; width: 100%; justify-content: center;
+        
+        .progress-dots {
+            display: flex; gap: 10px; margin-top: 25px;
         }
-        .mini-shot {
-            width: 55px; height: 72px; background: #eee; border-radius: 10px; overflow: hidden;
-            border: 3px solid #fff; outline: 2px solid var(--border-color);
-            box-shadow: 3px 3px 0px rgba(0,0,0,0.1); opacity: 0.4; transition: all 0.3s; transform: rotate(-2deg);
+        .p-dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            border: 2px solid var(--black); background: #fff;
         }
-        .mini-shot:nth-child(2) { transform: rotate(2deg); }
-        .mini-shot.taken { opacity: 1; transform: rotate(0deg) scale(1.1); z-index: 2; }
-        .mini-shot img { width: 100%; height: 100%; object-fit: cover; }
+        .p-dot.filled { background: var(--black); }
 
-        /* --- Screen 3: Result --- */
-        .paper-strip {
-            width: auto; height: 58vh; 
-            box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
-            border: 4px solid var(--border-color); border-radius: 15px;
-            transform: translateY(50px) rotate(-2deg); opacity: 0; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* --- 3. PRINT SCREEN (Animation Magic) --- */
+        .printer-slot {
+            width: 280px; height: 15px; background: var(--black);
+            border-radius: 10px; margin-bottom: 0; position: relative;
+            z-index: 5;
         }
-        .paper-strip.show { transform: translateY(0) rotate(0deg); opacity: 1; }
-        .flash { position: fixed; top:0; left:0; width:100%; height:100%; background: #fff; opacity: 0; pointer-events: none; z-index: 99; transition: opacity 0.1s; }
+        .print-area {
+            position: relative; width: 100%; flex: 1;
+            display: flex; justify-content: center;
+            overflow: hidden; /* Masking the paper */
+            padding-top: 0;
+        }
+        
+        .paper-sheet {
+            width: 260px; height: auto;
+            border: 3px solid var(--black); /* Black Frame Requested */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transform: translateY(-120%); /* Start hidden inside printer */
+            transition: transform 2.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .paper-sheet.printed {
+            transform: translateY(20px); /* Slide out */
+        }
+
+        .action-row {
+            margin-top: 20px; width: 100%; display: flex; gap: 10px; flex-direction: column;
+            opacity: 0; transition: opacity 0.5s ease 2s;
+        }
+        .btn-dl {
+            background: var(--blue-pastel); color: var(--black); border: 2px solid var(--black);
+            padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer;
+            font-family: var(--font-tech); text-transform: uppercase;
+        }
+        .btn-home {
+            background: transparent; border: none; text-decoration: underline; cursor: pointer;
+            font-family: var(--font-tech); color: #888; margin-top: 5px;
+        }
+
+        /* Flash */
+        .flash-fx {
+            position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 99; transition: opacity 0.15s;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <div class="deco d-star1">*</div>
-        <div class="deco d-star2">*</div>
-        <div class="deco d-line1">~</div>
-        <div class="deco d-line2">~</div>
-
+    <div class="kiosk-casing">
+        
         <div id="screen-home" class="screen active">
-            <div class="brand-logo">SENA<br>PHOTOBOOTH</div>
-            <div class="brand-sub">Cute & Cozy Edition</div>
-
-            <div class="control-group">
-                <label class="label">✨ Pick Your Frame Color ✨</label>
-                <div class="color-row">
-                    <button class="c-btn active" style="background:#fff;" onclick="setFrame('#ffffff', this)"></button>
-                    <button class="c-btn" style="background:#FFD1DC;" onclick="setFrame('#FFD1DC', this)"></button> <button class="c-btn" style="background:#FFF5BA;" onclick="setFrame('#FFF5BA', this)"></button> <button class="c-btn" style="background:#B5EAD7;" onclick="setFrame('#B5EAD7', this)"></button> </div>
+            <div class="deco-star" style="top:30px; left:30px;">*</div>
+            <div class="deco-star" style="top:30px; right:30px;">*</div>
+            
+            <div class="logo-area">
+                <h1 class="logo-main">SENA<br>BOOTH</h1>
+                <div class="logo-sub">KIOSK EDITION • 001</div>
             </div>
 
-            <div class="control-group" style="padding-bottom: 30px;">
-                <label class="label">📸 Choose Mood 📸</label>
-                <div class="mode-switch">
-                    <div class="mode-bg" id="modeHighlight"></div>
-                    <button class="m-btn active-text" onclick="setMode('color', 0, this)">Color</button>
-                    <button class="m-btn" onclick="setMode('bw', 1, this)">B&W</button>
+            <div class="settings-box">
+                <span class="opt-label">Color Mode</span>
+                <div class="toggle-sw" onclick="toggleMode()">
+                    <div class="toggle-bg" id="sw-bg"></div>
+                    <div class="toggle-opt" id="opt-color">COLOR</div>
+                    <div class="toggle-opt" id="opt-bw">B&W</div>
                 </div>
             </div>
 
-            <button class="big-btn" onclick="startCamera()">Let's Go! ✨</button>
+            <button class="start-btn" onclick="startSession()">Start Session</button>
+            <div style="font-size: 10px; margin-top: 15px; opacity: 0.5;">TOUCH SCREEN TO START</div>
         </div>
 
         <div id="screen-cam" class="screen">
-            <div class="camera-frame">
+            <div class="opt-label" style="margin-bottom: 10px;">FRAME THE SHOT</div>
+            <div class="cam-frame">
                 <video id="video" autoplay playsinline muted></video>
-                <div id="count" class="countdown-big">3</div>
+                <div id="count" class="countdown">3</div>
             </div>
-            <div class="strip-preview">
-                <div class="mini-shot" id="p1"></div>
-                <div class="mini-shot" id="p2"></div>
-                <div class="mini-shot" id="p3"></div>
+            <div class="progress-dots">
+                <div class="p-dot" id="dot1"></div>
+                <div class="p-dot" id="dot2"></div>
+                <div class="p-dot" id="dot3"></div>
             </div>
-            <p style="margin-top: 20px; font-size: 1.2rem;">Get ready to pose! ✌️</p>
         </div>
 
-        <div id="screen-result" class="screen">
-            <img id="finalImg" class="paper-strip" alt="Photo Strip">
-            <div id="endButtons" style="width:100%; margin-top: 30px; opacity: 0; transition: opacity 0.5s;">
-                <button class="big-btn" onclick="downloadImg()">Save Photo 💖</button>
-                <button class="big-btn secondary" onclick="goHome()">Play Again ↺</button>
+        <div id="screen-print" class="screen">
+            <div style="font-family: var(--font-tech); font-weight:700; font-size: 0.8rem; margin-bottom: 5px;">PRINTING...</div>
+            <div class="printer-slot"></div> <div class="print-area">
+                <img id="final-print" class="paper-sheet" alt="Photo Strip">
+            </div>
+
+            <div class="action-row" id="end-actions">
+                <button class="btn-dl" onclick="downloadImage()">Download Photo</button>
+                <button class="btn-home" onclick="resetSystem()">Back to Home</button>
             </div>
         </div>
 
     </div>
 
-    <div class="flash" id="flashInfo"></div>
-    <canvas id="renderCanvas" style="display: none;"></canvas>
+    <div class="flash-fx" id="flash"></div>
+    <canvas id="canvas" style="display: none;"></canvas>
 
     <script>
-        const config = { frame: '#ffffff', mode: 'color' };
+        const config = { mode: 'color' }; // default
         const video = document.getElementById('video');
-        const canvas = document.getElementById('renderCanvas');
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        let stream, shots = [], audioCtx;
+        let stream;
+        let shots = [];
+        let audioCtx;
 
-        // Sound (คงเดิม)
-        function playTone(freq, type, dur) {
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + dur);
+        // --- UI LOGIC ---
+        function toggleMode() {
+            const bg = document.getElementById('sw-bg');
+            if (config.mode === 'color') {
+                config.mode = 'bw';
+                bg.style.transform = 'translateX(100%)';
+                bg.style.background = '#e0e0e0'; // Grey for BW
+            } else {
+                config.mode = 'color';
+                bg.style.transform = 'translateX(0%)';
+                bg.style.background = 'var(--blue-pastel)';
+            }
         }
-        function sfxBeep() { playTone(1000, 'sine', 0.1); }
-        function sfxSnap() { playTone(200, 'square', 0.1); playTone(600, 'sawtooth', 0.05); }
 
-        // UI Actions (ปรับปรุงให้รองรับปุ่มแบบใหม่)
-        function setFrame(color, btn) {
-            config.frame = color;
-            document.querySelectorAll('.c-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        function setMode(mode, idx, btn) {
-            config.mode = mode;
-            document.getElementById('modeHighlight').style.transform = `translateX(${idx * 100 + (idx*8)}%)`;
-            document.querySelectorAll('.m-btn').forEach(b => b.classList.remove('active-text'));
-            btn.classList.add('active-text');
-            video.style.filter = (mode === 'bw') ? 'grayscale(100%)' : 'none';
-        }
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
-        // Camera Logic (คงเดิม)
-        async function startCamera() {
-            shots = []; [1,2,3].forEach(i => { document.getElementById(`p${i}`).classList.remove('taken'); document.getElementById(`p${i}`).innerHTML = ''; });
+        // --- CAMERA LOGIC ---
+        async function startSession() {
+            initAudio();
+            shots = [];
+            [1,2,3].forEach(i => document.getElementById(`dot${i}`).classList.remove('filled'));
+            
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: 1280, height: 720 } });
-                video.srcObject = stream; switchScreen('screen-cam'); setTimeout(runSequence, 1500);
-            } catch(e) { alert("Please allow camera access."); }
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user", width: {ideal: 1280}, height: {ideal: 720} } 
+                });
+                video.srcObject = stream;
+                
+                // Real-time filter preview
+                video.style.filter = (config.mode === 'bw') ? 'grayscale(100%)' : 'none';
+
+                switchScreen('screen-cam');
+                setTimeout(runSequence, 1500);
+            } catch(e) {
+                alert("Camera access denied.");
+            }
         }
+
         async function runSequence() {
-            for(let i=1; i<=3; i++) { await countdown(3); await capture(i); await new Promise(r => setTimeout(r, 800)); }
-            finishSession();
+            for(let i=1; i<=3; i++) {
+                await doCountdown(3);
+                await snap(i);
+                await new Promise(r => setTimeout(r, 800));
+            }
+            finish();
         }
-        function countdown(num) {
+
+        function doCountdown(sec) {
             return new Promise(resolve => {
-                let c = num; const el = document.getElementById('count'); el.style.display = 'block'; el.innerText = c; sfxBeep();
-                const t = setInterval(() => { c--; if(c>0){ el.innerText = c; sfxBeep(); } else { clearInterval(t); el.style.display='none'; resolve(); } }, 1000);
+                let c = sec;
+                const el = document.getElementById('count');
+                el.style.display = 'block';
+                el.innerText = c;
+                beep();
+                
+                const t = setInterval(() => {
+                    c--;
+                    if(c>0) { el.innerText = c; beep(); }
+                    else { clearInterval(t); el.style.display='none'; resolve(); }
+                }, 1000);
             });
         }
-        function capture(idx) {
+
+        function snap(idx) {
             return new Promise(resolve => {
-                sfxSnap(); const f = document.getElementById('flashInfo'); f.style.opacity = 1; setTimeout(() => f.style.opacity = 0, 100);
-                const w = video.videoWidth; const h = video.videoHeight;
-                const tCan = document.createElement('canvas'); tCan.width = w; tCan.height = h; const tCtx = tCan.getContext('2d');
-                tCtx.translate(w, 0); tCtx.scale(-1, 1); tCtx.drawImage(video, 0, 0, w, h);
-                
-                // Force B&W Logic
+                shutter();
+                const f = document.getElementById('flash');
+                f.style.opacity = 1; 
+                setTimeout(() => f.style.opacity = 0, 100);
+
+                const w = video.videoWidth; 
+                const h = video.videoHeight;
+                const tCanvas = document.createElement('canvas');
+                tCanvas.width = w; tCanvas.height = h;
+                const tCtx = tCanvas.getContext('2d');
+
+                tCtx.translate(w, 0); 
+                tCtx.scale(-1, 1);
+                tCtx.drawImage(video, 0, 0, w, h);
+
+                // --- BRUTAL B&W LOGIC ---
                 if(config.mode === 'bw') {
-                    tCtx.globalCompositeOperation = "saturation"; tCtx.fillStyle = "black"; tCtx.fillRect(0, 0, w, h); tCtx.globalCompositeOperation = "source-over";
+                    tCtx.globalCompositeOperation = "saturation";
+                    tCtx.fillStyle = "black";
+                    tCtx.fillRect(0, 0, w, h);
+                    tCtx.globalCompositeOperation = "source-over";
                 }
-                shots.push(tCan);
-                const thumb = document.getElementById(`p${idx}`); const img = new Image(); img.src = tCan.toDataURL(); thumb.appendChild(img); thumb.classList.add('taken');
+
+                shots.push(tCanvas);
+                document.getElementById(`dot${idx}`).classList.add('filled');
                 resolve();
             });
         }
 
-        // Render Logic (เพิ่มการตกแต่งในรูปที่ปริ้นท์)
-        function finishSession() {
+        // --- RENDER LOGIC (THE GRAPHIC BRUTAL PART) ---
+        function finish() {
             if(stream) stream.getTracks().forEach(t => t.stop());
-            const stripW = 600, photoW = 500, photoH = (photoW*3)/4, gap = 35, headH = 160, footH = 120;
-            const totalH = headH + (photoH*3) + (gap*2) + footH;
-            canvas.width = stripW; canvas.height = totalH;
 
-            // 1. Background & Border
-            ctx.fillStyle = config.frame; ctx.fillRect(0, 0, stripW, totalH);
-            ctx.strokeStyle = '#4A4A4A'; ctx.lineWidth = 8; ctx.strokeRect(4, 4, stripW-8, totalH-8); // เพิ่มขอบให้รูป
+            const stripW = 600;
+            const photoW = 540;
+            const photoH = (photoW * 3) / 4; 
+            const gap = 25;
+            const headH = 140;
+            const footH = 100;
+            const totalH = headH + (photoH * 3) + (gap * 2) + footH;
 
-            // 2. Header with Doodles
-            ctx.fillStyle = '#4A4A4A'; ctx.textAlign = 'center'; 
-            ctx.font = '800 50px "Patrick Hand"'; ctx.fillText("SENA", stripW/2, 70);
-            ctx.font = '400 30px "Patrick Hand"'; ctx.fillText("PHOTOBOOTH", stripW/2, 110);
+            canvas.width = stripW;
+            canvas.height = totalH;
+
+            // 1. Base Paper (White/Cream)
+            ctx.fillStyle = '#FFFFFF'; 
+            ctx.fillRect(0, 0, stripW, totalH);
+
+            // 2. Black Frame Border (System Brutal Request)
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(3, 3, stripW-6, totalH-6);
+
+            // 3. Header Graphics
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.font = '600 42px "Fredoka"';
+            ctx.fillText("SENA BOOTH", stripW/2, 70);
             
-            // Cute Doodles on paper
-            ctx.font = '40px "Patrick Hand"'; ctx.fillText("*", 60, 80); ctx.fillText("~", 540, 100);
-            ctx.font = '30px "Patrick Hand"'; ctx.fillText("♥", stripW/2, totalH - 90);
+            ctx.font = '400 24px "Fredoka"';
+            ctx.fillText("* * *", stripW/2, 110); // Minimal Asterisks
 
-            // 3. Place Photos with Frames
+            // 4. Place Photos
             let y = headH;
             shots.forEach(shot => {
-                // Draw photo border
-                ctx.fillStyle = '#fff'; ctx.fillRect((stripW-photoW)/2 - 5, y - 5, photoW + 10, photoH + 10);
-                ctx.strokeStyle = '#4A4A4A'; ctx.lineWidth = 4; ctx.strokeRect((stripW-photoW)/2 - 5, y - 5, photoW + 10, photoH + 10);
+                // Crop Center
+                const sRatio = shot.width / shot.height;
+                const dRatio = 4/3;
+                let sx, sy, sw, sh;
+                if(sRatio > dRatio) { sh = shot.height; sw = sh * dRatio; sx = (shot.width-sw)/2; sy=0; }
+                else { sw = shot.width; sh = sw/dRatio; sx=0; sy=(shot.height-sh)/2; }
 
-                const sRatio = shot.width / shot.height; const dRatio = 4/3; let sx, sy, sw, sh;
-                if(sRatio > dRatio) { sh = shot.height; sw = sh * dRatio; sx = (shot.width - sw)/2; sy = 0; } 
-                else { sw = shot.width; sh = sw / dRatio; sx = 0; sy = (shot.height - sh)/2; }
+                // Draw Photo
                 ctx.drawImage(shot, sx, sy, sw, sh, (stripW-photoW)/2, y, photoW, photoH);
+                
+                // Inner Border for Photo
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 3;
+                ctx.strokeRect((stripW-photoW)/2, y, photoW, photoH);
+
                 y += photoH + gap;
             });
 
-            // 4. Footer Date
+            // 5. Footer
             const now = new Date();
-            const dateStr = now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-            ctx.font = '400 20px "Patrick Hand"'; ctx.fillStyle = '#4A4A4A'; ctx.globalAlpha = 0.7;
-            ctx.fillText(`${dateStr} • @SAPHASENA`, stripW/2, totalH - 40);
+            const date = now.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+            const time = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+            
+            ctx.font = '700 18px "DM Sans"';
+            ctx.fillStyle = '#000000';
+            ctx.fillText(`${date} • ${time} • #SENA`, stripW/2, totalH - 45);
 
-            const final = document.getElementById('finalImg'); final.src = canvas.toDataURL('image/jpeg', 0.95);
-            switchScreen('screen-result'); setTimeout(() => { final.classList.add('show'); document.getElementById('endButtons').style.opacity = 1; }, 100);
+            // Export & Animate
+            const img = document.getElementById('final-print');
+            img.src = canvas.toDataURL('image/jpeg', 0.95);
+            
+            switchScreen('screen-print');
+            
+            // Trigger Animation (Slide out of slot)
+            setTimeout(() => {
+                img.classList.add('printed');
+                document.getElementById('end-actions').style.opacity = 1;
+            }, 300);
         }
 
-        function downloadImg() { const a = document.createElement('a'); a.download = `SENA-CUTE-${Date.now()}.jpg`; a.href = canvas.toDataURL('image/jpeg', 0.95); a.click(); }
-        function goHome() { document.getElementById('finalImg').classList.remove('show'); document.getElementById('endButtons').style.opacity = 0; switchScreen('screen-home'); }
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = `SENA-KIOSK-${Date.now()}.jpg`;
+            link.href = canvas.toDataURL('image/jpeg', 1.0);
+            link.click();
+        }
+
+        function resetSystem() {
+            document.getElementById('final-print').classList.remove('printed');
+            document.getElementById('end-actions').style.opacity = 0;
+            switchScreen('screen-home');
+        }
+
+        // --- SOUND ENGINE ---
+        function initAudio() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }
+        function beep() {
+            if(!audioCtx) return;
+            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+            o.frequency.value = 1000; g.gain.value = 0.05;
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime+0.05);
+        }
+        function shutter() {
+            if(!audioCtx) return;
+            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+            o.type='square'; o.frequency.value = 150; g.gain.value = 0.1;
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.1);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime+0.1);
+        }
     </script>
 </body>
 </html>
