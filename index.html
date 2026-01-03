@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH - K-STUDIO EDIT</title>
+    <title>SENA PHOTOBOOTH - K-STUDIO</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
@@ -21,7 +21,7 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
         body, html {
@@ -32,13 +32,6 @@
             overflow: hidden;
         }
 
-        /* --- DECO --- */
-        .k-star {
-            position: absolute; width: 18px; height: 18px;
-            background: var(--accent-blue); opacity: 0.3;
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-        }
-
         /* --- START SCREEN --- */
         #startScreen {
             position: fixed; inset: 0; z-index: 1000;
@@ -47,19 +40,14 @@
         }
         #startScreen.hide { opacity: 0; visibility: hidden; transition: 0.5s; }
 
-        .logo-area { text-align: center; margin-bottom: 40px; }
-        .logo-area h1 { font-size: 42px; font-weight: 200; letter-spacing: 10px; margin: 0; }
-
         .start-btn {
-            width: 150px; height: 150px;
+            width: 140px; height: 140px;
             background: var(--white); border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; letter-spacing: 2px;
-            box-shadow: var(--shadow); border: 8px solid var(--soft-blue);
-            cursor: pointer; animation: pulse 2s infinite;
+            font-size: 18px; font-weight: bold; letter-spacing: 2px;
+            box-shadow: var(--shadow); border: 6px solid var(--soft-blue);
+            cursor: pointer;
         }
-
-        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
 
         /* --- BOOTH SCREEN --- */
         #boothScreen {
@@ -68,33 +56,32 @@
             padding: 20px; gap: 15px;
         }
 
-        /* ปรับช่องมองภาพให้เล็กลง (Compact View) */
+        /* ปรับช่องมองภาพให้ Compact เล็กลงพอดีตา */
         .camera-box {
             position: relative;
-            width: 85%; /* ปรับเล็กลงจากเดิม */
-            max-width: 500px;
+            width: 75%; /* ปรับเล็กลงตามสั่ง */
+            max-width: 420px;
             aspect-ratio: 3/4;
             background: #000;
-            border-radius: 30px;
-            border: 10px solid var(--white);
+            border-radius: 25px;
+            border: 8px solid var(--white);
             box-shadow: var(--shadow);
             overflow: hidden;
         }
 
         #video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        /* ช่อง Preview เล็กๆ ด้านใน */
         .inner-previews {
             position: absolute; right: 10px; top: 10px; bottom: 10px;
-            width: 60px; display: flex; flex-direction: column; gap: 5px; z-index: 5;
+            width: 55px; display: flex; flex-direction: column; gap: 5px; z-index: 5;
         }
         .mini-slot {
             width: 100%; aspect-ratio: 1/1;
             background: rgba(255,255,255,0.2);
-            border-radius: 8px; border: 1.5px solid var(--white);
-            overflow: hidden; opacity: 0; transition: 0.4s;
+            border-radius: 6px; border: 1.5px solid var(--white);
+            overflow: hidden; opacity: 0;
         }
-        .mini-slot.active { opacity: 1; transform: scale(1); }
+        .mini-slot.active { opacity: 1; transform: scale(1); transition: 0.4s;}
         .mini-slot img { width: 100%; height: 100%; object-fit: cover; }
 
         #countdown {
@@ -105,20 +92,15 @@
 
         /* CONTROLS */
         .controls {
-            display: flex; width: 100%; max-width: 500px;
+            display: flex; width: 100%; max-width: 420px;
             justify-content: space-around; align-items: center;
         }
-        .btn-sub {
-            background: white; border: none; padding: 12px 20px;
-            border-radius: 25px; box-shadow: var(--shadow);
-            font-size: 13px; font-weight: bold; color: var(--text-main);
-        }
         .btn-main {
-            width: 80px; height: 80px; background: white;
+            width: 75px; height: 75px; background: white;
             border-radius: 50%; border: 6px solid var(--soft-blue);
             box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center;
         }
-        .btn-main-inner { width: 55px; height: 55px; background: var(--accent-blue); border-radius: 50%; }
+        .btn-main-inner { width: 50px; height: 50px; background: var(--accent-blue); border-radius: 50%; }
 
         /* --- RESULT SCREEN --- */
         #resultScreen {
@@ -128,11 +110,11 @@
             padding: 20px;
         }
 
-        .result-wrap { display: flex; gap: 30px; align-items: center; }
+        .result-wrap { display: flex; gap: 25px; align-items: flex-end; }
 
         .film-strip {
             background: white; padding: 15px 15px 40px 15px;
-            box-shadow: var(--shadow); width: 260px;
+            box-shadow: var(--shadow); width: 240px;
             display: flex; flex-direction: column; gap: 8px;
         }
         .film-img { width: 100%; aspect-ratio: 3/2.2; background: #eee; overflow: hidden; }
@@ -140,34 +122,31 @@
 
         .action-zone { display: flex; flex-direction: column; align-items: center; gap: 15px; }
 
-        #qrcode { background: white; padding: 15px; border-radius: 15px; box-shadow: var(--shadow); }
+        #qrcode { 
+            background: white; padding: 10px; border-radius: 12px; 
+            box-shadow: var(--shadow); border: 1px solid #eee;
+        }
 
         .dl-btn {
-            width: 220px; height: 70px; background: var(--accent-blue);
-            color: white; border: none; border-radius: 20px;
-            font-size: 18px; font-weight: bold; box-shadow: 0 8px 0 #8db7eb;
+            width: 200px; height: 65px; background: var(--accent-blue);
+            color: white; border: none; border-radius: 18px;
+            font-size: 18px; font-weight: bold; box-shadow: 0 6px 0 #8db7eb;
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .dl-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #8db7eb; }
+        .dl-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #8db7eb; }
 
         #flash { position: absolute; inset: 0; background: white; opacity: 0; z-index: 100; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div class="k-star" style="top:5%; left:10%;"></div>
-    <div class="k-star" style="bottom:10%; right:15%;"></div>
-
     <div id="startScreen">
-        <div class="logo-area">
-            <h1>SENA</h1>
-            <p style="letter-spacing: 3px; opacity: 0.5;">SELF STUDIO</p>
-        </div>
+        <h1 style="font-weight: 200; letter-spacing: 8px;">SENA</h1>
         <div class="start-btn" onclick="openBooth()">START</div>
     </div>
 
     <div id="boothScreen">
-        <div style="letter-spacing: 2px; font-size: 14px;">✦ SENA PHOTOBOOTH ✦</div>
+        <div style="letter-spacing: 2px; font-size: 13px; opacity: 0.7;">✦ K-STUDIO ✦</div>
         
         <div class="camera-box">
             <video id="video" autoplay playsinline></video>
@@ -183,35 +162,34 @@
         </div>
 
         <div class="controls">
-            <button class="btn-sub" onclick="toggleBw()" id="bwBtn">COLOR</button>
+            <button style="background:white; border:none; border-radius:20px; padding:10px 15px; box-shadow:var(--shadow);" onclick="toggleBw()" id="bwBtn">COLOR</button>
             <div class="btn-main" onclick="startCapture()">
                 <div class="btn-main-inner"></div>
             </div>
-            <button class="btn-sub" onclick="location.reload()">EXIT</button>
+            <button style="background:white; border:none; border-radius:20px; padding:10px 15px; box-shadow:var(--shadow);" onclick="location.reload()">EXIT</button>
         </div>
     </div>
 
     <div id="resultScreen">
         <div class="result-wrap">
             <div class="film-strip" id="captureFilm">
-                <div style="text-align:center; font-size:12px; letter-spacing:3px; margin-bottom:5px;">SENAPHOTO ✦</div>
                 <div id="resultImages"></div>
-                <div style="text-align:center; margin-top:10px; opacity:0.2;">✦ ✦ ✦</div>
+                <div style="text-align:center; font-size:10px; letter-spacing:2px; margin-top:10px; opacity:0.5;">SENAPHOTOBOOTH</div>
             </div>
 
             <div class="action-zone">
                 <div id="qrcode"></div>
-                <div style="font-size: 11px; opacity: 0.5;">สแกนเพื่อดาวน์โหลดภาพ</div>
+                <div style="font-size: 10px; opacity: 0.6;">สแกนเพื่อเปิดลิงก์รูปภาพ</div>
                 <button class="dl-btn" onclick="saveStrip()">
                     <span>💾</span> SAVE PHOTO
                 </button>
-                <div style="font-size:12px; text-decoration:underline; cursor:pointer;" onclick="location.reload()">ถ่ายใหม่อีกครั้ง</div>
+                <div style="font-size:12px; text-decoration:underline; cursor:pointer;" onclick="location.reload()">ถ่ายใหม่</div>
             </div>
         </div>
     </div>
 
-    <audio id="sndClick" src="https://www.soundjay.com/buttons/button-16.mp3"></audio>
-    <audio id="sndBeep" src="https://www.soundjay.com/buttons/button-50.mp3"></audio>
+    <audio id="sndClick" src="https://www.soundjay.com/communication/shutter-click-06.mp3"></audio>
+    <audio id="sndBeep" src="https://www.soundjay.com/buttons/beep-07.mp3"></audio>
 
     <script>
         const video = document.getElementById('video');
@@ -243,7 +221,6 @@
             if (active) return;
             active = true;
             photos = [];
-            
             for (let i = 0; i < 4; i++) {
                 await runTimer(3);
                 capture(i);
@@ -257,9 +234,8 @@
                 let t = sec;
                 countdownEl.style.opacity = '1';
                 const timer = setInterval(() => {
-                    sndBeep.currentTime = 0;
                     sndBeep.play();
-                    countdownEl.innerText = t;
+                    countdownBox(t);
                     if (t === 0) {
                         clearInterval(timer);
                         countdownEl.style.opacity = '0';
@@ -269,9 +245,10 @@
                 }, 800);
             });
         }
+        
+        function countdownBox(t) { countdownEl.innerText = t; }
 
         function capture(idx) {
-            sndClick.currentTime = 0;
             sndClick.play();
             flashEl.style.opacity = '1';
             setTimeout(() => flashEl.style.opacity = '0', 100);
@@ -280,14 +257,12 @@
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
+            ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
             if(isBw) ctx.filter = "grayscale(1) contrast(1.1)";
             ctx.drawImage(video, 0, 0);
             
             const data = canvas.toDataURL('image/jpeg', 0.8);
             photos.push(data);
-
             const slot = document.getElementById(`m${idx}`);
             slot.innerHTML = `<img src="${data}">`;
             slot.classList.add('active');
@@ -303,12 +278,13 @@
                 container.appendChild(d);
             });
 
-            // QR Code แก้ไขให้เป็น Link ดาวน์โหลด (ในที่นี้ทำเป็น Link สำหรับกดเซฟใน Mobile)
+            // แก้ไข QR Code: ให้สแกนแล้วไปที่ Google เพื่อทดสอบ (เนื่องจากไฟล์ Offline ไม่มี URL ของตัวเอง)
+            // หากคุณอัปโหลดไฟล์นี้ขึ้นเว็บ (เช่น github) ให้เปลี่ยน URL เป็นลิงก์เว็บของคุณ
             document.getElementById('qrcode').innerHTML = "";
             new QRCode(document.getElementById("qrcode"), {
-                text: "https://senaphoto-booth.com/download", // หากใช้จริงต้องเปลี่ยนเป็น URL รูปภาพบน Cloud
-                width: 120,
-                height: 120
+                text: window.location.href, // สแกนแล้วจะเปิดหน้าเว็บปัจจุบันที่รันอยู่
+                width: 110,
+                height: 110
             });
 
             document.getElementById('resultScreen').style.display = 'flex';
@@ -317,29 +293,23 @@
         async function saveStrip() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 800; canvas.height = 2000;
-            ctx.fillStyle = "white";
-            ctx.fillRect(0,0, canvas.width, canvas.height);
+            canvas.width = 800; canvas.height = 1900;
+            ctx.fillStyle = "white"; ctx.fillRect(0,0, canvas.width, canvas.height);
+            ctx.fillStyle = "#5A6B7F"; ctx.font = "30px Arial"; ctx.textAlign = "center";
+            ctx.fillText("SENA PHOTOBOOTH", 400, 80);
 
-            ctx.fillStyle = "#5A6B7F";
-            ctx.font = "30px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText("SENA PHOTOBOOTH ✦", 400, 80);
-
-            let y = 150;
+            let y = 140;
             for(let i=0; i<photos.length; i++) {
                 const img = await new Promise(res => {
-                    const e = new Image();
-                    e.onload = () => res(e);
-                    e.src = photos[i];
+                    const e = new Image(); e.onload = () => res(e); e.src = photos[i];
                 });
-                ctx.drawImage(img, 50, y, 700, 430);
-                y += 450;
+                ctx.drawImage(img, 60, y, 680, 410);
+                y += 430;
             }
 
             const link = document.createElement('a');
-            link.download = 'SENA_K_STRIP.jpg';
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.download = 'SENA_STRIP.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
             link.click();
         }
     </script>
