@@ -3,371 +3,864 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SENA PHOTOBOOTH | Muji Style</title>
+    <meta name="theme-color" content="#F7F7F5">
+    <title>SENA PHOTOBOOTH | Professional Edition</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&display=swap" rel="stylesheet">
     
     <style>
+        /* =========================================
+           1. CORE VARIABLES & RESET
+           ========================================= */
         :root {
-            --bg: #F6F5F1; /* Off-white Muji background */
-            --ink: #2B2B2B; /* Soft black */
-            --paper: #FFFFFF;
-            --stroke: 3px;
-            --shadow: 5px 5px 0px var(--ink); /* Hard shadow for clean sketch look */
-            --radius: 16px;
-            --font: 'DM Sans', sans-serif;
+            /* Colors: Muji Palette */
+            --c-bg: #F7F7F5;       /* Warm Off-White */
+            --c-surface: #FFFFFF;   /* Pure White */
+            --c-ink: #2C2C2C;       /* Soft Black */
+            --c-accent: #2C2C2C;    
+            --c-grey: #E5E5E5;
+            --c-text-sub: #888888;
+
+            /* Dimensions & Spacing */
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-full: 999px;
+            --spacing-unit: 20px;
+
+            /* Borders & Shadows (The "Clean Sketch" look) */
+            --border-width: 2px;
+            --shadow-hard: 4px 4px 0px rgba(44, 44, 44, 0.15);
+            --shadow-soft: 0px 10px 30px rgba(0, 0, 0, 0.05);
+            
+            /* Transitions */
+            --trans-fast: 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --trans-smooth: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
-        
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            margin: 0; padding: 20px;
-            background: var(--bg);
-            font-family: var(--font);
-            color: var(--ink);
+            margin: 0;
+            padding: 0;
+            background-color: var(--c-bg);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--c-ink);
             height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        /* --- HELPER CLASSES (The "Clean Sketch" Style) --- */
-        .sketch-box {
-            background: var(--paper);
-            border: var(--stroke) solid var(--ink);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-        
-        .sketch-btn {
-            background: var(--paper);
-            border: var(--stroke) solid var(--ink);
-            border-radius: 12px;
-            padding: 12px;
-            font-family: var(--font); font-weight: 700;
-            cursor: pointer;
-            box-shadow: 3px 3px 0px var(--ink);
-            transition: all 0.1s ease;
-        }
-        .sketch-btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0px var(--ink);
-        }
-        .sketch-btn.active {
-            background: var(--ink); color: var(--paper);
-        }
-
-        /* --- MAIN STRUCTURE --- */
-        #app {
-            width: 100%; max-width: 800px; /* Wider for side-by-side layout */
-            height: 90vh; max-height: 600px;
-            position: relative; overflow: hidden;
-            background: var(--bg); /* Transparent background for the app container itself */
-        }
-
-        .screen {
-            position: absolute; inset: 0;
-            display: flex; flex-direction: column;
-            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: 10;
-            padding: 10px;
-        }
-        .screen.hidden { transform: translateY(-110%); pointer-events: none; }
-        .screen.below { transform: translateY(110%); }
-        .screen.active { transform: translateY(0); z-index: 20; }
-
-        /* --- 1. HOME SCREEN --- */
-        #screen-home { align-items: center; justify-content: center; }
-        
-        .home-card {
-            width: 100%; max-width: 400px;
-            padding: 40px; text-align: center;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        
-        h1 { font-size: 2.5rem; margin: 0 0 10px 0; letter-spacing: -1px; }
-        .subtitle { color: #666; margin-bottom: 40px; font-weight: 500; }
-        
-        .btn-start {
-            font-size: 2rem; padding: 20px 60px; border-radius: 50px;
-            text-transform: uppercase; letter-spacing: 2px;
-        }
-
-        /* --- 2. BOOTH SCREEN (NEW LAYOUT) --- */
-        #screen-booth {
-            flex-direction: row; /* Default: Side-by-side */
-            gap: 20px;
+            overflow: hidden;
+            display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
 
-        /* Viewfinder Area */
-        .viewfinder-container {
-            flex: 2; /* Takes more space */
-            aspect-ratio: 3/4;
-            max-height: 100%;
+        /* =========================================
+           2. APP CONTAINER & SHARED UI
+           ========================================= */
+        #app-root {
+            width: 100%;
+            height: 100%;
             position: relative;
             overflow: hidden;
-        }
-        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .countdown {
-            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            font-size: 10rem; color: #fff; font-weight: 700; text-shadow: 4px 4px 0 var(--ink); display: none;
+            background: var(--c-bg);
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Side Controls Area */
-        .side-controls {
-            flex: 1;
-            display: flex; flex-direction: column;
-            gap: 20px;
+        /* Screen Wrapper */
+        .screen-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--c-bg);
+            transition: transform 0.6s cubic-bezier(0.83, 0, 0.17, 1), opacity 0.4s ease;
+            z-index: 1;
+            padding: var(--spacing-unit);
+        }
+
+        .screen-layer.hidden {
+            transform: translateY(-100%) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .screen-layer.incoming {
+            transform: translateY(100%);
+            z-index: 10;
+        }
+
+        .screen-layer.active {
+            transform: translateY(0);
+            opacity: 1;
+            z-index: 5;
+        }
+
+        /* Buttons (Muji Style) */
+        .btn {
+            border: none;
+            background: var(--c-surface);
+            color: var(--c-ink);
+            border: var(--border-width) solid var(--c-ink);
+            padding: 16px 32px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            box-shadow: var(--shadow-hard);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px var(--c-ink);
+        }
+
+        .btn-primary {
+            background: var(--c-ink);
+            color: var(--c-surface);
+        }
+
+        .btn-icon {
+            padding: 0;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        /* =========================================
+           3. SCREEN: HOME (LANDING)
+           ========================================= */
+        #view-home {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-image: radial-gradient(#E0E0E0 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .logo-box {
+            background: var(--c-surface);
+            padding: 60px 80px;
+            border: var(--border-width) solid var(--c-ink);
+            border-radius: var(--radius-lg);
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .brand-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .brand-subtitle {
+            font-size: 1.2rem;
+            color: var(--c-text-sub);
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .start-btn-large {
+            font-size: 1.5rem;
+            padding: 24px 80px;
+        }
+
+        /* =========================================
+           4. SCREEN: BOOTH (CAMERA & UI)
+           ========================================= */
+        #view-booth {
+            padding: 20px;
+            display: flex;
+            flex-direction: row; /* Desktop: Side by Side */
+            gap: 30px;
+        }
+
+        /* Left Side: Viewfinder */
+        .booth-viewport {
+            flex: 2;
+            position: relative;
+            background: #000;
+            border-radius: var(--radius-md);
+            border: var(--border-width) solid var(--c-ink);
+            overflow: hidden;
+            box-shadow: var(--shadow-hard);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            max-height: 85vh;
+        }
+
+        video#camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+
+        .guide-overlay {
+            position: absolute;
+            inset: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            pointer-events: none;
+            z-index: 2;
+        }
+        .guide-overlay::after {
+            content: ''; position: absolute; top: 0; bottom: 0; left: 33.33%; width: 33.33%;
+            border-left: 1px solid rgba(255,255,255,0.3);
+            border-right: 1px solid rgba(255,255,255,0.3);
+        }
+        .guide-overlay::before {
+            content: ''; position: absolute; left: 0; right: 0; top: 33.33%; height: 33.33%;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        #countdown-display {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            opacity: 0;
+            z-index: 10;
+            pointer-events: none;
+        }
+        #countdown-display.active {
+            animation: popIn 0.8s cubic-bezier(0.17, 0.89, 0.32, 1.27);
+            opacity: 1;
+        }
+        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0.5); opacity:0; } 100% { transform: translate(-50%, -50%) scale(1); opacity:1;} }
+
+        /* Right Side: Controls */
+        .booth-controls {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            background: var(--c-surface);
+            padding: 30px;
+            border-radius: var(--radius-md);
+            border: var(--border-width) solid var(--c-ink);
+            box-shadow: var(--shadow-soft);
+            max-width: 350px;
+        }
+
+        .control-header {
+            text-align: left;
+            margin-bottom: 10px;
+        }
+        .step-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--c-text-sub);
+            letter-spacing: 1.5px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Filter Pills */
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .filter-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--c-grey);
+            background: transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 500;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .filter-btn.active {
+            border-color: var(--c-ink);
+            background: var(--c-ink);
+            color: white;
+        }
+
+        /* Shutter Button (The Hero) */
+        .shutter-container {
+            margin-top: auto;
+            display: flex;
+            justify-content: center;
+        }
+        .shutter-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #fff;
+            border: 4px solid var(--c-ink);
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+        .shutter-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; height: 80%;
+            background: var(--c-ink);
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .shutter-btn:hover::after { background: #444; }
+        .shutter-btn:active { transform: scale(0.95); }
+        .shutter-btn.disabled { opacity: 0.5; pointer-events: none; }
+
+        /* Mobile Responsive for Booth */
+        @media (max-width: 900px) {
+            #view-booth {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .booth-viewport {
+                flex: none;
+                height: 60vh;
+                max-height: none;
+            }
+            .booth-controls {
+                flex: 1;
+                max-width: 100%;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 15px;
+            }
+            .control-header { display: none; } /* Hide text on mobile to save space */
+            .filter-group { margin-bottom: 0; }
+            .shutter-container { margin-top: 0; }
+            .shutter-btn { width: 70px; height: 70px; }
+        }
+
+        /* =========================================
+           5. SCREEN: RESULT (PRINTING)
+           ========================================= */
+        #view-result {
+            justify-content: center;
+            align-items: center;
+            background-color: #EEE; /* Contrast for paper */
+        }
+
+        /* The Printer Slot */
+        .printer-header {
+            position: relative;
+            z-index: 20;
+            margin-bottom: -5px;
+            text-align: center;
+        }
+        .slot-mech {
+            width: 320px;
+            height: 24px;
+            background: #222;
+            border-radius: 12px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .slot-mech::after {
+            content: ''; position: absolute; bottom: -5px; left: 10px; right: 10px; height: 5px;
+            background: rgba(0,0,0,0.5); filter: blur(4px);
+        }
+
+        /* The Photo Strip */
+        .print-stage {
+            position: relative;
+            width: 300px;
+            height: 500px; /* Viewport for paper */
+            overflow: hidden;
+            display: flex;
             justify-content: center;
         }
 
-        .control-group { display: flex; flex-direction: column; gap: 10px; }
-        .label { font-weight: 700; font-size: 0.9rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
-        .options-row { display: flex; gap: 10px; flex-wrap: wrap; }
-        .color-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); }
-
-        .btn-shutter {
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            background: #fff; border: 4px solid var(--ink);
-            margin: 20px auto 0 auto;
-            cursor: pointer; position: relative;
-            box-shadow: var(--shadow); transition: all 0.1s;
-        }
-        .btn-shutter::after {
-            content:''; position: absolute; inset: 10px; background: var(--ink); border-radius: 50%;
-        }
-        .btn-shutter:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--ink); }
-
-
-        /* Responsive Layout for Mobile */
-        @media (max-width: 768px), (max-aspect-ratio: 3/4) {
-            #screen-booth { flex-direction: column; } /* Stack vertically on phones */
-            .viewfinder-container { flex: none; width: 100%; max-width: 400px; }
-            .side-controls { flex: none; width: 100%; flex-direction: row; justify-content: space-between; align-items: flex-end; }
-            .control-group { flex: 1; }
-            .btn-shutter { margin: 0; width: 70px; height: 70px; }
+        .photo-strip-paper {
+            width: 280px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: absolute;
+            top: -600px; /* Start hidden above */
+            transition: top 3.5s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            border: 2px solid #E5E5E5;
         }
 
-        /* --- 3. PRINT SCREEN --- */
-        #screen-print {
-            align-items: center; justify-content: center;
-            background-image: radial-gradient(var(--ink) 0.5px, transparent 0.5px); background-size: 15px 15px;
+        .photo-strip-paper.printing {
+            top: 0;
         }
 
-        .printer-slot {
-            width: 280px; height: 16px; background: var(--ink); border-radius: 8px;
-            margin-bottom: -5px; z-index: 5;
+        .result-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.5s ease;
         }
-        .print-area { position: relative; width: 260px; height: 400px; overflow: hidden; display: flex; justify-content: center; }
-        .final-strip {
-            width: 240px; position: absolute; top: -500px; transition: top 3s cubic-bezier(0.45, 0, 0.55, 1);
-            border: 2px solid var(--ink);
+        .result-actions.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        .final-strip.printing { top: 0px; }
 
-        .actions { margin-top: 30px; display: flex; gap: 15px; opacity: 0; transition: 0.5s; }
-        .actions.visible { opacity: 1; }
-        .btn-dl { background: var(--ink); color: var(--paper); }
-
-        /* Flash */
-        .flash-overlay { position: fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:99; }
-        .flash-overlay.fire { animation: flash 0.2s; }
-        @keyframes flash { 0% { opacity:1; } 100% { opacity:0; } }
+        /* =========================================
+           6. UTILITIES (FLASH & CANVAS)
+           ========================================= */
+        #flash-overlay {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .flash-anim { animation: flashFire 0.3s ease-out forwards; }
+        @keyframes flashFire { 0% { opacity: 1; } 100% { opacity: 0; } }
 
     </style>
 </head>
 <body>
 
-<div id="app">
-
-    <div id="screen-home" class="screen active">
-        <div class="home-card sketch-box">
-            <h1>SENA BOOTH</h1>
-            <div class="subtitle">Minimalist Photo Studio</div>
-            <button class="sketch-btn btn-start" onclick="enterBooth()">START</button>
-        </div>
-    </div>
-
-    <div id="screen-booth" class="screen hidden">
+    <div id="app-root">
         
-        <div class="viewfinder-container sketch-box">
-            <video id="video" autoplay playsinline muted></video>
-            <div id="countdown" class="countdown">3</div>
+        <div id="view-home" class="screen-layer active">
+            <div class="logo-box">
+                <h1 class="brand-title">SENA</h1>
+                <h1 class="brand-title" style="font-size: 2.5rem; font-weight: 400;">BOOTH</h1>
+                <div class="brand-subtitle">Automated Photo System</div>
+            </div>
+            <button class="btn btn-primary start-btn-large" onclick="App.startSession()">
+                START
+            </button>
         </div>
 
-        <div class="side-controls">
-            <div style="flex: 1;"> <div class="control-group">
-                    <span class="label">Tone</span>
-                    <div class="options-row">
-                        <button class="sketch-btn active" onclick="setFilter('color', this)">Color</button>
-                        <button class="sketch-btn" onclick="setFilter('bw', this)">B&W</button>
+        <div id="view-booth" class="screen-layer hidden">
+            
+            <div class="booth-viewport">
+                <video id="camera-feed" autoplay playsinline muted></video>
+                <div class="guide-overlay"></div>
+                <div id="countdown-display">3</div>
+            </div>
+
+            <div class="booth-controls">
+                
+                <div style="flex:1;">
+                    <div class="control-header">
+                        <div class="step-label">Step 01</div>
+                        <div class="step-title">Select Tone</div>
+                    </div>
+                    <div class="filter-group">
+                        <button class="filter-btn active" onclick="App.setFilter('color', this)">Original</button>
+                        <button class="filter-btn" onclick="App.setFilter('bw', this)">B&W</button>
+                    </div>
+
+                    <div class="control-header" style="margin-top: 20px;">
+                        <div class="step-label">Step 02</div>
+                        <div class="step-title">Frame Color</div>
+                    </div>
+                    <div class="filter-group">
+                        <button class="filter-btn active" onclick="App.setFrame('white', this)">White</button>
+                        <button class="filter-btn" onclick="App.setFrame('black', this)">Black</button>
                     </div>
                 </div>
-                <br>
-                <div class="control-group">
-                    <span class="label">Frame</span>
-                    <div class="options-row">
-                        <button class="sketch-btn active" onclick="setFrame('#FFF', '#000', this)"><div class="color-dot" style="background:#fff"></div></button>
-                        <button class="sketch-btn" onclick="setFrame('#000', '#FFF', this)"><div class="color-dot" style="background:#000"></div></button>
-                        <button class="sketch-btn" onclick="setFrame('#F0EAD6', '#000', this)"><div class="color-dot" style="background:#F0EAD6"></div></button>
-                    </div>
+
+                <div class="shutter-container">
+                    <div id="shutter-btn" class="shutter-btn" onclick="App.captureSequence()"></div>
                 </div>
+            </div>
+        </div>
+
+        <div id="view-result" class="screen-layer hidden">
+            
+            <div class="printer-header">
+                <div class="slot-mech"></div>
             </div>
             
-            <div>
-                <div class="btn-shutter" onclick="startSequence()"></div>
+            <div class="print-stage">
+                <img id="final-strip-img" class="photo-strip-paper" alt="Printed Photo">
+            </div>
+
+            <div class="result-actions" id="result-ui">
+                <button class="btn btn-primary" onclick="App.download()">DOWNLOAD</button>
+                <button class="btn" onclick="App.reset()">HOME</button>
             </div>
         </div>
 
     </div>
 
-    <div id="screen-print" class="screen hidden">
-        <div style="font-weight: 700; margin-bottom: 20px;">PRINTING...</div>
-        <div class="printer-slot"></div>
-        <div class="print-area">
-            <img id="result-img" class="final-strip sketch-box" alt="Photo Strip">
-        </div>
+    <div id="flash-overlay"></div>
+    <canvas id="processor-canvas" style="display:none;"></canvas>
 
-        <div class="actions" id="end-actions">
-            <button class="sketch-btn btn-dl" onclick="downloadImg()">Download</button>
-            <button class="sketch-btn" onclick="resetBooth()">Home</button>
-        </div>
-    </div>
+    <script>
+        /**
+         * SENA BOOTH SYSTEM CORE
+         * Professional ES6 Structure
+         */
+        const App = (function() {
+            
+            // --- CONFIGURATION ---
+            const CONFIG = {
+                width: 1280,
+                height: 720,
+                stripWidth: 600,
+                photoCount: 3,
+                countdownTime: 3,
+                fonts: {
+                    main: "'DM Sans', sans-serif"
+                }
+            };
 
-</div>
+            // --- STATE MANAGEMENT ---
+            const state = {
+                mode: 'color', // color | bw
+                frame: 'white', // white | black
+                photos: [],
+                isCapturing: false,
+                stream: null
+            };
 
-<div class="flash-overlay" id="flash"></div>
-<canvas id="canvas" style="display:none;"></canvas>
+            // --- DOM ELEMENTS ---
+            const dom = {
+                screens: {
+                    home: document.getElementById('view-home'),
+                    booth: document.getElementById('view-booth'),
+                    result: document.getElementById('view-result')
+                },
+                video: document.getElementById('camera-feed'),
+                canvas: document.getElementById('processor-canvas'),
+                ctx: document.getElementById('processor-canvas').getContext('2d'),
+                countdown: document.getElementById('countdown-display'),
+                flash: document.getElementById('flash-overlay'),
+                resultImg: document.getElementById('final-strip-img'),
+                resultUI: document.getElementById('result-ui'),
+                shutterBtn: document.getElementById('shutter-btn')
+            };
 
-<script>
-    // STATE
-    const state = { filter: 'color', frameBg: '#FFF', frameInk: '#000' };
-    const screens = {
-        home: document.getElementById('screen-home'),
-        booth: document.getElementById('screen-booth'),
-        print: document.getElementById('screen-print')
-    };
-    
-    let stream, shots = [];
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+            // --- AUDIO ENGINE (Synthesized - No files needed) ---
+            const AudioFX = {
+                ctx: null,
+                init: function() {
+                    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                },
+                beep: function() {
+                    this.init();
+                    const o = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    o.connect(g); g.connect(this.ctx.destination);
+                    o.frequency.value = 800;
+                    g.gain.value = 0.1;
+                    o.start(); o.stop(this.ctx.currentTime + 0.1);
+                },
+                shutter: function() {
+                    this.init();
+                    const t = this.ctx.currentTime;
+                    const o = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    const noise = this.ctx.createBufferSource();
+                    // Create noise buffer for "clack" sound
+                    const bufferSize = this.ctx.sampleRate * 0.1; // 0.1 sec
+                    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                    
+                    noise.buffer = buffer;
+                    noise.connect(g);
+                    g.connect(this.ctx.destination);
+                    g.gain.setValueAtTime(0.5, t);
+                    g.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+                    noise.start(t);
+                }
+            };
 
-    // --- NAVIGATION ---
-    async function enterBooth() {
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'user', width: 1280, height: 720 } 
-            });
-            video.srcObject = stream;
-            screens.home.classList.add('hidden');
-            screens.booth.classList.remove('hidden');
-            screens.booth.classList.add('active');
-        } catch(e) { alert("Camera access needed."); }
-    }
+            // --- METHODS ---
 
-    // --- SETTINGS ---
-    function setFilter(type, el) {
-        state.filter = type;
-        document.querySelectorAll('.control-group:first-child .sketch-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-        video.style.filter = type === 'bw' ? 'grayscale(100%) contrast(1.1)' : 'none';
-    }
-
-    function setFrame(bg, ink, el) {
-        state.frameBg = bg; state.frameInk = ink;
-        document.querySelectorAll('.control-group:last-child .sketch-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-    }
-
-    // --- CAPTURE ---
-    async function startSequence() {
-        shots = [];
-        document.querySelector('.btn-shutter').style.pointerEvents = 'none';
-        for(let i=1; i<=3; i++) {
-            await runCountdown(3);
-            await captureShot();
-        }
-        generateStrip();
-        document.querySelector('.btn-shutter').style.pointerEvents = 'auto';
-    }
-
-    function runCountdown(n) {
-        return new Promise(resolve => {
-            const el = document.getElementById('countdown');
-            el.style.display = 'flex'; let c = n; el.innerText = c;
-            const intv = setInterval(() => {
-                c--; if(c > 0) el.innerText = c;
-                else { clearInterval(intv); el.style.display = 'none'; resolve(); }
-            }, 1000);
-        });
-    }
-
-    function captureShot() {
-        return new Promise(resolve => {
-            const f = document.getElementById('flash');
-            f.classList.add('fire'); setTimeout(() => f.classList.remove('fire'), 200);
-
-            const w = video.videoWidth; const h = video.videoHeight;
-            const tc = document.createElement('canvas'); tc.width = w; tc.height = h;
-            const tctx = tc.getContext('2d');
-            tctx.translate(w, 0); tctx.scale(-1, 1);
-            tctx.drawImage(video, 0, 0, w, h);
-
-            if(state.filter === 'bw') {
-                tctx.globalCompositeOperation = 'saturation';
-                tctx.fillStyle = '#000'; tctx.fillRect(0,0,w,h);
+            function switchScreen(screenName) {
+                // Hide all
+                Object.values(dom.screens).forEach(s => {
+                    s.classList.remove('active', 'incoming');
+                    s.classList.add('hidden');
+                });
+                
+                // Show Target
+                const target = dom.screens[screenName];
+                target.classList.remove('hidden');
+                // Trigger reflow
+                void target.offsetWidth;
+                target.classList.add('active');
             }
-            shots.push(tc); setTimeout(resolve, 800);
-        });
-    }
 
-    // --- GENERATE ---
-    function generateStrip() {
-        if(stream) stream.getTracks().forEach(t => t.stop());
-        const stripW = 600, photoW = 520, photoH = (photoW*3)/4, gap = 30, headH = 120, footH = 80;
-        const totalH = headH + (photoH*3) + (gap*2) + footH;
-        canvas.width = stripW; canvas.height = totalH;
-        
-        ctx.fillStyle = state.frameBg; ctx.fillRect(0,0,stripW,totalH);
-        
-        ctx.fillStyle = state.frameInk; ctx.textAlign = 'center';
-        ctx.font = '700 50px "DM Sans"'; ctx.fillText('SENA', stripW/2, 70);
-        ctx.font = '400 30px "DM Sans"'; ctx.fillText('PHOTOBOOTH', stripW/2, 110);
+            async function startSession() {
+                try {
+                    // Initialize Audio Context on user interaction
+                    AudioFX.init();
 
-        let y = headH;
-        shots.forEach(shot => {
-            const sR = shot.width/shot.height, dR = 4/3;
-            let sx, sy, sw, sh;
-            if(sR > dR) { sh = shot.height; sw = sh*dR; sx=(shot.width-sw)/2; sy=0; }
-            else { sw = shot.width; sh = sw/dR; sx=0; sy=(shot.height-sh)/2; }
-            ctx.drawImage(shot, sx, sy, sw, sh, (stripW-photoW)/2, y, photoW, photoH);
-            y += photoH + gap;
-        });
+                    // Request Camera
+                    state.stream = await navigator.mediaDevices.getUserMedia({
+                        video: { 
+                            facingMode: 'user',
+                            width: { ideal: CONFIG.width },
+                            height: { ideal: CONFIG.height }
+                        },
+                        audio: false
+                    });
+                    
+                    dom.video.srcObject = state.stream;
+                    switchScreen('booth');
+                    
+                } catch (err) {
+                    alert("Unable to access camera. Please allow permissions.");
+                    console.error(err);
+                }
+            }
 
-        ctx.font = '400 20px "DM Sans"';
-        ctx.fillText(new Date().toLocaleDateString(), stripW/2, totalH - 30);
+            function setFilter(mode, btn) {
+                state.mode = mode;
+                // Update UI Buttons
+                btn.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update Live Preview
+                dom.video.style.filter = (mode === 'bw') ? 'grayscale(100%) contrast(1.1)' : 'none';
+            }
 
-        const img = document.getElementById('result-img');
-        img.src = canvas.toDataURL('image/jpeg', 0.95);
+            function setFrame(color, btn) {
+                state.frame = color;
+                btn.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
 
-        screens.booth.classList.remove('active'); screens.booth.classList.add('hidden');
-        screens.print.classList.remove('hidden'); screens.print.classList.add('active');
+            async function captureSequence() {
+                if (state.isCapturing) return;
+                state.isCapturing = true;
+                state.photos = [];
+                dom.shutterBtn.classList.add('disabled');
 
-        setTimeout(() => {
-            img.classList.add('printing');
-            setTimeout(() => document.getElementById('end-actions').classList.add('visible'), 3000);
-        }, 500);
-    }
+                for (let i = 1; i <= CONFIG.photoCount; i++) {
+                    await runCountdown(CONFIG.countdownTime);
+                    await takePhoto();
+                    // Small delay between shots
+                    if(i < CONFIG.photoCount) await delay(1000);
+                }
 
-    function downloadImg() {
-        const a = document.createElement('a'); a.download = 'sena-muji-booth.jpg';
-        a.href = canvas.toDataURL('image/jpeg', 1.0); a.click();
-    }
-    function resetBooth() { location.reload(); }
-</script>
+                dom.shutterBtn.classList.remove('disabled');
+                state.isCapturing = false;
+                processStrip();
+            }
+
+            function runCountdown(seconds) {
+                return new Promise(resolve => {
+                    let count = seconds;
+                    dom.countdown.innerText = count;
+                    dom.countdown.classList.add('active');
+                    AudioFX.beep();
+
+                    const timer = setInterval(() => {
+                        count--;
+                        if (count > 0) {
+                            dom.countdown.innerText = count;
+                            // Reset animation
+                            dom.countdown.classList.remove('active');
+                            void dom.countdown.offsetWidth;
+                            dom.countdown.classList.add('active');
+                            AudioFX.beep();
+                        } else {
+                            clearInterval(timer);
+                            dom.countdown.classList.remove('active');
+                            resolve();
+                        }
+                    }, 1000);
+                });
+            }
+
+            function takePhoto() {
+                return new Promise(resolve => {
+                    AudioFX.shutter();
+                    
+                    // Flash Effect
+                    dom.flash.classList.add('flash-anim');
+                    setTimeout(() => dom.flash.classList.remove('flash-anim'), 300);
+
+                    // Capture Frame
+                    const w = dom.video.videoWidth;
+                    const h = dom.video.videoHeight;
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = w;
+                    tempCanvas.height = h;
+                    const tCtx = tempCanvas.getContext('2d');
+
+                    // Mirror & Draw
+                    tCtx.translate(w, 0);
+                    tCtx.scale(-1, 1);
+                    tCtx.drawImage(dom.video, 0, 0, w, h);
+
+                    // Apply Filter Permanently to Image Data
+                    if (state.mode === 'bw') {
+                        const imgData = tCtx.getImageData(0, 0, w, h);
+                        const data = imgData.data;
+                        for (let i = 0; i < data.length; i += 4) {
+                            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                            // Increase contrast slightly
+                            const contrast = 1.1; 
+                            const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+                            const color = factor * (avg - 128) + 128;
+                            
+                            data[i] = color;     // R
+                            data[i + 1] = color; // G
+                            data[i + 2] = color; // B
+                        }
+                        tCtx.putImageData(imgData, 0, 0);
+                    }
+
+                    state.photos.push(tempCanvas);
+                    setTimeout(resolve, 500); // Wait for flash to settle
+                });
+            }
+
+            function processStrip() {
+                // Stop Camera
+                if (state.stream) state.stream.getTracks().forEach(track => track.stop());
+
+                // Dimensions
+                const stripW = CONFIG.stripWidth;
+                const photoW = 540; // 600 - (30 padding * 2)
+                const photoH = (photoW * 3) / 4; // 4:3 Aspect Ratio
+                const gap = 30;
+                const headerH = 140;
+                const footerH = 100;
+                const totalH = headerH + (photoH * 3) + (gap * 2) + footerH;
+
+                // Configure Canvas
+                dom.canvas.width = stripW;
+                dom.canvas.height = totalH;
+                const ctx = dom.ctx;
+
+                // 1. Background
+                ctx.fillStyle = (state.frame === 'white') ? '#FFFFFF' : '#1a1a1a';
+                ctx.fillRect(0, 0, stripW, totalH);
+
+                // 2. Text Colors
+                const ink = (state.frame === 'white') ? '#1a1a1a' : '#FFFFFF';
+                
+                // 3. Header
+                ctx.fillStyle = ink;
+                ctx.textAlign = 'center';
+                ctx.font = "bold 60px 'DM Sans'";
+                ctx.letterSpacing = "-2px";
+                ctx.fillText("SENA", stripW / 2, 80);
+                
+                ctx.font = "500 24px 'DM Sans'";
+                ctx.letterSpacing = "4px";
+                ctx.fillText("PHOTOBOOTH", stripW / 2, 115);
+
+                // 4. Place Photos
+                let y = headerH;
+                state.photos.forEach(photo => {
+                    // Smart Crop Center
+                    const sRatio = photo.width / photo.height;
+                    const dRatio = 4 / 3;
+                    let sx, sy, sw, sh;
+                    
+                    if (sRatio > dRatio) {
+                        sh = photo.height;
+                        sw = sh * dRatio;
+                        sx = (photo.width - sw) / 2;
+                        sy = 0;
+                    } else {
+                        sw = photo.width;
+                        sh = sw / dRatio;
+                        sx = 0;
+                        sy = (photo.height - sh) / 2;
+                    }
+
+                    // Draw
+                    ctx.drawImage(photo, sx, sy, sw, sh, (stripW - photoW)/2, y, photoW, photoH);
+                    y += photoH + gap;
+                });
+
+                // 5. Footer
+                const dateStr = new Date().toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' });
+                ctx.fillStyle = (state.frame === 'white') ? '#888' : '#666';
+                ctx.font = "400 20px 'DM Sans'";
+                ctx.fillText(dateStr.toUpperCase(), stripW / 2, totalH - 40);
+
+                // Display Result
+                dom.resultImg.src = dom.canvas.toDataURL('image/jpeg', 0.95);
+                
+                switchScreen('result');
+                
+                // Start Animation Sequence
+                setTimeout(() => {
+                    dom.resultImg.classList.add('printing');
+                    setTimeout(() => {
+                        dom.resultUI.classList.add('visible');
+                    }, 3500); // Show buttons after print finishes
+                }, 500);
+            }
+
+            function download() {
+                const link = document.createElement('a');
+                link.download = `SENA_${Date.now()}.jpg`;
+                link.href = dom.canvas.toDataURL('image/jpeg', 1.0);
+                link.click();
+            }
+
+            function reset() {
+                dom.resultImg.classList.remove('printing');
+                dom.resultImg.src = '';
+                dom.resultUI.classList.remove('visible');
+                switchScreen('home');
+            }
+
+            function delay(ms) {
+                return new Promise(r => setTimeout(r, ms));
+            }
+
+            // Expose Public Methods
+            return {
+                startSession,
+                setFilter,
+                setFrame,
+                captureSequence,
+                download,
+                reset
+            };
+
+        })();
+    </script>
 </body>
 </html>
